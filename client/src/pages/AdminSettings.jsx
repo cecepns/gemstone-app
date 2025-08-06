@@ -1,12 +1,5 @@
-// ANCHOR: AdminSettings Page - Admin page for managing application settings
-import React from 'react';
+import { Download, Check, RefreshCw } from 'lucide-react';
 
-/**
- * AdminSettings component - Admin page for managing application settings
- * Placeholder component for future admin settings features
- * 
- * @returns {React.ReactElement} - Rendered admin settings page
- */
 const AdminSettings = () => {
   return (
     <div className="space-y-6">
@@ -19,15 +12,11 @@ const AdminSettings = () => {
           </div>
           <div className="flex space-x-3">
             <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
+              <Download className="w-4 h-4 mr-2" />
               Backup Data
             </button>
             <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="w-4 h-4 mr-2" />
               Simpan Pengaturan
             </button>
           </div>
@@ -175,9 +164,7 @@ const AdminSettings = () => {
             </div>
             <div className="pt-4 border-t border-gray-200">
               <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
+                <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh Status
               </button>
             </div>
