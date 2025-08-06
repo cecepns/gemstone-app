@@ -1,5 +1,6 @@
-// ANCHOR: GemstoneList Component - Display and manage gemstones with authentication
+// ANCHOR: GemstoneList Component - Display and manage gemstone data
 import { useState, useEffect } from 'react';
+import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const GemstoneList = () => {
@@ -153,11 +154,13 @@ const GemstoneList = () => {
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <span className="text-purple-600 text-lg">💎</span>
+              <Gem className="w-5 h-5 text-purple-600" />
             </div>
             Gemstone List
           </h3>
-          <div className="text-3xl">📋</div>
+          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <FileText className="w-5 h-5 text-purple-600" />
+          </div>
         </div>
         
         <div className="text-center py-12">
@@ -177,22 +180,27 @@ const GemstoneList = () => {
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <span className="text-purple-600 text-lg">💎</span>
+              <Gem className="w-5 h-5 text-purple-600" />
             </div>
             Gemstone List
           </h3>
-          <div className="text-3xl">📋</div>
+          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+            <FileText className="w-5 h-5 text-purple-600" />
+          </div>
         </div>
         
         <div className="text-center py-12">
-          <div className="text-4xl mb-4">⚠️</div>
-          <h4 className="text-lg font-medium text-red-800 mb-2">Error</h4>
-          <p className="text-red-600 mb-4">{error}</p>
+          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Data</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={handleRefresh}
-            className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition duration-200 flex items-center gap-2 mx-auto"
           >
-            🔄 Try Again
+            <RefreshCw className="w-5 h-5" />
+            Try Again
           </button>
         </div>
       </div>
@@ -205,7 +213,7 @@ const GemstoneList = () => {
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-            <span className="text-purple-600 text-lg">💎</span>
+            <Gem className="w-5 h-5 text-purple-600" />
           </div>
           Gemstone List
         </h3>
@@ -218,7 +226,7 @@ const GemstoneList = () => {
             className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             title="Refresh data"
           >
-            🔄
+            <RefreshCw className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -268,16 +276,21 @@ const GemstoneList = () => {
       {/* Gemstone Cards */}
       {filteredAndSortedGemstones.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-4xl mb-4">💎</div>
-          <h4 className="text-lg font-medium text-gray-800 mb-2">
-            {searchTerm ? 'No results found' : 'No gemstones yet'}
-          </h4>
-          <p className="text-gray-600 leading-relaxed">
-            {searchTerm 
-              ? 'Try changing your search keywords' 
-              : 'Add your first gemstone using the form on the left'
-            }
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Gem className="w-8 h-8 text-purple-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">No Gemstones Found</h3>
+          <p className="text-gray-600 mb-4">
+            {searchTerm ? 'No gemstones match your search criteria.' : 'No gemstones have been added yet.'}
           </p>
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition duration-200"
+            >
+              Clear Search
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-6 max-h-96 overflow-y-auto">
@@ -294,7 +307,7 @@ const GemstoneList = () => {
                     />
                   ) : (
                     <div className="w-20 h-20 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
-                      <span className="text-3xl">💎</span>
+                      <Gem className="w-8 h-8 text-gray-400" />
                     </div>
                   )}
                 </div>
@@ -363,17 +376,20 @@ const GemstoneList = () => {
                   <div className="mt-4 flex items-center space-x-3">
                     <button 
                       onClick={() => window.open(`/verify/${gemstone.unique_id_number}`, '_blank')}
-                      className="text-xs bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition duration-200"
+                      className="text-xs bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition duration-200 flex items-center gap-1"
                     >
-                      🔍 Verify
+                      <Search className="w-3 h-3" />
+                      Verify
                     </button>
                     {gemstone.qr_code_data_url && (
-                      <button className="text-xs bg-blue-100 text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-200 transition duration-200">
-                        📱 QR Code
+                      <button className="text-xs bg-blue-100 text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-200 transition duration-200 flex items-center gap-1">
+                        <Smartphone className="w-3 h-3" />
+                        QR Code
                       </button>
                     )}
-                    <button className="text-xs bg-gray-100 text-gray-800 px-3 py-2 rounded-lg hover:bg-gray-200 transition duration-200">
-                      ✏️ Edit
+                    <button className="text-xs bg-gray-100 text-gray-800 px-3 py-2 rounded-lg hover:bg-gray-200 transition duration-200 flex items-center gap-1">
+                      <Edit className="w-3 h-3" />
+                      Edit
                     </button>
                   </div>
                 </div>

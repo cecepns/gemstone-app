@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Lock, AlertCircle } from 'lucide-react';
 
 const LoginPage = () => {
   // Form state management
@@ -164,15 +165,13 @@ const LoginPage = () => {
       <div className="max-w-md w-full relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl mb-6 shadow-lg">
-            <span className="text-3xl text-white">🔐</span>
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-purple-600" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-3 font-display">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Admin Login
           </h1>
-          <p className="text-gray-600 leading-relaxed">
-            Access the gemstone verification system management dashboard
-          </p>
+          <p className="text-gray-600">Enter your credentials to access the admin panel</p>
         </div>
 
         {/* Login Form Card */}
@@ -180,11 +179,10 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start space-x-3">
-                <div className="text-red-500 text-xl">⚠️</div>
-                <div>
-                  <h4 className="text-red-800 font-medium">Login Failed</h4>
-                  <p className="text-red-700 text-sm mt-1">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  <p className="text-red-700 text-sm">{error}</p>
                 </div>
               </div>
             )}
@@ -284,30 +282,6 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Demo Credentials Section */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-              <div className="flex items-start space-x-3">
-                <div className="text-purple-500 text-xl">💡</div>
-                <div className="flex-1">
-                  <h4 className="text-purple-800 font-medium mb-2">Demo Credentials</h4>
-                  <div className="text-sm text-purple-700 space-y-1">
-                    <p><strong>Username:</strong> admin</p>
-                    <p><strong>Password:</strong> admin123</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleDemoLogin}
-                    className="mt-3 text-sm bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200"
-                    disabled={isLoading}
-                  >
-                    🎯 Use Demo
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Navigation Links */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-between items-center text-sm">
@@ -318,10 +292,6 @@ const LoginPage = () => {
                 <span>←</span>
                 <span>Back to Home</span>
               </Link>
-              
-              <div className="text-gray-500">
-                Need help?
-              </div>
             </div>
           </div>
         </div>

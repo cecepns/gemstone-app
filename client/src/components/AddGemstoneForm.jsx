@@ -1,6 +1,7 @@
 // ANCHOR: AddGemstoneForm Component - Complete gemstone creation form with file upload
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Gem, Save, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
 const AddGemstoneForm = () => {
   // Get auth context for token
@@ -216,48 +217,58 @@ const AddGemstoneForm = () => {
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-            <span className="text-purple-600 text-lg">➕</span>
+            <Gem className="w-5 h-5 text-purple-600" />
           </div>
           Add New Gemstone
         </h3>
-        <div className="text-3xl">💎</div>
       </div>
 
       {/* Notification */}
-      {notification.message && (
-        <div className={`mb-8 p-6 rounded-xl flex items-start justify-between ${
+      {notification && (
+        <div className={`p-4 rounded-xl mb-6 flex items-center gap-3 ${
           notification.type === 'success' 
             ? 'bg-green-50 border border-green-200' 
             : 'bg-red-50 border border-red-200'
         }`}>
-          <div className="flex items-start space-x-4">
-            <div className="text-2xl">
-              {notification.type === 'success' ? '✅' : '⚠️'}
-            </div>
-            <div>
-              <h4 className={`font-medium text-lg ${
-                notification.type === 'success' ? 'text-green-800' : 'text-red-800'
-              }`}>
-                {notification.type === 'success' ? 'Success!' : 'Error!'}
-              </h4>
-              <p className={`text-sm mt-2 leading-relaxed ${
-                notification.type === 'success' ? 'text-green-700' : 'text-red-700'
-              }`}>
-                {notification.message}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={clearNotification}
-            className="text-gray-400 hover:text-gray-600 transition duration-200"
-          >
-            ✕
-          </button>
+          {notification.type === 'success' ? (
+            <CheckCircle className="w-5 h-5 text-green-600" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-red-600" />
+          )}
+          <p className={`text-sm ${
+            notification.type === 'success' ? 'text-green-700' : 'text-red-700'
+          }`}>
+            {notification.message}
+          </p>
         </div>
       )}
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Adding Gemstone...</h3>
+          <p className="text-gray-600">Please wait while we process your request</p>
+        </div>
+      )}
+
+      {/* Success State */}
+      {/* The 'success' state is not directly managed by the form's state,
+          so this block will not render unless 'success' is passed as a prop or managed elsewhere.
+          For now, it's removed as per the new_code, but the original code had it.
+          If 'success' state is intended to be managed, it needs to be added. */}
+
+      {/* Error State */}
+      {/* The 'error' state is not directly managed by the form's state,
+          so this block will not render unless 'error' is passed as a prop or managed elsewhere.
+          For now, it's removed as per the new_code, but the original code had it.
+          If 'error' state is intended to be managed, it needs to be added. */}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Name Field */}
@@ -454,26 +465,18 @@ const AddGemstoneForm = () => {
           <button
             type="submit"
             disabled={isLoading || !formData.name.trim()}
-            className={`w-full py-4 px-6 rounded-xl font-medium transition duration-200 flex items-center justify-center space-x-3 ${
+            className={`w-full py-4 px-6 rounded-xl font-medium transition duration-200 flex items-center justify-center gap-2 ${
               isLoading || !formData.name.trim()
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
             }`}
           >
             {isLoading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Adding...</span>
-              </>
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <>
-                <span>💎</span>
-                <span>Add Gemstone</span>
-              </>
+              <Save className="w-5 h-5" />
             )}
+            {isLoading ? 'Adding Gemstone...' : 'Add Gemstone'}
           </button>
         </div>
       </form>

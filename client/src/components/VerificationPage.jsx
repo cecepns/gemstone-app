@@ -1,6 +1,7 @@
 // ANCHOR: VerificationPage Component - Display gemstone verification results
-import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { CheckCircle, Gem, FileText, Smartphone, AlertCircle, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
 const VerificationPage = () => {
@@ -171,16 +172,11 @@ const VerificationPage = () => {
           {/* Verification Success Header */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 mb-8">
             <div className="text-center">
-              <div className="text-6xl mb-4">✅</div>
-              <h1 className="text-3xl font-bold text-green-600 mb-2 font-display">
-                Certificate Verified
-              </h1>
-              <p className="text-gray-600 leading-relaxed">
-                This gemstone has been verified and registered in our database
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                Verified on: {new Date(gemstone.verification_timestamp).toLocaleString('en-US')}
-              </p>
+              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Verification Successful</h1>
+              <p className="text-gray-600">This gemstone has been verified as authentic</p>
             </div>
           </div>
 
@@ -189,43 +185,7 @@ const VerificationPage = () => {
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
               <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-3">
                 <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 text-lg">📷</span>
-                </div>
-                Gemstone Photo
-              </h2>
-              {gemstone.photo_url ? (
-                <div className="space-y-4">
-                  <img 
-                    src={gemstone.photo_url} 
-                    alt={gemstone.name || 'Gemstone'}
-                    className="w-full h-64 object-cover rounded-xl border shadow-sm hover:shadow-md transition-shadow duration-200"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                  <div className="hidden w-full h-64 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex-col items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-4xl mb-2">📷</div>
-                      <p className="text-gray-500">Failed to load image</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full h-64 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">📷</div>
-                    <p className="text-gray-500">Photo not available</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Gemstone Details */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
-              <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-600 text-lg">💎</span>
+                  <Gem className="w-5 h-5 text-purple-600" />
                 </div>
                 Gemstone Details
               </h2>
@@ -317,7 +277,7 @@ const VerificationPage = () => {
               <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
                 <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-purple-600 text-lg">📝</span>
+                    <FileText className="w-5 h-5 text-purple-600" />
                   </div>
                   Description
                 </h2>
@@ -334,7 +294,7 @@ const VerificationPage = () => {
               <div className="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
                 <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center gap-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-purple-600 text-lg">📱</span>
+                    <Smartphone className="w-5 h-5 text-purple-600" />
                   </div>
                   Certificate QR Code
                 </h2>
