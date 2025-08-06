@@ -1,0 +1,86 @@
+-- ANCHOR: Database Schema for Gemstone Verification System
+
+-- Create database if not exists
+CREATE DATABASE IF NOT EXISTS gemstone_db 
+CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
+
+-- Use the database
+USE gemstone_db;
+
+-- Create admins table for authentication
+CREATE TABLE IF NOT EXISTS admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Add indexes for performance
+    INDEX idx_username (username),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert default admin user (password: admin123 - hashed with bcrypt)
+-- Note: Change this password after first login!
+INSERT INTO admins (username, password) VALUES 
+('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
+ON DUPLICATE KEY UPDATE username = username;
+
+-- Create gemstones table
+CREATE TABLE IF NOT EXISTS gemstones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id_number VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NULL,
+    description TEXT NULL,
+    weight_carat DECIMAL(10, 2) NULL,
+    dimensions_mm VARCHAR(100) NULL,
+    color VARCHAR(100) NULL,
+    treatment VARCHAR(255) NULL,
+    origin VARCHAR(255) NULL,
+    photo_url VARCHAR(255) NULL,
+    qr_code_data_url TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Add indexes for performance
+    INDEX idx_unique_id (unique_id_number),
+    INDEX idx_name (name),
+    INDEX idx_color (color),
+    INDEX idx_origin (origin),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Optional: Insert sample data for testing
+-- INSERT INTO gemstones (
+--     unique_id_number, 
+--     name, 
+--     description, 
+--     weight_carat, 
+--     dimensions_mm, 
+--     color, 
+--     treatment, 
+--     origin
+-- ) VALUES 
+-- (
+--     'GEM001', 
+--     'Blue Sapphire', 
+--     'High quality blue sapphire with excellent clarity', 
+--     2.50, 
+--     '8.5 x 6.5 x 4.2', 
+--     'Royal Blue', 
+--     'Heat Treatment', 
+--     'Sri Lanka'
+-- ),
+-- (
+--     'GEM002', 
+--     'Ruby', 
+--     'Natural ruby with vivid red color', 
+--     1.75, 
+--     '7.2 x 5.8 x 3.9', 
+--     'Pigeon Blood Red', 
+--     'None', 
+--     'Myanmar'
+-- );
+
+-- Show table structure
+DESCRIBE gemstones;

@@ -1,0 +1,62 @@
+# React Coding Standards
+
+## Component Structure
+- Use functional components with hooks
+- Follow the "ANCHOR" comment pattern for component descriptions
+- Place event handlers at the top of components
+- Use descriptive names for event handlers (handleClick, handleSubmit, etc.)
+
+## File Organization
+- Components in [client/src/components/](mdc:client/src/components/)
+- Pages in [client/src/pages/](mdc:client/src/pages/)
+- Context providers in [client/src/context/](mdc:client/src/context/)
+
+## State Management
+- Use React Context for global state (see [AuthContext.jsx](mdc:client/src/context/AuthContext.jsx))
+- Use useState for local component state
+- Use useEffect for side effects and API calls
+
+## Routing
+- Use React Router DOM for navigation
+- Protected routes should use [ProtectedRoute.jsx](mdc:client/src/components/ProtectedRoute.jsx)
+- Route configuration in [App.jsx](mdc:client/src/App.jsx)
+
+## Styling
+- Use Tailwind CSS classes
+- Follow mobile-first responsive design
+- Use consistent color scheme and spacing
+
+## API Integration
+- Use axios for HTTP requests
+- Handle loading and error states
+- Use try-catch blocks for error handling
+
+## Code Examples
+```jsx
+// ANCHOR: Component Description
+import { useState, useEffect } from 'react'
+
+function MyComponent() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    // Handle form submission
+  }
+
+  useEffect(() => {
+    // Side effects here
+  }, [])
+
+  return (
+    <div className="container mx-auto p-4">
+      {/* Component JSX */}
+    </div>
+  )
+}
+```
+description:
+globs:
+alwaysApply: false
+---

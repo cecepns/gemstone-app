@@ -1,0 +1,199 @@
+// ANCHOR: AuthContext - Global authentication state management for admin login
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+// Create the AuthContext
+const AuthContext = createContext();
+
+// Custom hook to use the AuthContext
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+// AuthProvider component to wrap the app and provide authentication state
+export const AuthProvider = ({ children }) => {
+  // State management
+  const [token, setToken] = useState(null);
+  const [admin, setAdmin] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check if user is authenticated
+  const isAuthenticated = Boolean(token);
+
+  /**
+   * Initialize auth state from localStorage on app startup
+   */
+  useEffect(() => {
+    const initializeAuth = () => {
+      try {
+        const savedToken = localStorage.getItem('adminToken');
+        const savedAdmin = localStorage.getItem('adminData');
+
+        if (savedToken && savedAdmin) {
+          setToken(savedToken);
+          setAdmin(JSON.parse(savedAdmin));
+        }
+      } catch (error) {
+        console.error('Error initializing auth state:', error);
+        // Clear corrupted data
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminData');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  /**
+   * Login function - save token and admin data
+   * @param {string} authToken - JWT token from login response
+   * @param {Object} adminData - Admin user data from login response
+   */
+  const login = (authToken, adminData = null) => {
+    try {
+      // Set state
+      setToken(authToken);
+      setAdmin(adminData);
+
+      // Save to localStorage
+      localStorage.setItem('adminToken', authToken);
+      if (adminData) {
+        localStorage.setItem('adminData', JSON.stringify(adminData));
+      }
+
+      console.log('Admin logged in successfully');
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw new Error('Failed to save login data');
+    }
+  };
+
+  /**
+   * Logout function - clear token and admin data
+   */
+  const logout = () => {
+    try {
+      // Clear state
+      setToken(null);
+      setAdmin(null);
+
+      // Clear localStorage
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminData');
+
+      console.log('Admin logged out successfully');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
+  /**
+   * Update admin data without affecting token
+   * @param {Object} newAdminData - Updated admin data
+   */
+  const updateAdmin = (newAdminData) => {
+    try {
+      setAdmin(newAdminData);
+      localStorage.setItem('adminData', JSON.stringify(newAdminData));
+    } catch (error) {
+      console.error('Error updating admin data:', error);
+    }
+  };
+
+  /**
+   * Check if token is expired (basic check)
+   * @returns {boolean} - true if token appears to be expired
+   */
+  const isTokenExpired = () => {
+    if (!token) return true;
+
+    try {
+      // Decode JWT payload (basic check without verification)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      
+      return payload.exp < currentTime;
+    } catch (error) {
+      console.error('Error checking token expiration:', error);
+      return true;
+    }
+  };
+
+  /**
+   * Get authorization header for API requests
+   * @returns {Object} - Authorization header object
+   */
+  const getAuthHeader = () => {
+    if (!token) {
+      return {};
+    }
+
+    return {
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
+  /**
+   * Verify token with backend (optional method for token validation)
+   * @returns {Promise<boolean>} - true if token is valid
+   */
+  const verifyToken = async () => {
+    if (!token) return false;
+
+    try {
+      const response = await fetch('http://localhost:5000/api/admin/verify', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        // Update admin data if received from verification
+        if (result.data && result.data.admin) {
+          updateAdmin(result.data.admin);
+        }
+        return true;
+      } else {
+        // Token is invalid, logout user
+        logout();
+        return false;
+      }
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      return false;
+    }
+  };
+
+  // Context value object
+  const value = {
+    // State
+    token,
+    admin,
+    isAuthenticated,
+    isLoading,
+    
+    // Methods
+    login,
+    logout,
+    updateAdmin,
+    isTokenExpired,
+    getAuthHeader,
+    verifyToken
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export default AuthContext;

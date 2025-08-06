@@ -1,0 +1,101 @@
+# API Endpoints Reference
+
+## Public Endpoints
+
+### Health Check
+- **GET** `/api/health` - Server health check
+- **Response**: Server status and timestamp
+
+### Gemstone Verification
+- **GET** `/api/gemstones/:id` - Verify gemstone by unique ID
+- **Access**: Public (used for QR code verification)
+- **Response**: Gemstone data with verification status
+
+## Admin Endpoints (Protected)
+
+### Authentication
+- **POST** `/api/admin/login` - Admin login
+- **Body**: `{ username, password }`
+- **Response**: JWT token and admin data
+
+### Token Verification
+- **GET** `/api/admin/verify` - Verify admin token
+- **Headers**: `Authorization: Bearer <token>`
+- **Response**: Token validity and admin data
+
+### Gemstone Management
+- **POST** `/api/gemstones` - Create new gemstone
+- **Headers**: `Authorization: Bearer <token>`
+- **Body**: Form data with gemstone details and image
+- **Response**: Created gemstone data
+
+## Request/Response Examples
+
+### Login Request
+```javascript
+POST /api/admin/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123"
+}
+```
+
+### Create Gemstone Request
+```javascript
+POST /api/gemstones
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+
+{
+  "name": "Ruby",
+  "description": "Natural ruby gemstone",
+  "weight_carat": "2.5",
+  "dimensions_mm": "8x6x4",
+  "color": "Red",
+  "treatment": "None",
+  "origin": "Myanmar",
+  "gemstoneImage": <file>
+}
+```
+
+### Verification Response
+```javascript
+{
+  "success": true,
+  "message": "Sertifikat ditemukan",
+  "data": {
+    "id": 1,
+    "unique_id_number": "GEM-1234567890-ABC123",
+    "name": "Ruby",
+    "description": "Natural ruby gemstone",
+    "weight_carat": 2.5,
+    "dimensions_mm": "8x6x4",
+    "color": "Red",
+    "treatment": "None",
+    "origin": "Myanmar",
+    "photo_url": "http://localhost:5000/uploads/image.jpg",
+    "qr_code_data_url": "data:image/png;base64,...",
+    "verified": true,
+    "verification_timestamp": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+## Error Responses
+```javascript
+{
+  "error": "Error Type",
+  "message": "Error description"
+}
+```
+
+## Authentication
+- Use JWT tokens for admin authentication
+- Include `Authorization: Bearer <token>` header for protected routes
+- Tokens expire after 24 hours by default
+description:
+globs:
+alwaysApply: false
+---

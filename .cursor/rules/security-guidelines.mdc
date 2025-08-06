@@ -1,0 +1,145 @@
+# Security Guidelines
+
+## Authentication & Authorization
+
+### JWT Token Security
+- **Secret Management**: Store JWT_SECRET in environment variables
+- **Token Expiration**: Set reasonable expiration times (24h default)
+- **Token Validation**: Always verify tokens on protected routes
+- **Token Storage**: Store tokens securely in frontend (localStorage/sessionStorage)
+
+### Password Security
+- **Hashing**: Use bcryptjs for password hashing
+- **Salt Rounds**: Use 10+ salt rounds for production
+- **Password Policy**: Implement strong password requirements
+- **Brute Force Protection**: Implement rate limiting for login attempts
+
+## Input Validation
+
+### Frontend Validation
+- Validate all form inputs before submission
+- Use HTML5 validation attributes
+- Implement client-side validation for UX
+- Never trust client-side validation alone
+
+### Backend Validation
+- Validate all incoming data
+- Sanitize user inputs
+- Use parameterized queries to prevent SQL injection
+- Implement proper error handling
+
+## File Upload Security
+
+### Image Upload Validation
+- **File Type**: Only allow image files (jpg, jpeg, png, gif)
+- **File Size**: Limit file size (5MB max)
+- **File Content**: Validate actual file content, not just extension
+- **Virus Scanning**: Consider implementing virus scanning for uploads
+
+### File Storage Security
+- **Upload Directory**: Store files outside web root when possible
+- **File Permissions**: Set appropriate file permissions
+- **File Cleanup**: Implement cleanup for failed uploads
+- **CDN**: Consider using CDN for production file serving
+
+## API Security
+
+### CORS Configuration
+- Configure CORS properly for production
+- Limit allowed origins
+- Set appropriate headers
+- Handle preflight requests
+
+### Rate Limiting
+- Implement rate limiting for API endpoints
+- Use different limits for different endpoints
+- Monitor and log rate limit violations
+- Implement graceful degradation
+
+### Error Handling
+- Don't expose sensitive information in error messages
+- Log errors for debugging
+- Return generic error messages to clients
+- Implement proper HTTP status codes
+
+## Database Security
+
+### Connection Security
+- Use connection pooling
+- Implement proper connection timeouts
+- Use SSL/TLS for database connections in production
+- Limit database user permissions
+
+### Query Security
+- Always use parameterized queries
+- Validate all input data
+- Implement proper error handling
+- Use database transactions where appropriate
+
+## Environment Security
+
+### Environment Variables
+- Store all sensitive data in environment variables
+- Never commit .env files to version control
+- Use different configurations for different environments
+- Validate required environment variables on startup
+
+### Production Security
+- Use HTTPS in production
+- Implement proper logging
+- Set up monitoring and alerting
+- Regular security updates and patches
+
+## QR Code Security
+
+### QR Code Content
+- Validate QR code URLs
+- Implement URL signing if needed
+- Monitor QR code usage
+- Consider implementing QR code expiration
+
+### Verification Security
+- Implement proper verification logging
+- Monitor for suspicious verification patterns
+- Consider implementing verification limits
+- Log verification attempts for audit trails
+
+## Security Checklist
+
+### Development
+- [ ] Input validation implemented
+- [ ] SQL injection prevention
+- [ ] XSS protection
+- [ ] CSRF protection
+- [ ] File upload validation
+- [ ] Authentication implemented
+- [ ] Authorization checks
+- [ ] Error handling secure
+
+### Production
+- [ ] HTTPS enabled
+- [ ] Environment variables configured
+- [ ] Database secured
+- [ ] File permissions set
+- [ ] Logging configured
+- [ ] Monitoring enabled
+- [ ] Backup strategy implemented
+- [ ] Security headers set
+
+## Incident Response
+
+### Security Monitoring
+- Monitor for unusual activity
+- Log security events
+- Implement alerting for suspicious behavior
+- Regular security audits
+
+### Response Plan
+- Document incident response procedures
+- Have contact information ready
+- Implement rollback procedures
+- Regular security training for team
+description:
+globs:
+alwaysApply: false
+---
