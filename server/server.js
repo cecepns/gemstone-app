@@ -459,8 +459,11 @@ app.post('/api/admin/login', async (req, res) => {
     }
     
     const admin = rows[0];
+
+    console.log(admin.password);
+    console.log('=---------');
+    console.log(password);
     
-    // Compare password with hash using bcryptjs
     const isPasswordValid = await bcrypt.compare(password, admin.password);
     
     if (!isPasswordValid) {

@@ -78,7 +78,7 @@ const HomePage = () => {
           </div>
 
           {/* Verification Form */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8 mb-12">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl max-w-2xl mx-auto shadow-xl border border-gray-100 p-8 mb-12">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="gemstoneId" className="block text-sm font-medium text-gray-700 mb-2">
