@@ -1,7 +1,7 @@
 // ANCHOR: AddGemstoneForm Component - Complete gemstone creation form with file upload
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Gem, Save, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X } from 'lucide-react';
 
 const AddGemstoneForm = () => {
   // Get auth context for token
@@ -419,7 +419,8 @@ const AddGemstoneForm = () => {
                   : 'bg-white/50 text-gray-700 hover:bg-white hover:border-purple-300'
               }`}
             >
-              📸 Choose Image
+              <Camera className="w-4 h-4 mr-2" />
+              Choose Image
             </label>
             
             {selectedFile && (
@@ -431,7 +432,7 @@ const AddGemstoneForm = () => {
                   className="text-red-500 hover:text-red-700 text-sm transition duration-200"
                   disabled={isLoading}
                 >
-                  ✕
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -453,7 +454,7 @@ const AddGemstoneForm = () => {
                   className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-red-600 transition duration-200"
                   disabled={isLoading}
                 >
-                  ✕
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             </div>

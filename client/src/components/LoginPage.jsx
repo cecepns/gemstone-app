@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, AlertCircle, Loader2, Rocket } from 'lucide-react';
+import { Lock, AlertCircle, Loader2, Rocket, ArrowLeft } from 'lucide-react';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -83,9 +83,6 @@ const LoginPage = () => {
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-purple-600" />
-          </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Admin Login
           </h1>
@@ -181,7 +178,7 @@ const LoginPage = () => {
               href="/"
               className="text-blue-600 hover:text-blue-800 text-sm transition duration-200"
             >
-              ← Kembali ke Beranda
+              <ArrowLeft className="w-4 h-4 mr-1" /> Kembali ke Beranda
             </a>
           </div>
         </div>

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Lock, AlertCircle } from 'lucide-react';
+import { Lock, AlertCircle, Loader2, Rocket, User, Key, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 const LoginPage = () => {
   // Form state management
@@ -165,9 +165,6 @@ const LoginPage = () => {
       <div className="max-w-md w-full relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-purple-600" />
-          </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Admin Login
           </h1>
@@ -175,7 +172,7 @@ const LoginPage = () => {
         </div>
 
         {/* Login Form Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
@@ -211,7 +208,7 @@ const LoginPage = () => {
                   autoComplete="username"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400 text-lg">👤</span>
+                  <User className="w-5 h-5 text-gray-400" />
                 </div>
               </div>
             </div>
@@ -240,7 +237,7 @@ const LoginPage = () => {
                   autoComplete="current-password"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400 text-lg">🔑</span>
+                  <Key className="w-5 h-5 text-gray-400" />
                 </div>
                 <button
                   type="button"
@@ -248,9 +245,11 @@ const LoginPage = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
                   disabled={isLoading}
                 >
-                  <span className="text-lg">
-                    {showPassword ? '🙈' : '👁️'}
-                  </span>
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -259,24 +258,21 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading || !formData.username.trim() || !formData.password.trim()}
-              className={`w-full py-4 px-6 rounded-xl font-medium transition duration-200 flex items-center justify-center space-x-2 ${
+              className={`w-full py-4 px-6 rounded-xl font-medium transition duration-200 flex items-center justify-center space-x-2 shadow-sm border border-gray-200 ${
                 isLoading || !formData.username.trim() || !formData.password.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gray-500 text-gray-500 cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
               }`}
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                  <Loader2 className="animate-spin h-5 w-5 text-white" />
                   <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <span>🚀</span>
-                  <span>Access Dashboard</span>
+                  <Rocket className="w-5 h-5" />
+                  <span>Login to Dashboard</span>
                 </>
               )}
             </button>
@@ -289,7 +285,7 @@ const LoginPage = () => {
                 to="/"
                 className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
               >
-                <span>←</span>
+                <ArrowLeft className="w-4 h-4" />
                 <span>Back to Home</span>
               </Link>
             </div>

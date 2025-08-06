@@ -1,7 +1,7 @@
 // ANCHOR: VerificationPage Component - Display gemstone verification results
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { CheckCircle, Gem, FileText, Smartphone, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Gem, FileText, Smartphone, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 
 const VerificationPage = () => {
@@ -72,7 +72,8 @@ const VerificationPage = () => {
               to="/" 
               className="inline-flex items-center text-purple-600 hover:text-purple-800 mb-6 transition duration-200"
             >
-              ← Back to Home
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Link>
 
             {/* Loading Card */}
@@ -112,12 +113,15 @@ const VerificationPage = () => {
               to="/" 
               className="inline-flex items-center text-purple-600 hover:text-purple-800 mb-6 transition duration-200"
             >
-              ← Back to Home
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Link>
 
             {/* Error Card */}
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 text-center">
-              <div className="text-6xl mb-4">❌</div>
+              <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600" />
+              </div>
               <h1 className="text-2xl font-bold text-red-600 mb-4">
                 Verification Failed
               </h1>
@@ -166,7 +170,8 @@ const VerificationPage = () => {
             to="/" 
             className="inline-flex items-center text-purple-600 hover:text-purple-800 mb-6 transition duration-200"
           >
-            ← Back to Home
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
           </Link>
 
           {/* Verification Success Header */}
