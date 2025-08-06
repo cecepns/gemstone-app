@@ -3,52 +3,48 @@ import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
+// Layouts
+import PublicLayout from './layouts/PublicLayout'
+import AdminLayout from './layouts/AdminLayout'
+
 // Components
-import HomePage from './components/HomePage'
+import Home from './pages/Home'
 import VerificationPage from './components/VerificationPage'
+import GemstoneList from './components/GemstoneList'
+import AddGemstoneForm from './components/AddGemstoneForm'
 
 // Pages
-import LoginPage from './pages/LoginPage'
+import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
+import VerificationManagement from './pages/VerificationManagement'
+import AdminSettings from './pages/AdminSettings'
 
 function App() {
   return (
     <AuthProvider>
       <div className="App">
         <Routes>
-          {/* Public Routes */}
+          <Route path="/" element={<PublicLayout />}>
+            <Route index element={<Home />} />
+            <Route path="verify/:id" element={<VerificationPage />} />
+            <Route path="login" element={<Login />} />
+          </Route>
           
-          {/* Home Page Route */}
           <Route 
-            path="/" 
-            element={<HomePage />} 
-          />
-          
-          {/* Verification Page Route with dynamic ID parameter */}
-          <Route 
-            path="/verify/:id" 
-            element={<VerificationPage />} 
-          />
-          
-          {/* Admin Login Page */}
-          <Route 
-            path="/login" 
-            element={<LoginPage />} 
-          />
-          
-          {/* Protected Admin Routes */}
-          
-          {/* Admin Dashboard - Protected Route */}
-          <Route 
-            path="/admin/dashboard" 
+            path="/admin" 
             element={
               <ProtectedRoute>
-                <AdminDashboard />
+                <AdminLayout />
               </ProtectedRoute>
-            } 
-          />
+            }
+          >
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="gemstones" element={<GemstoneList />} />
+            <Route path="gemstones/add" element={<AddGemstoneForm />} />
+            <Route path="verifications" element={<VerificationManagement />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
           
-          {/* Catch-all route for 404 pages */}
           <Route 
             path="*" 
             element={

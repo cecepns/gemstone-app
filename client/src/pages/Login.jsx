@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { Lock, AlertCircle, Loader2, Rocket, User, Key, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Button, Input, Alert, Card } from '../components/ui';
 
-const LoginPage = () => {
+const Login = () => {
   // Form state management
   const [formData, setFormData] = useState({
     username: '',
@@ -156,108 +156,86 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-100 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Background Decorative Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-float" style={{animationDelay: '2s'}}></div>
+    <div className="max-w-md mx-auto pt-15">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          Admin Login
+        </h1>
+        <p className="text-gray-600">Enter your credentials to access the admin panel</p>
       </div>
 
-      <div className="max-w-md w-full relative z-10">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Admin Login
-          </h1>
-          <p className="text-gray-600">Enter your credentials to access the admin panel</p>
-        </div>
+      <Card className="bg-white/80 backdrop-blur-sm border-gray-100 shadow-xl">
+        <Card.Body className="p-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <Alert type="danger" title="Login Error">
+                {error}
+              </Alert>
+            )}
 
-        {/* Login Form Card */}
-        <Card className="bg-white/80 backdrop-blur-sm border-gray-100 shadow-xl">
-          <Card.Body className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Error Message */}
-              {error && (
-                <Alert type="danger" title="Login Error">
-                  {error}
-                </Alert>
+            <Input
+              label="Username"
+              name="username"
+              type="text"
+              value={formData.username}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter admin username"
+              leftIcon={<User className="w-5 h-5" />}
+              disabled={isLoading}
+              required
+              autoComplete="username"
+              error={error && !formData.username.trim() ? 'Username harus diisi' : ''}
+            />
+
+            <Input
+              label="Password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter password"
+              leftIcon={<Key className="w-5 h-5" />}
+              disabled={isLoading}
+              required
+              autoComplete="current-password"
+              error={error && !formData.password.trim() ? 'Password harus diisi' : ''}
+            />
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              loading={isLoading}
+              disabled={!formData.username.trim() || !formData.password.trim()}
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+            >
+              {!isLoading && (
+                <>
+                  <Rocket className="w-5 h-5 mr-2" />
+                  Login to Dashboard
+                </>
               )}
+            </Button>
+          </form>
 
-              {/* Username Field */}
-              <Input
-                label="Username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter admin username"
-                leftIcon={<User className="w-5 h-5" />}
-                disabled={isLoading}
-                required
-                autoComplete="username"
-                error={error && !formData.username.trim() ? 'Username harus diisi' : ''}
-              />
-
-              {/* Password Field */}
-              <Input
-                label="Password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter password"
-                leftIcon={<Key className="w-5 h-5" />}
-                disabled={isLoading}
-                required
-                autoComplete="current-password"
-                error={error && !formData.password.trim() ? 'Password harus diisi' : ''}
-              />
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                loading={isLoading}
-                disabled={!formData.username.trim() || !formData.password.trim()}
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex justify-between items-center text-sm">
+              <Link 
+                to="/"
+                className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
               >
-                {!isLoading && (
-                  <>
-                    <Rocket className="w-5 h-5 mr-2" />
-                    Login to Dashboard
-                  </>
-                )}
-              </Button>
-            </form>
-
-            {/* Navigation Links */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex justify-between items-center text-sm">
-                <Link 
-                  to="/"
-                  className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Home</span>
-                </Link>
-              </div>
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Home</span>
+              </Link>
             </div>
-          </Card.Body>
-        </Card>
-
-        {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-gray-500 text-sm">
-            © 2024 Gemstone Verification System
-          </p>
-        </div>
-      </div>
+          </div>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;
