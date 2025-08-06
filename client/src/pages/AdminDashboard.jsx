@@ -10,7 +10,12 @@ import GemstoneList from '../components/GemstoneList';
 const AdminDashboard = () => {
   // Get auth context
   const { admin, logout, getAuthHeader } = useAuth();
-  
+  const [stats, setStats] = useState({
+    totalGemstones: 0,
+    recentVerifications: 0,
+    totalVerifications: 0
+  });
+
   // Dashboard state
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +101,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">Total Gemstones</h3>
-                <p className="text-3xl font-bold text-purple-600">{stats.totalGemstones}</p>
+                <p className="text-3xl font-bold text-purple-600">{stats?.totalGemstones}</p>
                 <p className="text-sm text-gray-500">Gemstone terdaftar</p>
               </div>
             </div>
@@ -110,7 +115,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">Recent Verifications</h3>
-                <p className="text-3xl font-bold text-green-600">{stats.recentVerifications}</p>
+                <p className="text-3xl font-bold text-green-600">{stats?.recentVerifications}</p>
                 <p className="text-sm text-gray-500">Verifikasi hari ini</p>
               </div>
             </div>
@@ -124,7 +129,7 @@ const AdminDashboard = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">Total Verifications</h3>
-                <p className="text-3xl font-bold text-blue-600">{stats.totalVerifications}</p>
+                <p className="text-3xl font-bold text-blue-600">{stats?.totalVerifications}</p>
                 <p className="text-sm text-gray-500">Total verifikasi</p>
               </div>
             </div>
