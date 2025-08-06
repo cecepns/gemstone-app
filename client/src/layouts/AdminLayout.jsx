@@ -1,5 +1,5 @@
 // ANCHOR: AdminLayout Component - Layout for admin dashboard and gemstone management
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
@@ -44,24 +44,6 @@ const AdminLayout = () => {
       )
     },
     {
-      name: 'Tambah Gemstone',
-      href: '/admin/gemstones/add',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-      )
-    },
-    {
-      name: 'Verifikasi',
-      href: '/admin/verifications',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      )
-    },
-    {
       name: 'Pengaturan',
       href: '/admin/settings',
       icon: (
@@ -75,35 +57,20 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar for desktop */}
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200 pt-5 pb-4 overflow-y-auto">
-          {/* Logo */}
-          <div className="flex items-center flex-shrink-0 px-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-3">
-                <h1 className="text-xl font-semibold text-gray-900">Admin Panel</h1>
-                <p className="text-sm text-gray-500">Gemstone Management</p>
-              </div>
-            </div>
+        <div className="flex flex-col flex-grow bg-white border-r border-gray-200 overflow-y-auto">
+          <div className="text-center border-b border-gray-200 py-6">
+            <h3 className="font-bold text-2xl text-gray-900">Admin Panel</h3>
           </div>
 
-          {/* Navigation */}
-          <div className="mt-8 flex-grow">
+          <div className="mt-4 flex-grow">
             <nav className="px-2 space-y-1">
               {navigationItems.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
                       isActive
                         ? 'bg-purple-100 text-purple-900 border-r-2 border-purple-600'
@@ -114,13 +81,12 @@ const AdminLayout = () => {
                       {item.icon}
                     </span>
                     {item.name}
-                  </a>
+                  </Link>
                 );
               })}
             </nav>
           </div>
 
-          {/* User info and logout */}
           <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
             <div className="flex items-center w-full">
               <div className="flex-shrink-0">
@@ -256,29 +222,10 @@ const AdminLayout = () => {
 
         {/* Page header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {navigationItems.find(item => item.href === location.pathname)?.name || 'Admin Dashboard'}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Kelola dan verifikasi data gemstone
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                {/* Quick actions */}
-                <button
-                  onClick={() => navigate('/admin/gemstones/add')}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Tambah Gemstone
-                </button>
-              </div>
-            </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h3 className="font-bold text-2xl text-gray-900">
+              {navigationItems.find(item => item.href === location.pathname)?.name || 'Admin Dashboard'}
+            </h3>
           </div>
         </header>
 
