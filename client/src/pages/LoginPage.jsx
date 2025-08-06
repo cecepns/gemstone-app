@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Lock, AlertCircle, Loader2, Rocket, User, Key, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Button, Input, Alert, Card } from '../components/ui';
 
 const LoginPage = () => {
   // Form state management
@@ -172,125 +173,81 @@ const LoginPage = () => {
         </div>
 
         {/* Login Form Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                  <p className="text-red-700 text-sm">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Username Field */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
-              <div className="relative">
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Enter admin username"
-                  className={`w-full px-4 py-3 pl-11 border rounded-xl focus:ring-2 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm ${
-                    error && !formData.username.trim()
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-200 focus:ring-purple-500'
-                  }`}
-                  disabled={isLoading}
-                  required
-                  autoComplete="username"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="w-5 h-5 text-gray-400" />
-                </div>
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Enter password"
-                  className={`w-full px-4 py-3 pl-11 pr-11 border rounded-xl focus:ring-2 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm ${
-                    error && !formData.password.trim()
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-gray-200 focus:ring-purple-500'
-                  }`}
-                  disabled={isLoading}
-                  required
-                  autoComplete="current-password"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Key className="w-5 h-5 text-gray-400" />
-                </div>
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
-                  disabled={isLoading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading || !formData.username.trim() || !formData.password.trim()}
-              className={`w-full py-4 px-6 rounded-xl font-medium transition duration-200 flex items-center justify-center space-x-2 shadow-sm border border-gray-200 ${
-                isLoading || !formData.username.trim() || !formData.password.trim()
-                  ? 'bg-gray-500 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-              }`}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin h-5 w-5 text-white" />
-                  <span>Processing...</span>
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-5 h-5" />
-                  <span>Login to Dashboard</span>
-                </>
+        <Card className="bg-white/80 backdrop-blur-sm border-gray-100 shadow-xl">
+          <Card.Body className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
+              {error && (
+                <Alert type="danger" title="Login Error">
+                  {error}
+                </Alert>
               )}
-            </button>
-          </form>
 
-          {/* Navigation Links */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="flex justify-between items-center text-sm">
-              <Link 
-                to="/"
-                className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
+              {/* Username Field */}
+              <Input
+                label="Username"
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter admin username"
+                leftIcon={<User className="w-5 h-5" />}
+                disabled={isLoading}
+                required
+                autoComplete="username"
+                error={error && !formData.username.trim() ? 'Username harus diisi' : ''}
+              />
+
+              {/* Password Field */}
+              <Input
+                label="Password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter password"
+                leftIcon={<Key className="w-5 h-5" />}
+                disabled={isLoading}
+                required
+                autoComplete="current-password"
+                error={error && !formData.password.trim() ? 'Password harus diisi' : ''}
+              />
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                loading={isLoading}
+                disabled={!formData.username.trim() || !formData.password.trim()}
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to Home</span>
-              </Link>
+                {!isLoading && (
+                  <>
+                    <Rocket className="w-5 h-5 mr-2" />
+                    Login to Dashboard
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {/* Navigation Links */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex justify-between items-center text-sm">
+                <Link 
+                  to="/"
+                  className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Home</span>
+                </Link>
+              </div>
             </div>
-          </div>
-        </div>
+          </Card.Body>
+        </Card>
 
         {/* Footer */}
         <div className="text-center mt-8">
