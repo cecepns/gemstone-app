@@ -9,10 +9,10 @@ import PublicLayout from './layouts/PublicLayout'
 import AdminLayout from './layouts/AdminLayout'
 
 // Components
-import VerificationPage from './components/VerificationPage'
 import AddGemstone from './pages/AddGemstone'
 
 // Pages
+import Verification from './pages/Verification'
 import Home from './pages/Home'
 import GemstoneList from './pages/GemstoneList'
 import GemstoneDetail from './pages/GemstoneDetail'
@@ -28,7 +28,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<Home />} />
-            <Route path="verify/:id" element={<VerificationPage />} />
+            <Route path="verify/:id" element={<Verification />} />
             <Route path="login" element={<Login />} />
           </Route>
           
