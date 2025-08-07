@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { loginAdmin } from '../utils/api';
 import { Lock, AlertCircle, Loader2, Rocket, User, Key, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Button, Input, Alert, Card } from '../components/ui';
 
@@ -94,41 +95,22 @@ const Login = () => {
     setError('');
 
     try {
-      // Make POST request to login API
-      const response = await fetch('http://localhost:5000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: formData.username.trim(),
-          password: formData.password
-        })
-      });
+      // Use API utility for login
+      const result = await loginAdmin(
+        formData.username.trim(),
+        formData.password
+      );
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        // Login successful - use AuthContext login function
-        login(result.data.token, result.data.admin);
-        
-        console.log('Login successful:', result.data.admin);
-        
-        // Navigate to admin dashboard
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        // Login failed - show error message
-        setError(result.message || 'Login gagal. Silakan periksa username dan password Anda.');
-      }
+      // Login successful - use AuthContext login function
+      login(result.data.token, result.data.admin);
+      
+      console.log('Login successful:', result.data.admin);
+      
+      // Navigate to admin dashboard
+      navigate('/admin/dashboard', { replace: true });
     } catch (error) {
       console.error('Login error:', error);
-      
-      // Handle network errors
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.');
-      } else {
-        setError('Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
-      }
+      setError(error.message || 'Login gagal. Silakan periksa username dan password Anda.');
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,6 @@
 // ANCHOR: AuthContext - Global authentication state management for admin login
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { verifyAdminToken } from '../utils/api';
 
 // Create the AuthContext
 const AuthContext = createContext();
@@ -146,28 +147,17 @@ export const AuthProvider = ({ children }) => {
     if (!token) return false;
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/verify', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        // Update admin data if received from verification
-        if (result.data && result.data.admin) {
-          updateAdmin(result.data.admin);
-        }
-        return true;
-      } else {
-        // Token is invalid, logout user
-        logout();
-        return false;
+      const result = await verifyAdminToken(token);
+      
+      // Update admin data if received from verification
+      if (result.data && result.data.admin) {
+        updateAdmin(result.data.admin);
       }
+      return true;
     } catch (error) {
       console.error('Token verification failed:', error);
+      // Token is invalid, logout user
+      logout();
       return false;
     }
   };

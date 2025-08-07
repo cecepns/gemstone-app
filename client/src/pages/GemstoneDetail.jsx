@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getGemstoneDetail, deleteGemstone } from '../utils/api';
 import { 
   Gem, 
   ArrowLeft, 
@@ -43,31 +44,12 @@ const GemstoneDetail = () => {
       setIsLoading(true);
       setError('');
 
-      const authHeaders = getAuthHeader();
-      
-      const response = await fetch(`http://localhost:5000/api/gemstones/${id}/detail`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders
-        }
-      });
+      const result = await getGemstoneDetail(id, getAuthHeader());
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        setGemstone(result.data);
-      } else {
-        setError(result.message || 'Failed to load gemstone details');
-      }
+      setGemstone(result.data);
     } catch (error) {
       console.error('Error fetching gemstone detail:', error);
-      
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Cannot connect to server. Please ensure backend is running.');
-      } else {
-        setError('An unexpected error occurred.');
-      }
+      setError(error.message || 'Failed to load gemstone details');
     } finally {
       setIsLoading(false);
     }
@@ -115,26 +97,11 @@ const GemstoneDetail = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this gemstone? This action cannot be undone.')) {
       try {
-        const authHeaders = getAuthHeader();
-        
-        const response = await fetch(`http://localhost:5000/api/gemstones/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            ...authHeaders
-          }
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          navigate('/admin/gemstones');
-        } else {
-          setError(result.message || 'Failed to delete gemstone');
-        }
+        await deleteGemstone(id, getAuthHeader());
+        navigate('/admin/gemstones');
       } catch (error) {
         console.error('Error deleting gemstone:', error);
-        setError('An error occurred while deleting the gemstone');
+        setError(error.message || 'An error occurred while deleting the gemstone');
       }
     }
   };

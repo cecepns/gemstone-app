@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CheckCircle, Gem, FileText, Smartphone, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
-import axios from 'axios';
+import { verifyGemstone } from '../utils/api';
 
 const VerificationPage = () => {
   const { id } = useParams();
@@ -18,7 +18,7 @@ const VerificationPage = () => {
   }, [id]);
 
   /**
-   * Fetch gemstone data from API using axios
+   * Fetch gemstone data from API
    * @param {string} uniqueId - Unique gemstone ID
    */
   const fetchGemstoneData = async (uniqueId) => {
@@ -26,30 +26,15 @@ const VerificationPage = () => {
       setLoading(true);
       setError(null);
       
-      // Make API request using axios
-      const response = await axios.get(`http://localhost:5000/api/gemstones/${uniqueId}`);
+      // Use API utility to verify gemstone
+      const result = await verifyGemstone(uniqueId);
       
       // If successful, set gemstone data
-      setGemstone(response.data.data);
+      setGemstone(result.data);
       
-    } catch (err) {
-      // Handle different types of errors
-      if (err.response) {
-        // Server responded with error status
-        if (err.response.status === 404) {
-          setError('Certificate not found');
-        } else {
-          setError(err.response.data.message || 'Failed to verify certificate');
-        }
-      } else if (err.request) {
-        // Network error - no response received
-        setError('Cannot connect to server. Please ensure backend is running.');
-      } else {
-        // Other error
-        setError('An unknown error occurred');
-      }
-      
-      console.error('Verification error:', err);
+    } catch (error) {
+      console.error('Verification error:', error);
+      setError(error.message || 'Failed to verify certificate');
     } finally {
       setLoading(false);
     }

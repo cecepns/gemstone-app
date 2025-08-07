@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { getGemstones } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Card } from '../components/ui';
 
@@ -26,34 +27,15 @@ const GemstoneList = () => {
       setIsLoading(true);
       setError('');
 
-      // Get auth headers
-      const authHeaders = getAuthHeader();
-
-      // Make GET request to fetch gemstones
-      const response = await fetch('http://localhost:5000/api/gemstones', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          ...authHeaders
-        }
+      // Use API utility to fetch gemstones
+      const result = await getGemstones({ 
+        authHeader: getAuthHeader() 
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        setGemstones(result.data || []);
-      } else {
-        setError(result.message || 'Failed to load gemstone data');
-      }
+      setGemstones(result.data || []);
     } catch (error) {
       console.error('Error fetching gemstones:', error);
-      
-      // Handle network errors
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Cannot connect to server. Please ensure backend is running.');
-      } else {
-        setError('An unexpected error occurred.');
-      }
+      setError(error.message || 'Failed to load gemstone data');
     } finally {
       setIsLoading(false);
     }

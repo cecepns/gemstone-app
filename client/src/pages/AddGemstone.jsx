@@ -1,6 +1,7 @@
 // ANCHOR: AddGemstoneForm Component - Complete gemstone creation form with file upload
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { createGemstone } from '../utils/api';
 import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X } from 'lucide-react';
 import { Button, Input, Textarea, Card, Alert } from '../components/ui';
 
@@ -147,73 +148,34 @@ const AddGemstone = () => {
         submitData.append('gemstoneImage', selectedFile);
       }
 
-      // Get auth headers
-      const authHeaders = getAuthHeader();
+      // Use API utility to create gemstone
+      const result = await createGemstone(submitData, getAuthHeader());
 
-      // Make POST request to create gemstone
-      const response = await fetch('http://localhost:5000/api/gemstones', {
-        method: 'POST',
-        headers: {
-          ...authHeaders
-          // Don't set Content-Type for FormData - browser will set it automatically with boundary
-        },
-        body: submitData
+      // Success notification
+      setNotification({
+        type: 'success',
+        message: `Gemstone "${formData.name}" successfully added with ID: ${result.data.unique_id_number}`
       });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        // Success notification
-        setNotification({
-          type: 'success',
-          message: `Gemstone "${formData.name}" successfully added with ID: ${result.data.unique_id_number}`
-        });
-        
-        // Reset form
-        setFormData({
-          name: '',
-          description: '',
-          weight_carat: '',
-          dimensions_mm: '',
-          color: '',
-          treatment: '',
-          origin: ''
-        });
-        clearFile();
-        
-        console.log('Gemstone created successfully:', result.data);
-      } else {
-        // Handle specific error types
-        let errorMessage = result.message || 'Failed to add gemstone';
-        
-        if (response.status === 401) {
-          errorMessage = 'Authentication failed. Please login again.';
-        } else if (response.status === 403) {
-          errorMessage = 'Access denied. Admin privileges required.';
-        } else if (response.status === 400) {
-          errorMessage = result.message || 'Invalid data provided. Please check your input.';
-        }
-        
-        setNotification({
-          type: 'error',
-          message: errorMessage
-        });
-      }
+      
+      // Reset form
+      setFormData({
+        name: '',
+        description: '',
+        weight_carat: '',
+        dimensions_mm: '',
+        color: '',
+        treatment: '',
+        origin: ''
+      });
+      clearFile();
+      
+      console.log('Gemstone created successfully:', result.data);
     } catch (error) {
       console.error('Error creating gemstone:', error);
-      
-      // Handle network errors
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setNotification({
-          type: 'error',
-          message: 'Cannot connect to server. Please ensure backend is running.'
-        });
-      } else {
-        setNotification({
-          type: 'error',
-          message: 'An unexpected error occurred. Please try again.'
-        });
-      }
+      setNotification({
+        type: 'error',
+        message: error.message || 'An unexpected error occurred. Please try again.'
+      });
     } finally {
       setIsLoading(false);
     }
