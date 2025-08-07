@@ -286,7 +286,7 @@ const GemstoneList = () => {
         </div>
       </div>
 
-      {/* Gemstone Cards */}
+      {/* Gemstone Table */}
       {filteredAndSortedGemstones.length === 0 ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -307,119 +307,114 @@ const GemstoneList = () => {
           )}
         </div>
       ) : (
-        <div className="space-y-6 max-h-96 overflow-y-auto">
-          {filteredAndSortedGemstones.map((gemstone) => (
-            <Card key={gemstone.id} variant="outlined" padding="md" className="hover:shadow-lg transition duration-200 bg-white/50 backdrop-blur-sm">
-              <div className="flex items-start space-x-6">
-                {/* Image */}
-                <div className="flex-shrink-0">
-                  {gemstone.photo_url ? (
-                    <img
-                      src={gemstone.photo_url}
-                      alt={gemstone.name}
-                      className="w-20 h-20 object-cover rounded-xl border border-gray-200 shadow-sm"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
-                      <Gem className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )}
-                </div>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse bg-white/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg">
+                         {/* Table Header */}
+             <thead className="bg-purple-50 border-b border-purple-200">
+               <tr>
+                 <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
+                   Image
+                 </th>
+                 <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
+                   ID Number
+                 </th>
+                 <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
+                   Name
+                 </th>
+                 <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
+                   Date Added
+                 </th>
+                 <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
+                   Actions
+                 </th>
+               </tr>
+             </thead>
+            
+                         {/* Table Body */}
+             <tbody className="divide-y divide-gray-200">
+               {filteredAndSortedGemstones.map((gemstone) => (
+                 <tr key={gemstone.id} className="hover:bg-purple-50/50 transition duration-200">
+                   {/* Image Column */}
+                   <td className="px-6 py-4">
+                     <div className="flex-shrink-0">
+                       {gemstone.photo_url ? (
+                         <img
+                           src={gemstone.photo_url}
+                           alt={gemstone.name}
+                           className="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm"
+                         />
+                       ) : (
+                         <div className="w-16 h-16 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
+                           <Gem className="w-6 h-6 text-gray-400" />
+                         </div>
+                       )}
+                     </div>
+                   </td>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  {/* Header Row */}
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-xl font-semibold text-gray-800 truncate">
-                        {gemstone.name || 'Unnamed Gemstone'}
-                      </h4>
-                      <div className="flex items-center space-x-3 mt-2">
-                        <span 
-                          className="text-sm text-purple-600 font-mono cursor-pointer hover:bg-purple-50 px-3 py-1 rounded-lg transition duration-200"
-                          onClick={() => copyToClipboard(gemstone.unique_id_number)}
-                          title="Click to copy"
-                        >
-                          {gemstone.unique_id_number}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatDate(gemstone.created_at)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                   {/* ID Number Column */}
+                   <td className="px-6 py-4">
+                     <span 
+                       className="text-sm text-purple-600 font-mono cursor-pointer hover:bg-purple-50 px-2 py-1 rounded transition duration-200"
+                       onClick={() => copyToClipboard(gemstone.unique_id_number)}
+                       title="Click to copy"
+                     >
+                       {gemstone.unique_id_number}
+                     </span>
+                   </td>
 
-                  {/* Details */}
-                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                    {gemstone.weight_carat && (
-                      <div>
-                        <span className="text-gray-500">Weight:</span>
-                        <span className="ml-2 font-medium">{gemstone.weight_carat} carat</span>
-                      </div>
-                    )}
-                    {gemstone.color && (
-                      <div>
-                        <span className="text-gray-500">Color:</span>
-                        <span className="ml-2 font-medium">{gemstone.color}</span>
-                      </div>
-                    )}
-                    {gemstone.dimensions_mm && (
-                      <div>
-                        <span className="text-gray-500">Dimensions:</span>
-                        <span className="ml-2 font-medium">{gemstone.dimensions_mm} mm</span>
-                      </div>
-                    )}
-                    {gemstone.origin && (
-                      <div>
-                        <span className="text-gray-500">Origin:</span>
-                        <span className="ml-2 font-medium">{gemstone.origin}</span>
-                      </div>
-                    )}
-                  </div>
+                   {/* Name Column */}
+                   <td className="px-6 py-4">
+                     <div>
+                       <div className="text-sm font-semibold text-gray-900">
+                         {gemstone.name || 'Unnamed Gemstone'}
+                       </div>
+                     </div>
+                   </td>
 
-                  {/* Description */}
-                  {gemstone.description && (
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                        {gemstone.description}
-                      </p>
-                    </div>
-                  )}
+                   {/* Date Column */}
+                   <td className="px-6 py-4">
+                     <div className="text-sm text-gray-900">
+                       {formatDate(gemstone.created_at)}
+                     </div>
+                   </td>
 
-                  {/* Actions */}
-                  <div className="mt-4 flex items-center space-x-3">
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => window.open(`/verify/${gemstone.unique_id_number}`, '_blank')}
-                      className="text-xs"
-                    >
-                      <Search className="w-3 h-3 mr-1" />
-                      Verify
-                    </Button>
-                    {gemstone.qr_code_data_url && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        <Smartphone className="w-3 h-3 mr-1" />
-                        QR Code
-                      </Button>
-                    )}
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="text-xs"
-                    >
-                      <Edit className="w-3 h-3 mr-1" />
-                      Edit
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
+                   {/* Actions Column */}
+                   <td className="px-6 py-4">
+                     <div className="flex items-center space-x-2">
+                       <Button
+                         variant="secondary"
+                         size="sm"
+                         className="text-xs px-2 py-1"
+                         title="Edit gemstone"
+                       >
+                         <Edit className="w-3 h-3 mr-1" />
+                         Edit
+                       </Button>
+                       <Button
+                         variant="primary"
+                         size="sm"
+                         onClick={() => window.open(`/verify/${gemstone.unique_id_number}`, '_blank')}
+                         className="text-xs px-2 py-1"
+                         title="View gemstone details"
+                       >
+                         <Search className="w-3 h-3 mr-1" />
+                         Detail
+                       </Button>
+                       <Button
+                         variant="danger"
+                         size="sm"
+                         className="text-xs px-2 py-1"
+                         title="Delete gemstone"
+                       >
+                         <AlertCircle className="w-3 h-3 mr-1" />
+                         Delete
+                       </Button>
+                     </div>
+                   </td>
+                 </tr>
+               ))}
+             </tbody>
+          </table>
         </div>
       )}
     </Card>
