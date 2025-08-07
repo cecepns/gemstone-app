@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X } from 'lucide-react';
+import { Button, Input, Textarea, Card, Alert } from '../components/ui';
 
-const AddGemstoneForm = () => {
+const AddGemstone = () => {
   // Get auth context for token
   const { getAuthHeader } = useAuth();
 
@@ -182,10 +183,20 @@ const AddGemstoneForm = () => {
         
         console.log('Gemstone created successfully:', result.data);
       } else {
-        // Error from server
+        // Handle specific error types
+        let errorMessage = result.message || 'Failed to add gemstone';
+        
+        if (response.status === 401) {
+          errorMessage = 'Authentication failed. Please login again.';
+        } else if (response.status === 403) {
+          errorMessage = 'Access denied. Admin privileges required.';
+        } else if (response.status === 400) {
+          errorMessage = result.message || 'Invalid data provided. Please check your input.';
+        }
+        
         setNotification({
           type: 'error',
-          message: result.message || 'Failed to add gemstone'
+          message: errorMessage
         });
       }
     } catch (error) {
@@ -216,7 +227,7 @@ const AddGemstoneForm = () => {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+    <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
@@ -228,23 +239,16 @@ const AddGemstoneForm = () => {
       </div>
 
       {/* Notification */}
-      {notification && (
-        <div className={`p-4 rounded-xl mb-6 flex items-center gap-3 ${
-          notification.type === 'success' 
-            ? 'bg-green-50 border border-green-200' 
-            : 'bg-red-50 border border-red-200'
-        }`}>
-          {notification.type === 'success' ? (
-            <CheckCircle className="w-5 h-5 text-green-600" />
-          ) : (
-            <AlertCircle className="w-5 h-5 text-red-600" />
-          )}
-          <p className={`text-sm ${
-            notification.type === 'success' ? 'text-green-700' : 'text-red-700'
-          }`}>
-            {notification.message}
-          </p>
-        </div>
+      {notification.message && (
+        <Alert 
+          type={notification.type === 'success' ? 'success' : 'danger'}
+          title={notification.type === 'success' ? 'Success' : 'Error'}
+          dismissible
+          onDismiss={clearNotification}
+          className="mb-6"
+        >
+          {notification.message}
+        </Alert>
       )}
 
       {/* Loading State */}
@@ -258,141 +262,101 @@ const AddGemstoneForm = () => {
         </div>
       )}
 
-      {/* Success State */}
-      {/* The 'success' state is not directly managed by the form's state,
-          so this block will not render unless 'success' is passed as a prop or managed elsewhere.
-          For now, it's removed as per the new_code, but the original code had it.
-          If 'success' state is intended to be managed, it needs to be added. */}
-
-      {/* Error State */}
-      {/* The 'error' state is not directly managed by the form's state,
-          so this block will not render unless 'error' is passed as a prop or managed elsewhere.
-          For now, it's removed as per the new_code, but the original code had it.
-          If 'error' state is intended to be managed, it needs to be added. */}
-
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Name Field */}
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-3">
-            Gemstone Name *
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleInputChange}
-            placeholder="Example: Blue Sapphire"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
-            disabled={isLoading}
-            required
-          />
-        </div>
+        <Input
+          label="Gemstone Name"
+          name="name"
+          type="text"
+          value={formData.name}
+          onChange={handleInputChange}
+          placeholder="Example: Blue Sapphire"
+          disabled={isLoading}
+          required
+          size="lg"
+          className="bg-white/50 backdrop-blur-sm"
+        />
 
         {/* Description Field */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-3">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Detailed description about the gemstone..."
-            rows={4}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 resize-none bg-white/50 backdrop-blur-sm"
-            disabled={isLoading}
-          />
-        </div>
+        <Textarea
+          label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          placeholder="Detailed description about the gemstone..."
+          rows={4}
+          disabled={isLoading}
+          size="lg"
+          className="bg-white/50 backdrop-blur-sm"
+        />
 
         {/* Weight and Dimensions Row */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="weight_carat" className="block text-sm font-medium text-gray-700 mb-3">
-              Weight (Carat)
-            </label>
-            <input
-              id="weight_carat"
-              name="weight_carat"
-              type="number"
-              step="0.01"
-              value={formData.weight_carat}
-              onChange={handleInputChange}
-              placeholder="2.50"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
-              disabled={isLoading}
-            />
-          </div>
+          <Input
+            label="Weight (Carat)"
+            name="weight_carat"
+            type="number"
+            step="0.01"
+            value={formData.weight_carat}
+            onChange={handleInputChange}
+            placeholder="2.50"
+            disabled={isLoading}
+            size="lg"
+            className="bg-white/50 backdrop-blur-sm"
+          />
           
-          <div>
-            <label htmlFor="dimensions_mm" className="block text-sm font-medium text-gray-700 mb-3">
-              Dimensions (mm)
-            </label>
-            <input
-              id="dimensions_mm"
-              name="dimensions_mm"
-              type="text"
-              value={formData.dimensions_mm}
-              onChange={handleInputChange}
-              placeholder="8.5 x 6.5 x 4.2"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
-              disabled={isLoading}
-            />
-          </div>
+          <Input
+            label="Dimensions (mm)"
+            name="dimensions_mm"
+            type="text"
+            value={formData.dimensions_mm}
+            onChange={handleInputChange}
+            placeholder="8.5 x 6.5 x 4.2"
+            disabled={isLoading}
+            size="lg"
+            className="bg-white/50 backdrop-blur-sm"
+          />
         </div>
 
         {/* Color and Origin Row */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-3">
-              Color
-            </label>
-            <input
-              id="color"
-              name="color"
-              type="text"
-              value={formData.color}
-              onChange={handleInputChange}
-              placeholder="Royal Blue"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
-              disabled={isLoading}
-            />
-          </div>
+          <Input
+            label="Color"
+            name="color"
+            type="text"
+            value={formData.color}
+            onChange={handleInputChange}
+            placeholder="Royal Blue"
+            disabled={isLoading}
+            size="lg"
+            className="bg-white/50 backdrop-blur-sm"
+          />
           
-          <div>
-            <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-3">
-              Origin
-            </label>
-            <input
-              id="origin"
-              name="origin"
-              type="text"
-              value={formData.origin}
-              onChange={handleInputChange}
-              placeholder="Sri Lanka"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
-              disabled={isLoading}
-            />
-          </div>
+          <Input
+            label="Origin"
+            name="origin"
+            type="text"
+            value={formData.origin}
+            onChange={handleInputChange}
+            placeholder="Sri Lanka"
+            disabled={isLoading}
+            size="lg"
+            className="bg-white/50 backdrop-blur-sm"
+          />
         </div>
 
         {/* Treatment Field */}
-        <div>
-          <label htmlFor="treatment" className="block text-sm font-medium text-gray-700 mb-3">
-            Treatment
-          </label>
-          <input
-            id="treatment"
-            name="treatment"
-            type="text"
-            value={formData.treatment}
-            onChange={handleInputChange}
-            placeholder="Heat Treatment"
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
-            disabled={isLoading}
-          />
-        </div>
+        <Input
+          label="Treatment"
+          name="treatment"
+          type="text"
+          value={formData.treatment}
+          onChange={handleInputChange}
+          placeholder="Heat Treatment"
+          disabled={isLoading}
+          size="lg"
+          className="bg-white/50 backdrop-blur-sm"
+        />
 
         {/* Image Upload */}
         <div>
@@ -411,29 +375,29 @@ const AddGemstoneForm = () => {
               className="hidden"
               disabled={isLoading}
             />
-            <label
-              htmlFor="gemstoneImage"
-              className={`cursor-pointer inline-flex items-center px-6 py-3 border border-gray-200 rounded-xl text-sm font-medium transition duration-200 ${
-                isLoading 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white/50 text-gray-700 hover:bg-white hover:border-purple-300'
-              }`}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => document.getElementById('gemstoneImage').click()}
+              disabled={isLoading}
+              className="bg-white/50 hover:bg-white hover:border-purple-300"
             >
               <Camera className="w-4 h-4 mr-2" />
               Choose Image
-            </label>
+            </Button>
             
             {selectedFile && (
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-gray-600">{selectedFile.name}</span>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={clearFile}
-                  className="text-red-500 hover:text-red-700 text-sm transition duration-200"
                   disabled={isLoading}
+                  className="text-red-500 hover:text-red-700"
                 >
                   <X className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -448,14 +412,15 @@ const AddGemstoneForm = () => {
                   alt="Preview"
                   className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm"
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="danger"
+                  size="sm"
                   onClick={clearFile}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs hover:bg-red-600 transition duration-200"
                   disabled={isLoading}
+                  className="absolute -top-2 -right-2 w-7 h-7 p-0 rounded-full"
                 >
                   <X className="w-3 h-3" />
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -463,26 +428,31 @@ const AddGemstoneForm = () => {
 
         {/* Submit Button */}
         <div className="pt-6 border-t border-gray-200">
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="lg"
             disabled={isLoading || !formData.name.trim()}
-            className={`w-full py-4 px-6 rounded-xl font-medium transition duration-200 flex items-center justify-center gap-2 ${
-              isLoading || !formData.name.trim()
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:from-purple-700 hover:to-purple-800 active:from-purple-800 active:to-purple-900 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-            }`}
+            loading={isLoading}
+            fullWidth
+            className="py-4"
           >
             {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Adding Gemstone...
+              </>
             ) : (
-              <Save className="w-5 h-5" />
+              <>
+                <Save className="w-5 h-5 mr-2" />
+                Add Gemstone
+              </>
             )}
-            {isLoading ? 'Adding Gemstone...' : 'Add Gemstone'}
-          </button>
+          </Button>
         </div>
       </form>
-    </div>
+    </Card>
   );
 };
 
-export default AddGemstoneForm;
+export default AddGemstone;

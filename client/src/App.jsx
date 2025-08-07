@@ -9,7 +9,7 @@ import AdminLayout from './layouts/AdminLayout'
 
 // Components
 import VerificationPage from './components/VerificationPage'
-import AddGemstoneForm from './components/AddGemstoneForm'
+import AddGemstone from './pages/AddGemstone'
 
 // Pages
 import Home from './pages/Home'
@@ -40,7 +40,7 @@ function App() {
           >
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="gemstones" element={<GemstoneList />} />
-            <Route path="gemstones/add" element={<AddGemstoneForm />} />
+            <Route path="gemstones/add" element={<AddGemstone />} />
             <Route path="verifications" element={<VerificationManagement />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>

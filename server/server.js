@@ -80,6 +80,28 @@ const upload = multer({
   }
 });
 
+// Error handling middleware for multer
+const handleMulterError = (error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        error: 'File Upload Error',
+        message: 'File size too large. Maximum size is 5MB.'
+      });
+    }
+    return res.status(400).json({
+      error: 'File Upload Error',
+      message: error.message
+    });
+  } else if (error) {
+    return res.status(400).json({
+      error: 'File Upload Error',
+      message: error.message
+    });
+  }
+  next();
+};
+
 // ======================================
 // JWT CONFIGURATION
 // ======================================
@@ -129,7 +151,7 @@ async function generateIdentifiers() {
     const unique_id_number = `GEM-${timestamp}-${randomString}`;
     
     // Create verification URL that will be encoded in QR code
-    const verificationUrl = `http://localhost:5000/api/verify/${unique_id_number}`;
+    const verificationUrl = `http://localhost:5000/api/gemstones/${unique_id_number}`;
     
     // Generate QR code as data URL
     const qr_code_data_url = await QRCode.toDataURL(verificationUrl, {
@@ -257,7 +279,7 @@ app.get('/api/health', (req, res) => {
  * POST /api/gemstones - Create new gemstone (Admin only)
  * Handles file upload and stores gemstone data
  */
-app.post('/api/gemstones', upload.single('gemstoneImage'), async (req, res) => {
+app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMulterError, async (req, res) => {
   try {
     // Extract data from request body
     const {
