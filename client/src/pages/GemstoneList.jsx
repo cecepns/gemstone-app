@@ -1,11 +1,14 @@
 // ANCHOR: GemstoneList Component - Display and manage gemstone data
 import { useState, useEffect } from 'react';
-import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Button, Input, Card } from '../components/ui';
 
 const GemstoneList = () => {
   // Get auth context for token
   const { getAuthHeader } = useAuth();
+  const navigate = useNavigate();
 
   // Component state
   const [gemstones, setGemstones] = useState([]);
@@ -146,11 +149,18 @@ const GemstoneList = () => {
   };
 
   /**
+   * Handle add gemstone navigation
+   */
+  const handleAddGemstone = () => {
+    navigate('/admin/gemstones/add');
+  };
+
+  /**
    * Loading state
    */
   if (isLoading) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
+      <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -167,7 +177,7 @@ const GemstoneList = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading gemstone data...</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
@@ -176,7 +186,7 @@ const GemstoneList = () => {
    */
   if (error) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
+      <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -195,12 +205,12 @@ const GemstoneList = () => {
           </div>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Data</h3>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
+    <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
@@ -213,13 +223,24 @@ const GemstoneList = () => {
           <span className="text-sm text-gray-600">
             {filteredAndSortedGemstones.length} items
           </span>
-          <button
+          <Button
+            variant="success"
+            size="md"
+            onClick={handleAddGemstone}
+            className="p-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            title="Add new gemstone"
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
             onClick={handleRefresh}
-            className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-3 rounded-xl hover:from-purple-700 hover:to-purple-800 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="p-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             title="Refresh data"
           >
             <RefreshCw className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -227,12 +248,14 @@ const GemstoneList = () => {
       <div className="mb-8 space-y-6">
         {/* Search Bar */}
         <div>
-          <input
+          <Input
             type="text"
             placeholder="Search by name, ID, color, or origin..."
             value={searchTerm}
             onChange={handleSearchChange}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 bg-white/50 backdrop-blur-sm"
+            size="lg"
+            className="rounded-xl bg-white/50 backdrop-blur-sm"
+            leftIcon={<Search className="w-5 h-5" />}
           />
         </div>
 
@@ -245,14 +268,12 @@ const GemstoneList = () => {
             { field: 'weight_carat', label: 'Weight' },
             { field: 'color', label: 'Color' }
           ].map(({ field, label }) => (
-            <button
+            <Button
               key={field}
+              variant={sortBy === field ? 'primary' : 'secondary'}
+              size="sm"
               onClick={() => handleSortChange(field)}
-              className={`px-4 py-2 text-sm rounded-xl transition duration-200 ${
-                sortBy === field
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className="rounded-xl"
             >
               {label}
               {sortBy === field && (
@@ -260,7 +281,7 @@ const GemstoneList = () => {
                   {sortOrder === 'asc' ? '↑' : '↓'}
                 </span>
               )}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -276,18 +297,19 @@ const GemstoneList = () => {
             {searchTerm ? 'No gemstones match your search criteria.' : 'No gemstones have been added yet.'}
           </p>
           {searchTerm && (
-            <button
+            <Button
+              variant="primary"
               onClick={() => setSearchTerm('')}
-              className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition duration-200"
+              className="rounded-xl"
             >
               Clear Search
-            </button>
+            </Button>
           )}
         </div>
       ) : (
         <div className="space-y-6 max-h-96 overflow-y-auto">
           {filteredAndSortedGemstones.map((gemstone) => (
-            <div key={gemstone.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition duration-200 bg-white/50 backdrop-blur-sm">
+            <Card key={gemstone.id} variant="outlined" padding="md" className="hover:shadow-lg transition duration-200 bg-white/50 backdrop-blur-sm">
               <div className="flex items-start space-x-6">
                 {/* Image */}
                 <div className="flex-shrink-0">
@@ -366,31 +388,41 @@ const GemstoneList = () => {
 
                   {/* Actions */}
                   <div className="mt-4 flex items-center space-x-3">
-                    <button 
+                    <Button
+                      variant="success"
+                      size="sm"
                       onClick={() => window.open(`/verify/${gemstone.unique_id_number}`, '_blank')}
-                      className="text-xs bg-green-100 text-green-800 px-3 py-2 rounded-lg hover:bg-green-200 transition duration-200 flex items-center gap-1"
+                      className="text-xs"
                     >
-                      <Search className="w-3 h-3" />
+                      <Search className="w-3 h-3 mr-1" />
                       Verify
-                    </button>
+                    </Button>
                     {gemstone.qr_code_data_url && (
-                      <button className="text-xs bg-blue-100 text-blue-800 px-3 py-2 rounded-lg hover:bg-blue-200 transition duration-200 flex items-center gap-1">
-                        <Smartphone className="w-3 h-3" />
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        <Smartphone className="w-3 h-3 mr-1" />
                         QR Code
-                      </button>
+                      </Button>
                     )}
-                    <button className="text-xs bg-gray-100 text-gray-800 px-3 py-2 rounded-lg hover:bg-gray-200 transition duration-200 flex items-center gap-1">
-                      <Edit className="w-3 h-3" />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="text-xs"
+                    >
+                      <Edit className="w-3 h-3 mr-1" />
                       Edit
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 
