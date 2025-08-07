@@ -229,16 +229,12 @@ const GemstoneDetail = () => {
           <div className="space-y-6">
             {/* Gemstone image */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <Gem className="w-5 h-5 text-purple-600" />
-                Gemstone Image
-              </h3>
               {gemstone.photo_url ? (
                 <div className="relative">
                   <img
                     src={gemstone.photo_url}
                     alt={gemstone.name || 'Gemstone'}
-                    className="w-full h-64 object-cover rounded-xl border border-gray-200 shadow-lg"
+                    className="w-full aspect-square object-cover rounded-xl border border-gray-200 shadow-lg"
                   />
                 </div>
               ) : (
@@ -258,7 +254,7 @@ const GemstoneDetail = () => {
                 QR Code
               </h3>
               {gemstone.qr_code_data_url ? (
-                <div className="flex justify-center">
+                <div className="flex justify-center p-12">
                   <img
                     src={gemstone.qr_code_data_url}
                     alt="QR Code"
@@ -279,9 +275,6 @@ const GemstoneDetail = () => {
           {/* Right column - Gemstone details */}
           <div className="space-y-6">
             <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Gem className="w-5 h-5 text-purple-600" />
-              </div>
               {gemstone.name || 'Unnamed Gemstone'}
             </h3>
 
