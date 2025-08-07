@@ -51,7 +51,7 @@ const GemstoneDetail = () => {
       setGemstone(result.data);
     } catch (error) {
       console.error('Error fetching gemstone detail:', error);
-      setError(error.message || 'Failed to load gemstone details');
+      setError(error.message || 'Gagal memuat detail batu mulia');
     } finally {
       setIsLoading(false);
     }
@@ -135,7 +135,7 @@ const GemstoneDetail = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading gemstone details...</p>
+          <p className="text-gray-600">Memuat detail batu mulia...</p>
         </div>
       </div>
     );
@@ -151,7 +151,7 @@ const GemstoneDetail = () => {
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Gemstone</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Memuat Batu Mulia</h3>
           <p className="text-gray-600 mb-6">{error}</p>
           <Button
             variant="primary"
@@ -176,8 +176,8 @@ const GemstoneDetail = () => {
           <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Gem className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Gemstone Not Found</h3>
-          <p className="text-gray-600 mb-6">The requested gemstone could not be found.</p>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Batu Mulia Tidak Ditemukan</h3>
+          <p className="text-gray-600 mb-6">Batu mulia yang diminta tidak dapat ditemukan.</p>
           <Button
             variant="primary"
             onClick={handleBack}
@@ -201,7 +201,7 @@ const GemstoneDetail = () => {
           className="rounded-xl"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to List
+          Kembali ke Daftar
         </Button>
 
         {/* Action buttons */}
@@ -210,7 +210,7 @@ const GemstoneDetail = () => {
             variant="secondary"
             onClick={handlePrint}
             className="rounded-xl"
-            title="Print gemstone details"
+            title="Cetak detail batu mulia"
           >
             <Printer className="w-4 h-4 mr-2" />
             Print
@@ -219,7 +219,7 @@ const GemstoneDetail = () => {
             variant="primary"
             onClick={handleEdit}
             className="rounded-xl"
-            title="Edit gemstone"
+            title="Edit batu mulia"
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit
@@ -228,7 +228,7 @@ const GemstoneDetail = () => {
             variant="danger"
             onClick={openDeleteModal}
             className="rounded-xl"
-            title="Delete gemstone"
+            title="Hapus batu mulia"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete
@@ -255,7 +255,7 @@ const GemstoneDetail = () => {
                 <div className="w-full h-64 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
                   <div className="text-center">
                     <Gem className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">No image available</p>
+                    <p className="text-gray-500">Tidak ada gambar tersedia</p>
                   </div>
                 </div>
               )}
@@ -265,7 +265,7 @@ const GemstoneDetail = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-purple-600" />
-                QR Code
+                Kode QR
               </h3>
               {gemstone.qr_code_data_url ? (
                 <div className="flex justify-center p-12">
@@ -279,7 +279,7 @@ const GemstoneDetail = () => {
                 <div className="w-48 h-48 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center mx-auto">
                   <div className="text-center">
                     <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">No QR code</p>
+                    <p className="text-gray-500 text-sm">Tidak ada kode QR</p>
                   </div>
                 </div>
               )}
@@ -289,14 +289,14 @@ const GemstoneDetail = () => {
           {/* Right column - Gemstone details */}
           <div className="space-y-6">
             <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-              {gemstone.name || 'Unnamed Gemstone'}
+              {gemstone.name || 'Batu Mulia Tanpa Nama'}
             </h3>
 
             {/* Unique ID */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                 <FileText className="w-4 h-4" />
-                Unique ID Number
+                Nomor ID Unik
               </label>
               <p className="text-lg text-purple-600 font-mono bg-purple-50 px-4 py-3 rounded-xl border border-purple-200">
                 {gemstone.unique_id_number}
@@ -306,7 +306,7 @@ const GemstoneDetail = () => {
             {/* Description */}
             {gemstone.description && (
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500">Description</label>
+                <label className="block text-sm font-medium text-gray-500">Deskripsi</label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
                   {gemstone.description}
                 </p>
@@ -319,7 +319,7 @@ const GemstoneDetail = () => {
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                   <Weight className="w-4 h-4" />
-                  Weight
+                  Berat
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
                   {gemstone.weight_carat ? (
@@ -328,16 +328,16 @@ const GemstoneDetail = () => {
                       <span className="text-sm text-gray-500 ml-1">carat</span>
                     </span>
                   ) : (
-                    'Not available'
+                    'Tidak tersedia'
                   )}
                 </p>
               </div>
 
               {/* Dimensions */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500">Dimensions</label>
+                <label className="block text-sm font-medium text-gray-500">Dimensi</label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                  {gemstone.dimensions_mm || 'Not available'}
+                                      {gemstone.dimensions_mm || 'Tidak tersedia'}
                 </p>
               </div>
 
@@ -345,10 +345,10 @@ const GemstoneDetail = () => {
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                   <Palette className="w-4 h-4" />
-                  Color
+                  Warna
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                  {gemstone.color || 'Not available'}
+                                      {gemstone.color || 'Tidak tersedia'}
                 </p>
               </div>
 
@@ -356,10 +356,10 @@ const GemstoneDetail = () => {
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  Origin
+                  Asal
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                  {gemstone.origin || 'Not available'}
+                                      {gemstone.origin || 'Tidak tersedia'}
                 </p>
               </div>
             </div>
@@ -369,7 +369,7 @@ const GemstoneDetail = () => {
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                   <Settings className="w-4 h-4" />
-                  Treatment
+                  Perawatan
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
                   {gemstone.treatment}
@@ -381,7 +381,7 @@ const GemstoneDetail = () => {
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                Date Added
+                Tanggal Ditambahkan
               </label>
               <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
                 {formatDate(gemstone.created_at)}

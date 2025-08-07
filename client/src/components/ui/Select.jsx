@@ -17,7 +17,7 @@ const Select = forwardRef(({
   required = false,
   fullWidth = true,
   size = 'md',
-  placeholder = 'Select an option',
+  placeholder = 'Pilih opsi',
   options = [],
   className = '',
   ...props

@@ -52,10 +52,10 @@ const Home = () => {
     <div className="max-w-6xl mx-auto pt-15">
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-6xl font-bold text-gray-800 mb-6">
-          Gemstone Verification 
+          Verifikasi Batu Mulia
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Verify the authenticity of your precious gemstones with our advanced verification system
+          Verifikasi keaslian batu mulia berharga Anda dengan sistem verifikasi canggih kami
         </p>
       </div>
 
@@ -63,7 +63,7 @@ const Home = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="gemstoneId" className="block text-sm font-medium text-gray-700 mb-2">
-              Enter Gemstone ID
+              Masukkan ID Batu Mulia
             </label>
             <input
               type="text"
@@ -87,7 +87,7 @@ const Home = () => {
               ) : (
                 <Search className="w-5 h-5" />
               )}
-              Verify Now
+              Verifikasi Sekarang
             </button>
             
             <button
@@ -97,7 +97,7 @@ const Home = () => {
               className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 px-6 rounded-xl hover:from-gray-700 hover:to-gray-800 transition duration-200 font-medium flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Smartphone className="w-5 h-5" />
-              Try Demo
+              Coba Demo
             </button>
           </div>
         </form>

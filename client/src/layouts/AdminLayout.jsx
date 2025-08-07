@@ -47,7 +47,7 @@ const AdminLayout = () => {
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
         <div className="flex flex-col flex-grow bg-white border-r border-gray-200 overflow-y-auto">
           <div className="text-center border-b border-gray-200 py-6">
-            <h3 className="font-bold text-2xl text-gray-900">Admin Panel</h3>
+            <h3 className="font-bold text-2xl text-gray-900">Panel Admin</h3>
           </div>
 
           <div className="mt-4 flex-grow">
@@ -113,7 +113,7 @@ const AdminLayout = () => {
                   className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <span className="sr-only">Close sidebar</span>
+                  <span className="sr-only">Tutup sidebar</span>
                   <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -128,8 +128,8 @@ const AdminLayout = () => {
                       </div>
                     </div>
                     <div className="ml-3">
-                      <h1 className="text-xl font-semibold text-gray-900">Admin Panel</h1>
-                      <p className="text-sm text-gray-500">Gemstone Management</p>
+                      <h1 className="text-xl font-semibold text-gray-900">Panel Admin</h1>
+                      <p className="text-sm text-gray-500">Manajemen Batu Mulia</p>
                     </div>
                   </div>
                 </div>
@@ -194,7 +194,7 @@ const AdminLayout = () => {
             className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500"
             onClick={() => setSidebarOpen(true)}
           >
-            <span className="sr-only">Open sidebar</span>
+            <span className="sr-only">Buka sidebar</span>
             <Menu className="h-6 w-6" />
           </button>
         </div>
@@ -203,7 +203,7 @@ const AdminLayout = () => {
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <h3 className="font-bold text-2xl text-gray-900">
-              {navigationItems.find(item => item.href === location.pathname)?.name || 'Admin Dashboard'}
+              {navigationItems.find(item => item.href === location.pathname)?.name || 'Dashboard Admin'}
             </h3>
           </div>
         </header>

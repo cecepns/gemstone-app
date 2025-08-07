@@ -26,7 +26,7 @@ const PublicLayout = () => {
 
       <footer className="text-center py-8 border-t border-gray-200/50">
         <p className="text-gray-500">
-          © 2024 Gemstone Verification System. All rights reserved.
+          © 2024 Sistem Verifikasi Batu Mulia. Semua hak dilindungi.
         </p>
       </footer>
     </div>

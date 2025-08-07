@@ -34,7 +34,7 @@ const VerificationPage = () => {
       
     } catch (error) {
       console.error('Verification error:', error);
-      setError(error.message || 'Failed to verify certificate');
+      setError(error.message || 'Gagal memverifikasi sertifikat');
     } finally {
       setLoading(false);
     }
@@ -65,12 +65,12 @@ const VerificationPage = () => {
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mx-auto mb-6"></div>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">Loading...</h2>
-                <p className="text-gray-600 mb-4">Verifying gemstone certificate...</p>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-2">Memuat...</h2>
+                <p className="text-gray-600 mb-4">Memverifikasi sertifikat batu mulia...</p>
                 
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
                   <p className="text-sm text-purple-800">
-                    <strong>ID being verified:</strong> {id}
+                    <strong>ID yang diverifikasi:</strong> {id}
                   </p>
                 </div>
               </div>
@@ -108,13 +108,13 @@ const VerificationPage = () => {
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
               <h1 className="text-2xl font-bold text-red-600 mb-4">
-                Verification Failed
+                Verifikasi Gagal
               </h1>
               <p className="text-gray-600 mb-6">{error}</p>
               
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
                 <p className="text-sm text-red-800">
-                  <strong>Searched ID:</strong> {id}
+                  <strong>ID yang dicari:</strong> {id}
                 </p>
               </div>
 
@@ -123,13 +123,13 @@ const VerificationPage = () => {
                   onClick={() => fetchGemstoneData(id)}
                   className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-6 rounded-xl hover:from-purple-700 hover:to-purple-800 transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  Try Again
+                  Coba Lagi
                 </button>
                 <Link 
                   to="/"
                   className="block w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-xl hover:bg-gray-300 transition duration-200"
                 >
-                  Back to Home
+                  Kembali ke Beranda
                 </Link>
               </div>
             </div>
@@ -165,8 +165,8 @@ const VerificationPage = () => {
               <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="w-10 h-10 text-green-600" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Verification Successful</h1>
-              <p className="text-gray-600">This gemstone has been verified as authentic</p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Verifikasi Berhasil</h1>
+              <p className="text-gray-600">Batu mulia ini telah diverifikasi sebagai asli</p>
             </div>
           </div>
 
@@ -177,27 +177,27 @@ const VerificationPage = () => {
                 <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Gem className="w-5 h-5 text-purple-600" />
                 </div>
-                Gemstone Details
+                Detail Batu Mulia
               </h2>
               
               <div className="space-y-6">
                 <div className="border-b border-gray-100 pb-4">
-                  <label className="block text-sm font-medium text-gray-500 mb-2">Unique ID</label>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">ID Unik</label>
                   <p className="text-lg text-purple-600 font-mono bg-purple-50 px-4 py-3 rounded-xl">
                     {gemstone.unique_id_number}
                   </p>
                 </div>
                 
                 <div className="border-b border-gray-100 pb-4">
-                  <label className="block text-sm font-medium text-gray-500 mb-2">Gemstone Name</label>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">Nama Batu Mulia</label>
                   <p className="text-lg text-gray-900 font-semibold">
-                    {gemstone.name || 'Not available'}
+                    {gemstone.name || 'Tidak tersedia'}
                   </p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Weight</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Berat</label>
                     <p className="text-gray-900">
                       {gemstone.weight_carat ? (
                         <span className="inline-flex items-center">
@@ -205,13 +205,13 @@ const VerificationPage = () => {
                           <span className="text-sm text-gray-500 ml-1">carat</span>
                         </span>
                       ) : (
-                        'Not available'
+                        'Tidak tersedia'
                       )}
                     </p>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Dimensions</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Dimensi</label>
                     <p className="text-gray-900">
                       {gemstone.dimensions_mm ? (
                         <span className="inline-flex items-center">
@@ -219,7 +219,7 @@ const VerificationPage = () => {
                           <span className="text-sm text-gray-500 ml-1">mm</span>
                         </span>
                       ) : (
-                        'Not available'
+                        'Tidak tersedia'
                       )}
                     </p>
                   </div>
@@ -227,29 +227,29 @@ const VerificationPage = () => {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Color</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Warna</label>
                     <p className="text-gray-900 font-medium">
-                      {gemstone.color || 'Not available'}
+                      {gemstone.color || 'Tidak tersedia'}
                     </p>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-500 mb-2">Origin</label>
+                    <label className="block text-sm font-medium text-gray-500 mb-2">Asal</label>
                     <p className="text-gray-900 font-medium">
-                      {gemstone.origin || 'Not available'}
+                      {gemstone.origin || 'Tidak tersedia'}
                     </p>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">Treatment</label>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">Perawatan</label>
                   <p className="text-gray-900">
-                    {gemstone.treatment || 'Not available'}
+                    {gemstone.treatment || 'Tidak tersedia'}
                   </p>
                 </div>
                 
                 <div className="border-t border-gray-100 pt-4">
-                  <label className="block text-sm font-medium text-gray-500 mb-2">Registration Date</label>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">Tanggal Registrasi</label>
                   <p className="text-gray-900">
                     {new Date(gemstone.created_at).toLocaleDateString('en-US', {
                       weekday: 'long',
@@ -269,7 +269,7 @@ const VerificationPage = () => {
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                     <FileText className="w-5 h-5 text-purple-600" />
                   </div>
-                  Description
+                  Deskripsi
                 </h2>
                 <div className="bg-gray-50 rounded-xl p-6">
                   <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
@@ -286,7 +286,7 @@ const VerificationPage = () => {
                   <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                     <Smartphone className="w-5 h-5 text-purple-600" />
                   </div>
-                  Certificate QR Code
+                  Kode QR Sertifikat
                 </h2>
                 <div className="text-center">
                   <div className="inline-block bg-white p-6 rounded-xl shadow-lg border">
@@ -297,7 +297,7 @@ const VerificationPage = () => {
                     />
                   </div>
                   <p className="text-sm text-gray-500 mt-4">
-                    Scan this QR code for quick verification in the future
+                    Pindai kode QR ini untuk verifikasi cepat di masa depan
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
                     QR code contains link: /verify/{gemstone.unique_id_number}

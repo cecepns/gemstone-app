@@ -15,7 +15,7 @@ const VerificationManagement = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Verification Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Manajemen Verifikasi</h1>
             <p className="text-gray-600 mt-1">Kelola dan verifikasi data gemstone</p>
           </div>
           <div className="flex space-x-3">
@@ -25,7 +25,7 @@ const VerificationManagement = () => {
             </button>
             <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
               <Download className="w-4 h-4 mr-2" />
-              Export Data
+              Ekspor Data
             </button>
           </div>
         </div>
@@ -41,7 +41,7 @@ const VerificationManagement = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Verified</p>
+              <p className="text-sm font-medium text-gray-500">Total Terverifikasi</p>
               <p className="text-2xl font-semibold text-gray-900">1,234</p>
             </div>
           </div>
@@ -55,7 +55,7 @@ const VerificationManagement = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Pending</p>
+              <p className="text-sm font-medium text-gray-500">Menunggu</p>
               <p className="text-2xl font-semibold text-gray-900">56</p>
             </div>
           </div>
@@ -69,7 +69,7 @@ const VerificationManagement = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Rejected</p>
+              <p className="text-sm font-medium text-gray-500">Ditolak</p>
               <p className="text-2xl font-semibold text-gray-900">23</p>
             </div>
           </div>
@@ -83,7 +83,7 @@ const VerificationManagement = () => {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Success Rate</p>
+              <p className="text-sm font-medium text-gray-500">Tingkat Keberhasilan</p>
               <p className="text-2xl font-semibold text-gray-900">98.2%</p>
             </div>
           </div>
@@ -93,7 +93,7 @@ const VerificationManagement = () => {
       {/* Main Content */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Verification Queue</h3>
+          <h3 className="text-lg font-medium text-gray-900">Antrian Verifikasi</h3>
           <p className="text-sm text-gray-500 mt-1">Daftar gemstone yang menunggu verifikasi</p>
         </div>
         

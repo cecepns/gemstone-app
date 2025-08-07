@@ -28,10 +28,10 @@ const ProtectedRoute = ({ children, redirectTo = '/login' }) => {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-6"></div>
             <h2 className="text-xl font-semibold text-gray-800 mb-3">
-              Checking Authentication...
+              Memeriksa Autentikasi...
             </h2>
             <p className="text-gray-600 leading-relaxed">
-              Please wait a moment
+              Mohon tunggu sebentar
             </p>
           </div>
         </div>

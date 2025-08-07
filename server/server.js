@@ -67,7 +67,7 @@ const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'), false);
+    cb(new Error('Hanya file gambar yang diperbolehkan!'), false);
   }
 };
 
@@ -85,17 +85,17 @@ const handleMulterError = (error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
-        error: 'File Upload Error',
-        message: 'File size too large. Maximum size is 5MB.'
+        error: 'Error Upload File',
+        message: 'Ukuran file terlalu besar. Maksimal 5MB.'
       });
     }
     return res.status(400).json({
-      error: 'File Upload Error',
+      error: 'Error Upload File',
       message: error.message
     });
   } else if (error) {
     return res.status(400).json({
-      error: 'File Upload Error',
+      error: 'Error Upload File',
       message: error.message
     });
   }
@@ -170,7 +170,7 @@ async function generateIdentifiers() {
       qr_code_data_url
     };
   } catch (error) {
-    throw new Error('Failed to generate identifiers: ' + error.message);
+    throw new Error('Gagal menghasilkan identifier: ' + error.message);
   }
 }
 
@@ -296,7 +296,7 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
     if (!name) {
       return res.status(400).json({
         error: 'Validation Error',
-        message: 'Gemstone name is required'
+        message: 'Nama batu mulia harus diisi'
       });
     }
     
@@ -359,7 +359,7 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
     // Return success response
     res.status(201).json({
       success: true,
-      message: 'Gemstone created successfully',
+      message: 'Batu mulia berhasil dibuat',
       data: {
         ...createdGemstone,
         photo_url: createdGemstone.photo_url ? `http://localhost:5000${createdGemstone.photo_url}` : null
@@ -380,7 +380,7 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
     
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to create gemstone: ' + error.message
+      message: 'Gagal membuat batu mulia: ' + error.message
     });
   }
 });
@@ -398,7 +398,7 @@ app.get('/api/gemstones/:id', async (req, res) => {
     if (!id) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'ID parameter is required'
+        message: 'Parameter ID diperlukan'
       });
     }
     
@@ -647,7 +647,7 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     // Return success response
     res.status(200).json({
       success: true,
-      message: 'Gemstones retrieved successfully',
+      message: 'Batu mulia berhasil diambil',
       data: formattedData,
       pagination: {
         page,
@@ -669,7 +669,7 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch gemstones: ' + error.message
+      message: 'Gagal mengambil batu mulia: ' + error.message
     });
   }
 });
@@ -717,7 +717,7 @@ app.get('/api/gemstones/:id/detail', verifyToken, async (req, res) => {
     // Return gemstone data
     res.status(200).json({
       success: true,
-      message: 'Gemstone details retrieved successfully',
+      message: 'Detail batu mulia berhasil diambil',
       data: responseData
     });
     
@@ -726,7 +726,7 @@ app.get('/api/gemstones/:id/detail', verifyToken, async (req, res) => {
     
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch gemstone details: ' + error.message
+      message: 'Gagal mengambil detail batu mulia: ' + error.message
     });
   }
 });
@@ -794,7 +794,7 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
     // Return success response
     res.status(200).json({
       success: true,
-      message: 'Gemstone deleted successfully'
+      message: 'Batu mulia berhasil dihapus'
     });
     
   } catch (error) {
@@ -802,7 +802,7 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
     
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to delete gemstone: ' + error.message
+      message: 'Gagal menghapus batu mulia: ' + error.message
     });
   }
 });
@@ -821,7 +821,7 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
-    message: `The route ${req.originalUrl} does not exist on this server`
+    message: `Rute ${req.originalUrl} tidak ada di server ini`
   });
 });
 
@@ -830,7 +830,7 @@ app.use((error, req, res, next) => {
   console.error('Server Error:', error);
   res.status(error.status || 500).json({
     error: 'Internal Server Error',
-    message: error.message || 'Something went wrong!'
+    message: error.message || 'Terjadi kesalahan!'
   });
 });
 

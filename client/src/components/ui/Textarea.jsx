@@ -111,7 +111,7 @@ const Textarea = forwardRef(({
       
       {showCharacterCount && maxLength && (
         <p className={characterCountClasses}>
-          {currentLength} / {maxLength} characters
+          {currentLength} / {maxLength} karakter
         </p>
       )}
     </div>

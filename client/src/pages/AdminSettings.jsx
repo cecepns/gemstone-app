@@ -7,13 +7,13 @@ const AdminSettings = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Settings</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Pengaturan Admin</h1>
             <p className="text-gray-600 mt-1">Kelola pengaturan aplikasi dan sistem</p>
           </div>
           <div className="flex space-x-3">
             <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
               <Download className="w-4 h-4 mr-2" />
-              Backup Data
+              Cadangkan Data
             </button>
             <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
               <Check className="w-4 h-4 mr-2" />
@@ -74,7 +74,7 @@ const AdminSettings = () => {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">Two-Factor Authentication</h4>
+                <h4 className="text-sm font-medium text-gray-900">Autentikasi Dua Faktor</h4>
                 <p className="text-sm text-gray-500">Aktifkan 2FA untuk keamanan tambahan</p>
               </div>
               <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 bg-gray-200">
@@ -83,7 +83,7 @@ const AdminSettings = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">Session Timeout</h4>
+                <h4 className="text-sm font-medium text-gray-900">Waktu Habis Sesi</h4>
                 <p className="text-sm text-gray-500">Otomatis logout setelah tidak aktif</p>
               </div>
               <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 bg-purple-600">
@@ -92,7 +92,7 @@ const AdminSettings = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">Login Notifications</h4>
+                <h4 className="text-sm font-medium text-gray-900">Notifikasi Login</h4>
                 <p className="text-sm text-gray-500">Notifikasi saat ada login baru</p>
               </div>
               <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 bg-purple-600">
@@ -111,7 +111,7 @@ const AdminSettings = () => {
           <div className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
+                <h4 className="text-sm font-medium text-gray-900">Notifikasi Email</h4>
                 <p className="text-sm text-gray-500">Kirim notifikasi via email</p>
               </div>
               <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 bg-purple-600">
@@ -120,7 +120,7 @@ const AdminSettings = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">SMS Notifications</h4>
+                <h4 className="text-sm font-medium text-gray-900">Notifikasi SMS</h4>
                 <p className="text-sm text-gray-500">Kirim notifikasi via SMS</p>
               </div>
               <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 bg-gray-200">
@@ -129,7 +129,7 @@ const AdminSettings = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-gray-900">Push Notifications</h4>
+                <h4 className="text-sm font-medium text-gray-900">Notifikasi Push</h4>
                 <p className="text-sm text-gray-500">Notifikasi real-time di browser</p>
               </div>
               <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 bg-purple-600">
@@ -151,21 +151,21 @@ const AdminSettings = () => {
               <span className="text-sm font-medium text-gray-900">v1.0.0</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Database Status</span>
+              <span className="text-sm text-gray-500">Status Database</span>
               <span className="text-sm font-medium text-green-600">Online</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Server Status</span>
-              <span className="text-sm font-medium text-green-600">Healthy</span>
+              <span className="text-sm text-gray-500">Status Server</span>
+              <span className="text-sm font-medium text-green-600">Sehat</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Last Backup</span>
+              <span className="text-sm text-gray-500">Cadangan Terakhir</span>
               <span className="text-sm font-medium text-gray-900">2 jam yang lalu</span>
             </div>
             <div className="pt-4 border-t border-gray-200">
               <button className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh Status
+                Segarkan Status
               </button>
             </div>
           </div>

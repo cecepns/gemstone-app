@@ -141,28 +141,28 @@ const Login = () => {
     <div className="max-w-md mx-auto pt-15">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Admin Login
+          Login Admin
         </h1>
-        <p className="text-gray-600">Enter your credentials to access the admin panel</p>
+        <p className="text-gray-600">Masukkan kredensial Anda untuk mengakses panel admin</p>
       </div>
 
       <Card className="bg-white/80 backdrop-blur-sm border-gray-100 shadow-xl">
         <Card.Body className="p-2">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <Alert type="danger" title="Login Error">
+              <Alert type="danger" title="Error Login">
                 {error}
               </Alert>
             )}
 
             <Input
-              label="Username"
+              label="Nama Pengguna"
               name="username"
               type="text"
               value={formData.username}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              placeholder="Enter admin username"
+              placeholder="Masukkan nama pengguna admin"
               leftIcon={<User className="w-5 h-5" />}
               disabled={isLoading}
               required
@@ -171,13 +171,13 @@ const Login = () => {
             />
 
             <Input
-              label="Password"
+              label="Kata Sandi"
               name="password"
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
-              placeholder="Enter password"
+              placeholder="Masukkan kata sandi"
               leftIcon={<Key className="w-5 h-5" />}
               disabled={isLoading}
               required
@@ -197,7 +197,7 @@ const Login = () => {
               {!isLoading && (
                 <>
                   <Rocket className="w-5 h-5 mr-2" />
-                  Login to Dashboard
+                  Login ke Dashboard
                 </>
               )}
             </Button>
@@ -210,7 +210,7 @@ const Login = () => {
                 className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back to Home</span>
+                <span>Kembali ke Beranda</span>
               </Link>
             </div>
           </div>

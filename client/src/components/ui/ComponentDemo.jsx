@@ -56,44 +56,44 @@ const ComponentDemo = () => {
       <div className="max-w-4xl mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            UI Components Demo
+            Demo Komponen UI
           </h1>
           <p className="text-gray-600">
-            A comprehensive showcase of all atomic UI components
+            Pameran komprehensif dari semua komponen UI atomik
           </p>
         </div>
         
         {/* Alerts Section */}
         <Card className="mb-8">
           <Card.Header>
-            <h2 className="text-xl font-semibold">Alerts</h2>
+            <h2 className="text-xl font-semibold">Peringatan</h2>
           </Card.Header>
           <Card.Body>
             <div className="space-y-4">
-              <Alert type="info" title="Information">
-                This is an informational alert with a title.
+              <Alert type="info" title="Informasi">
+                Ini adalah peringatan informasi dengan judul.
               </Alert>
               
-              <Alert type="success" title="Success" dismissible>
-                This is a success alert that can be dismissed.
+              <Alert type="success" title="Berhasil" dismissible>
+                Ini adalah peringatan sukses yang dapat ditutup.
               </Alert>
               
-              <Alert type="warning" title="Warning">
-                This is a warning alert.
+              <Alert type="warning" title="Peringatan">
+                Ini adalah peringatan peringatan.
               </Alert>
               
               <Alert type="danger" title="Error">
-                This is an error alert.
+                Ini adalah peringatan error.
               </Alert>
               
               {showAlert && (
                 <Alert 
                   type="success" 
-                  title="Form Submitted!" 
+                  title="Form Terkirim!" 
                   dismissible
                   onDismiss={() => setShowAlert(false)}
                 >
-                  Your form has been submitted successfully.
+                  Form Anda telah berhasil dikirim.
                 </Alert>
               )}
             </div>
@@ -103,38 +103,38 @@ const ComponentDemo = () => {
         {/* Buttons Section */}
         <Card className="mb-8">
           <Card.Header>
-            <h2 className="text-xl font-semibold">Buttons</h2>
+            <h2 className="text-xl font-semibold">Tombol</h2>
           </Card.Header>
           <Card.Body>
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium mb-3">Variants</h3>
+                <h3 className="text-lg font-medium mb-3">Varian</h3>
                 <div className="flex flex-wrap gap-3">
-                  <Button variant="primary">Primary</Button>
-                  <Button variant="secondary">Secondary</Button>
-                  <Button variant="outline">Outline</Button>
-                  <Button variant="danger">Danger</Button>
-                  <Button variant="success">Success</Button>
-                  <Button variant="ghost">Ghost</Button>
+                  <Button variant="primary">Utama</Button>
+                  <Button variant="secondary">Sekunder</Button>
+                  <Button variant="outline">Garis</Button>
+                  <Button variant="danger">Bahaya</Button>
+                  <Button variant="success">Sukses</Button>
+                  <Button variant="ghost">Hantu</Button>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-medium mb-3">Sizes</h3>
+                <h3 className="text-lg font-medium mb-3">Ukuran</h3>
                 <div className="flex flex-wrap items-center gap-3">
-                  <Button size="sm">Small</Button>
-                  <Button size="md">Medium</Button>
-                  <Button size="lg">Large</Button>
-                  <Button size="xl">Extra Large</Button>
+                  <Button size="sm">Kecil</Button>
+                  <Button size="md">Sedang</Button>
+                  <Button size="lg">Besar</Button>
+                  <Button size="xl">Sangat Besar</Button>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-medium mb-3">States</h3>
+                <h3 className="text-lg font-medium mb-3">Status</h3>
                 <div className="flex flex-wrap gap-3">
-                  <Button loading>Loading</Button>
-                  <Button disabled>Disabled</Button>
-                  <Button fullWidth>Full Width</Button>
+                  <Button loading>Memuat</Button>
+                  <Button disabled>Dinonaktifkan</Button>
+                  <Button fullWidth>Lebar Penuh</Button>
                 </div>
               </div>
             </div>
@@ -144,14 +144,14 @@ const ComponentDemo = () => {
         {/* Form Components Section */}
         <Card className="mb-8">
           <Card.Header>
-            <h2 className="text-xl font-semibold">Form Components</h2>
+            <h2 className="text-xl font-semibold">Komponen Form</h2>
           </Card.Header>
           <Card.Body>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input
-                  label="Name"
-                  placeholder="Enter your name"
+                  label="Nama"
+                  placeholder="Masukkan nama Anda"
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   required
@@ -160,7 +160,7 @@ const ComponentDemo = () => {
                 <Input
                   label="Email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Masukkan email Anda"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   required
@@ -168,8 +168,8 @@ const ComponentDemo = () => {
               </div>
               
               <Select
-                label="Category"
-                placeholder="Select a category"
+                label="Kategori"
+                placeholder="Pilih kategori"
                 options={selectOptions}
                 value={formData.category}
                 onChange={(e) => handleInputChange('category', e.target.value)}
@@ -177,8 +177,8 @@ const ComponentDemo = () => {
               />
               
               <Textarea
-                label="Message"
-                placeholder="Enter your message"
+                label="Pesan"
+                placeholder="Masukkan pesan Anda"
                 value={formData.message}
                 onChange={(e) => handleInputChange('message', e.target.value)}
                 rows={4}
@@ -188,28 +188,28 @@ const ComponentDemo = () => {
               
               <div className="space-y-4">
                 <Checkbox
-                  label="Subscribe to newsletter"
+                  label="Berlangganan newsletter"
                   checked={formData.newsletter}
                   onChange={(e) => handleInputChange('newsletter', e.target.checked)}
                 />
                 
                 <div>
                   <label className="block text-sm font-medium mb-3">
-                    Notification Preferences
+                    Preferensi Notifikasi
                   </label>
                   <div className="space-y-2">
                     <Radio
-                      label="Email notifications"
+                      label="Notifikasi email"
                       checked={formData.notifications === 'email'}
                       onChange={() => handleInputChange('notifications', 'email')}
                     />
                     <Radio
-                      label="SMS notifications"
+                      label="Notifikasi SMS"
                       checked={formData.notifications === 'sms'}
                       onChange={() => handleInputChange('notifications', 'sms')}
                     />
                     <Radio
-                      label="No notifications"
+                      label="Tidak ada notifikasi"
                       checked={formData.notifications === 'none'}
                       onChange={() => handleInputChange('notifications', 'none')}
                     />
@@ -219,7 +219,7 @@ const ComponentDemo = () => {
               
               <div className="flex gap-3">
                 <Button type="submit" variant="primary">
-                  Submit Form
+                  Kirim Form
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setFormData({
                   name: '',
@@ -240,39 +240,39 @@ const ComponentDemo = () => {
         {/* Badges Section */}
         <Card className="mb-8">
           <Card.Header>
-            <h2 className="text-xl font-semibold">Badges</h2>
+            <h2 className="text-xl font-semibold">Lencana</h2>
           </Card.Header>
           <Card.Body>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium mb-3">Variants</h3>
+                <h3 className="text-lg font-medium mb-3">Varian</h3>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="default">Default</Badge>
-                  <Badge variant="primary">Primary</Badge>
-                  <Badge variant="success">Success</Badge>
-                  <Badge variant="warning">Warning</Badge>
-                  <Badge variant="danger">Danger</Badge>
+                  <Badge variant="primary">Utama</Badge>
+                  <Badge variant="success">Sukses</Badge>
+                  <Badge variant="warning">Peringatan</Badge>
+                  <Badge variant="danger">Bahaya</Badge>
                   <Badge variant="info">Info</Badge>
-                  <Badge variant="light">Light</Badge>
-                  <Badge variant="dark">Dark</Badge>
+                  <Badge variant="light">Terang</Badge>
+                  <Badge variant="dark">Gelap</Badge>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-medium mb-3">Sizes</h3>
+                <h3 className="text-lg font-medium mb-3">Ukuran</h3>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge size="sm">Small</Badge>
-                  <Badge size="md">Medium</Badge>
-                  <Badge size="lg">Large</Badge>
+                  <Badge size="sm">Kecil</Badge>
+                  <Badge size="md">Sedang</Badge>
+                  <Badge size="lg">Besar</Badge>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-medium mb-3">Rounded</h3>
+                <h3 className="text-lg font-medium mb-3">Bulat</h3>
                 <div className="flex flex-wrap gap-2">
-                  <Badge rounded>Rounded</Badge>
-                  <Badge variant="primary" rounded>Primary Rounded</Badge>
-                  <Badge variant="success" rounded>Success Rounded</Badge>
+                  <Badge rounded>Bulat</Badge>
+                  <Badge variant="primary" rounded>Utama Bulat</Badge>
+                  <Badge variant="success" rounded>Sukses Bulat</Badge>
                 </div>
               </div>
             </div>
@@ -286,7 +286,7 @@ const ComponentDemo = () => {
           </Card.Header>
           <Card.Body>
             <Button onClick={() => setIsModalOpen(true)}>
-              Open Modal
+              Buka Modal
             </Button>
           </Card.Body>
         </Card>
@@ -299,36 +299,36 @@ const ComponentDemo = () => {
         size="lg"
       >
         <Modal.Header onClose={() => setIsModalOpen(false)}>
-          <h3 className="text-lg font-semibold">Form Submission Details</h3>
+          <h3 className="text-lg font-semibold">Detail Pengiriman Form</h3>
         </Modal.Header>
         <Modal.Body>
           <div className="space-y-4">
             <div>
-              <strong>Name:</strong> {formData.name}
+              <strong>Nama:</strong> {formData.name}
             </div>
             <div>
               <strong>Email:</strong> {formData.email}
             </div>
             <div>
-              <strong>Category:</strong> {formData.category}
+              <strong>Kategori:</strong> {formData.category}
             </div>
             <div>
-              <strong>Message:</strong> {formData.message}
+              <strong>Pesan:</strong> {formData.message}
             </div>
             <div>
-              <strong>Newsletter:</strong> {formData.newsletter ? 'Yes' : 'No'}
+              <strong>Newsletter:</strong> {formData.newsletter ? 'Ya' : 'Tidak'}
             </div>
             <div>
-              <strong>Notifications:</strong> {formData.notifications}
+              <strong>Notifikasi:</strong> {formData.notifications}
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-            Close
+            Tutup
           </Button>
           <Button variant="primary">
-            Confirm
+            Konfirmasi
           </Button>
         </Modal.Footer>
       </Modal>

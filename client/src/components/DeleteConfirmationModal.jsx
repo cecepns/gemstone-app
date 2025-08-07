@@ -23,9 +23,9 @@ const DeleteConfirmationModal = ({
   onConfirm,
   itemName,
   itemType = "item",
-  title = "Delete Confirmation",
-  description = "This action cannot be undone",
-  warningMessage = "This will permanently delete the item and all associated data."
+  title = "Konfirmasi Hapus",
+  description = "Tindakan ini tidak dapat dibatalkan",
+  warningMessage = "Ini akan menghapus item secara permanen dan semua data terkait."
 }) => {
   /**
    * Handle confirm button click
@@ -52,16 +52,16 @@ const DeleteConfirmationModal = ({
       <Modal.Body>
         <div className="space-y-4">
           <p className="text-gray-700">
-            Are you sure you want to delete{' '}
+            Apakah Anda yakin ingin menghapus{' '}
             <span className="font-semibold text-gray-900">
-              "{itemName || `this ${itemType}`}"
+              "{itemName || `${itemType} ini`}"
             </span>?
           </p>
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-red-700">
-                <p className="font-medium">Warning:</p>
+                <p className="font-medium">Peringatan:</p>
                 <p>{warningMessage}</p>
               </div>
             </div>
@@ -75,14 +75,14 @@ const DeleteConfirmationModal = ({
           onClick={onClose}
           className="rounded-xl"
         >
-          Cancel
+          Batal
         </Button>
         <Button
           variant="danger"
           onClick={handleConfirm}
           className="rounded-xl"
         >
-          Delete {itemType.charAt(0).toUpperCase() + itemType.slice(1)}
+          Hapus {itemType.charAt(0).toUpperCase() + itemType.slice(1)}
         </Button>
       </Modal.Footer>
     </Modal>

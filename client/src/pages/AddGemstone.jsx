@@ -54,7 +54,7 @@ const AddGemstone = () => {
       if (!file.type.startsWith('image/')) {
         setNotification({
           type: 'error',
-          message: 'Only image files are allowed (JPG, PNG, GIF)'
+          message: 'Hanya file gambar yang diperbolehkan (JPG, PNG, GIF)'
         });
         return;
       }
@@ -63,7 +63,7 @@ const AddGemstone = () => {
       if (file.size > 5 * 1024 * 1024) {
         setNotification({
           type: 'error',
-          message: 'File size must be less than 5MB'
+          message: 'Ukuran file harus kurang dari 5MB'
         });
         return;
       }
@@ -101,7 +101,7 @@ const AddGemstone = () => {
     if (!formData.name.trim()) {
       setNotification({
         type: 'error',
-        message: 'Gemstone name is required'
+        message: 'Nama batu mulia harus diisi'
       });
       return false;
     }
@@ -109,7 +109,7 @@ const AddGemstone = () => {
     if (formData.weight_carat && isNaN(parseFloat(formData.weight_carat))) {
       setNotification({
         type: 'error',
-        message: 'Weight must be a number'
+        message: 'Berat harus berupa angka'
       });
       return false;
     }
@@ -154,7 +154,7 @@ const AddGemstone = () => {
       // Success notification
       setNotification({
         type: 'success',
-        message: `Gemstone "${formData.name}" successfully added with ID: ${result.data.unique_id_number}`
+        message: `Batu mulia "${formData.name}" berhasil ditambahkan dengan ID: ${result.data.unique_id_number}`
       });
       
       // Reset form
@@ -174,7 +174,7 @@ const AddGemstone = () => {
       console.error('Error creating gemstone:', error);
       setNotification({
         type: 'error',
-        message: error.message || 'An unexpected error occurred. Please try again.'
+        message: error.message || 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.'
       });
     } finally {
       setIsLoading(false);
@@ -196,7 +196,7 @@ const AddGemstone = () => {
           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
             <Gem className="w-5 h-5 text-purple-600" />
           </div>
-          Add New Gemstone
+          Tambah Batu Mulia Baru
         </h3>
       </div>
 
@@ -204,7 +204,7 @@ const AddGemstone = () => {
       {notification.message && (
         <Alert 
           type={notification.type === 'success' ? 'success' : 'danger'}
-          title={notification.type === 'success' ? 'Success' : 'Error'}
+          title={notification.type === 'success' ? 'Berhasil' : 'Error'}
           dismissible
           onDismiss={clearNotification}
           className="mb-6"
@@ -219,20 +219,20 @@ const AddGemstone = () => {
           <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Adding Gemstone...</h3>
-          <p className="text-gray-600">Please wait while we process your request</p>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Menambahkan Batu Mulia...</h3>
+          <p className="text-gray-600">Mohon tunggu sementara kami memproses permintaan Anda</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Name Field */}
         <Input
-          label="Gemstone Name"
+          label="Nama Batu Mulia"
           name="name"
           type="text"
           value={formData.name}
           onChange={handleInputChange}
-          placeholder="Example: Blue Sapphire"
+          placeholder="Contoh: Safir Biru"
           disabled={isLoading}
           required
           size="lg"
@@ -241,11 +241,11 @@ const AddGemstone = () => {
 
         {/* Description Field */}
         <Textarea
-          label="Description"
+          label="Deskripsi"
           name="description"
           value={formData.description}
           onChange={handleInputChange}
-          placeholder="Detailed description about the gemstone..."
+          placeholder="Deskripsi detail tentang batu mulia..."
           rows={4}
           disabled={isLoading}
           size="lg"
@@ -255,7 +255,7 @@ const AddGemstone = () => {
         {/* Weight and Dimensions Row */}
         <div className="grid md:grid-cols-2 gap-6">
           <Input
-            label="Weight (Carat)"
+            label="Berat (Karat)"
             name="weight_carat"
             type="number"
             step="0.01"
@@ -268,7 +268,7 @@ const AddGemstone = () => {
           />
           
           <Input
-            label="Dimensions (mm)"
+            label="Dimensi (mm)"
             name="dimensions_mm"
             type="text"
             value={formData.dimensions_mm}
@@ -283,19 +283,19 @@ const AddGemstone = () => {
         {/* Color and Origin Row */}
         <div className="grid md:grid-cols-2 gap-6">
           <Input
-            label="Color"
+            label="Warna"
             name="color"
             type="text"
             value={formData.color}
             onChange={handleInputChange}
-            placeholder="Royal Blue"
+            placeholder="Biru Royal"
             disabled={isLoading}
             size="lg"
             className="bg-white/50 backdrop-blur-sm"
           />
           
           <Input
-            label="Origin"
+            label="Asal"
             name="origin"
             type="text"
             value={formData.origin}
@@ -309,12 +309,12 @@ const AddGemstone = () => {
 
         {/* Treatment Field */}
         <Input
-          label="Treatment"
+          label="Perawatan"
           name="treatment"
           type="text"
           value={formData.treatment}
           onChange={handleInputChange}
-          placeholder="Heat Treatment"
+          placeholder="Perawatan Panas"
           disabled={isLoading}
           size="lg"
           className="bg-white/50 backdrop-blur-sm"
@@ -323,7 +323,7 @@ const AddGemstone = () => {
         {/* Image Upload */}
         <div>
           <label htmlFor="gemstoneImage" className="block text-sm font-medium text-gray-700 mb-3">
-            Gemstone Photo
+            Foto Batu Mulia
           </label>
           
           {/* File Input */}
@@ -345,7 +345,7 @@ const AddGemstone = () => {
               className="bg-white/50 hover:bg-white hover:border-purple-300"
             >
               <Camera className="w-4 h-4 mr-2" />
-              Choose Image
+              Pilih Gambar
             </Button>
             
             {selectedFile && (
@@ -367,7 +367,7 @@ const AddGemstone = () => {
           {/* Image Preview */}
           {previewUrl && (
             <div className="mt-6">
-              <p className="text-sm text-gray-600 mb-3">Preview:</p>
+              <p className="text-sm text-gray-600 mb-3">Pratinjau:</p>
               <div className="relative inline-block">
                 <img
                   src={previewUrl}
@@ -402,12 +402,12 @@ const AddGemstone = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Adding Gemstone...
+                Menambahkan Batu Mulia...
               </>
             ) : (
               <>
                 <Save className="w-5 h-5 mr-2" />
-                Add Gemstone
+                Tambah Batu Mulia
               </>
             )}
           </Button>

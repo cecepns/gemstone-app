@@ -57,7 +57,7 @@ const handleError = (error) => {
   console.error('API Error:', error);
   
   if (error.name === 'TypeError' && error.message.includes('fetch')) {
-    return 'Cannot connect to server. Please ensure backend is running.';
+    return 'Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.';
   }
   
   return error.message || 'An unexpected error occurred.';
