@@ -8,12 +8,12 @@ import PublicLayout from './layouts/PublicLayout'
 import AdminLayout from './layouts/AdminLayout'
 
 // Components
-import Home from './pages/Home'
 import VerificationPage from './components/VerificationPage'
-import GemstoneList from './components/GemstoneList'
 import AddGemstoneForm from './components/AddGemstoneForm'
 
 // Pages
+import Home from './pages/Home'
+import GemstoneList from './pages/GemstoneList'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import VerificationManagement from './pages/VerificationManagement'

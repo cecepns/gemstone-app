@@ -150,13 +150,13 @@ const GemstoneList = () => {
    */
   if (isLoading) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-purple-600" />
             </div>
-            Gemstone List
+            Gemstone
           </h3>
           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
             <FileText className="w-5 h-5 text-purple-600" />
@@ -176,7 +176,7 @@ const GemstoneList = () => {
    */
   if (error) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -194,21 +194,13 @@ const GemstoneList = () => {
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Data</h3>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={handleRefresh}
-            className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 transition duration-200 flex items-center gap-2 mx-auto"
-          >
-            <RefreshCw className="w-5 h-5" />
-            Try Again
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">

@@ -460,10 +460,6 @@ app.post('/api/admin/login', async (req, res) => {
     
     const admin = rows[0];
 
-    console.log(admin.password);
-    console.log('=---------');
-    console.log(password);
-    
     const isPasswordValid = await bcrypt.compare(password, admin.password);
     
     if (!isPasswordValid) {
@@ -544,8 +540,119 @@ app.get('/api/admin/verify', verifyToken, (req, res) => {
   }
 });
 
+/**
+ * GET /api/gemstones - Get all gemstones (Admin only)
+ * Returns paginated list of all gemstones with optional filtering
+ */
+app.get('/api/gemstones', verifyToken, async (req, res) => {
+  try {
+    // Extract query parameters for pagination and filtering
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const search = req.query.search || '';
+    const sortBy = req.query.sortBy || 'created_at';
+    const sortOrder = req.query.sortOrder || 'desc';
+    
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
+    
+    // Build WHERE clause for search
+    let whereClause = '';
+    let whereParams = [];
+    
+    if (search) {
+      whereClause = `
+        WHERE name LIKE ? OR 
+              unique_id_number LIKE ? OR 
+              color LIKE ? OR 
+              origin LIKE ? OR 
+              description LIKE ?
+      `;
+      const searchPattern = `%${search}%`;
+      whereParams = [searchPattern, searchPattern, searchPattern, searchPattern, searchPattern];
+    }
+    
+    // Validate sortBy to prevent SQL injection
+    const allowedSortFields = ['id', 'name', 'weight_carat', 'color', 'origin', 'created_at'];
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
+    const validSortOrder = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    
+    // Build the main query
+    const query = `
+      SELECT 
+        id,
+        unique_id_number,
+        name,
+        description,
+        weight_carat,
+        dimensions_mm,
+        color,
+        treatment,
+        origin,
+        photo_url,
+        qr_code_data_url,
+        created_at
+      FROM gemstones 
+      ${whereClause}
+      ORDER BY ${validSortBy} ${validSortOrder}
+      LIMIT ? OFFSET ?
+    `;
+    
+    // Execute query with parameters
+    const queryParams = [...whereParams, limit, offset];
+    const [rows] = await pool.execute(query, queryParams);
+    
+    // Get total count for pagination
+    const countQuery = `
+      SELECT COUNT(*) as total 
+      FROM gemstones 
+      ${whereClause}
+    `;
+    const [countResult] = await pool.execute(countQuery, whereParams);
+    const total = countResult[0].total;
+    
+    // Calculate pagination info
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    
+    // Format response data with full photo URLs
+    const formattedData = rows.map(gemstone => ({
+      ...gemstone,
+      photo_url: gemstone.photo_url ? `http://localhost:5000${gemstone.photo_url}` : null
+    }));
+    
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'Gemstones retrieved successfully',
+      data: formattedData,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage,
+        hasPrevPage
+      },
+      filters: {
+        search,
+        sortBy: validSortBy,
+        sortOrder: validSortOrder
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error fetching gemstones:', error);
+    
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch gemstones: ' + error.message
+    });
+  }
+});
+
 // TODO: Add more protected routes here
-// app.get('/api/gemstones', getAllGemstones);
 // app.post('/api/gemstones', verifyToken, createGemstone); // Already has verifyToken
 // app.put('/api/gemstones/:id', verifyToken, updateGemstone);
 // app.delete('/api/gemstones/:id', verifyToken, deleteGemstone);
