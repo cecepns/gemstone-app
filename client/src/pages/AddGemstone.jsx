@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createGemstone } from '../utils/api';
+import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X } from 'lucide-react';
 import { Button, Input, Textarea, Card, Alert } from '../components/ui';
 
@@ -23,7 +24,6 @@ const AddGemstone = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [notification, setNotification] = useState({ type: '', message: '' });
 
   /**
    * Handle input field changes
@@ -35,11 +35,6 @@ const AddGemstone = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Clear notification when user starts typing
-    if (notification.message) {
-      setNotification({ type: '', message: '' });
-    }
   };
 
   /**
@@ -52,19 +47,13 @@ const AddGemstone = () => {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        setNotification({
-          type: 'error',
-          message: 'Hanya file gambar yang diperbolehkan (JPG, PNG, GIF)'
-        });
+        showError('Hanya file gambar yang diperbolehkan (JPG, PNG, GIF)');
         return;
       }
       
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setNotification({
-          type: 'error',
-          message: 'Ukuran file harus kurang dari 5MB'
-        });
+        showError('Ukuran file harus kurang dari 5MB');
         return;
       }
       
@@ -99,18 +88,32 @@ const AddGemstone = () => {
    */
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setNotification({
-        type: 'error',
-        message: 'Nama batu mulia harus diisi'
-      });
+      showError('Nama batu mulia harus diisi');
       return false;
     }
     
-    if (formData.weight_carat && isNaN(parseFloat(formData.weight_carat))) {
-      setNotification({
-        type: 'error',
-        message: 'Berat harus berupa angka'
-      });
+    if (!formData.description.trim()) {
+      showError('Deskripsi harus diisi');
+      return false;
+    }
+    
+    if (!formData.weight_carat.trim()) {
+      showError('Berat dalam karat harus diisi');
+      return false;
+    }
+    
+    if (!formData.dimensions_mm.trim()) {
+      showError('Dimensi dalam mm harus diisi');
+      return false;
+    }
+    
+    if (!formData.color.trim()) {
+      showError('Warna harus diisi');
+      return false;
+    }
+    
+    if (!formData.origin.trim()) {
+      showError('Asal/Origin harus diisi');
       return false;
     }
     
@@ -130,7 +133,7 @@ const AddGemstone = () => {
     }
 
     setIsLoading(true);
-    setNotification({ type: '', message: '' });
+    const loadingToast = showLoading('Sedang menyimpan batu mulia...');
 
     try {
       // Create FormData object
@@ -151,11 +154,11 @@ const AddGemstone = () => {
       // Use API utility to create gemstone
       const result = await createGemstone(submitData, getAuthHeader());
 
+      // Dismiss loading toast
+      dismissToast(loadingToast);
+
       // Success notification
-      setNotification({
-        type: 'success',
-        message: `Batu mulia "${formData.name}" berhasil ditambahkan dengan ID: ${result.data.unique_id_number}`
-      });
+      showSuccess(`Batu mulia "${formData.name}" berhasil ditambahkan dengan ID: ${result.data.unique_id_number}`);
       
       // Reset form
       setFormData({
@@ -172,20 +175,15 @@ const AddGemstone = () => {
       console.log('Gemstone created successfully:', result.data);
     } catch (error) {
       console.error('Error creating gemstone:', error);
-      setNotification({
-        type: 'error',
-        message: error.message || 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.'
-      });
+      
+      // Dismiss loading toast
+      dismissToast(loadingToast);
+      
+      // Show error toast
+      showError(error.message || 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  /**
-   * Clear notification
-   */
-  const clearNotification = () => {
-    setNotification({ type: '', message: '' });
   };
 
   return (
@@ -201,17 +199,8 @@ const AddGemstone = () => {
       </div>
 
       {/* Notification */}
-      {notification.message && (
-        <Alert 
-          type={notification.type === 'success' ? 'success' : 'danger'}
-          title={notification.type === 'success' ? 'Berhasil' : 'Error'}
-          dismissible
-          onDismiss={clearNotification}
-          className="mb-6"
-        >
-          {notification.message}
-        </Alert>
-      )}
+      {/* The notification state and Alert component are removed as per the new_code,
+          but the toast utilities are now directly imported. */}
 
       {/* Loading State */}
       {isLoading && (

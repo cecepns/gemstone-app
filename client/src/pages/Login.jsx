@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { loginAdmin } from '../utils/api';
+import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 import { Lock, AlertCircle, Loader2, Rocket, User, Key, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Button, Input, Alert, Card } from '../components/ui';
 
@@ -13,7 +14,6 @@ const Login = () => {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
   // Hooks
@@ -37,11 +37,6 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
-    
-    // Clear error when user starts typing
-    if (error) {
-      setError('');
-    }
   };
 
   /**
@@ -57,22 +52,22 @@ const Login = () => {
    */
   const validateForm = () => {
     if (!formData.username.trim()) {
-      setError('Username harus diisi');
+      showError('Username harus diisi');
       return false;
     }
     
     if (!formData.password.trim()) {
-      setError('Password harus diisi');
+      showError('Password harus diisi');
       return false;
     }
     
     if (formData.username.length < 3) {
-      setError('Username minimal 3 karakter');
+      showError('Username minimal 3 karakter');
       return false;
     }
     
     if (formData.password.length < 6) {
-      setError('Password minimal 6 karakter');
+      showError('Password minimal 6 karakter');
       return false;
     }
     
@@ -92,7 +87,7 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    setError('');
+    const loadingToast = showLoading('Sedang memproses login...');
 
     try {
       // Use API utility for login
@@ -101,16 +96,25 @@ const Login = () => {
         formData.password
       );
 
+      // Dismiss loading toast
+      dismissToast(loadingToast);
+
       // Login successful - use AuthContext login function
       login(result.data.token, result.data.admin);
       
       console.log('Login successful:', result.data.admin);
       
+      
       // Navigate to admin dashboard
       navigate('/admin/dashboard', { replace: true });
     } catch (error) {
       console.error('Login error:', error);
-      setError(error.message || 'Login gagal. Silakan periksa username dan password Anda.');
+      
+      // Dismiss loading toast
+      dismissToast(loadingToast);
+      
+      // Show error toast
+      showError(error.message || 'Login gagal. Silakan periksa username dan password Anda.');
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +128,7 @@ const Login = () => {
       username: 'admin',
       password: 'admin123'
     });
-    setError('');
+    showSuccess('Demo credentials telah diisi. Silakan klik Login.');
   };
 
   /**
@@ -149,12 +153,6 @@ const Login = () => {
       <Card className="bg-white/80 backdrop-blur-sm border-gray-100 shadow-xl">
         <Card.Body className="p-2">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <Alert type="danger" title="Error Login">
-                {error}
-              </Alert>
-            )}
-
             <Input
               label="Nama Pengguna"
               name="username"
@@ -167,7 +165,6 @@ const Login = () => {
               disabled={isLoading}
               required
               autoComplete="username"
-              error={error && !formData.username.trim() ? 'Username harus diisi' : ''}
             />
 
             <Input
@@ -182,7 +179,6 @@ const Login = () => {
               disabled={isLoading}
               required
               autoComplete="current-password"
-              error={error && !formData.password.trim() ? 'Password harus diisi' : ''}
             />
 
             <Button
@@ -200,6 +196,18 @@ const Login = () => {
                   Login ke Dashboard
                 </>
               )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              fullWidth
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className="text-gray-600 border-gray-300 hover:bg-gray-50"
+            >
+              Demo Login
             </Button>
           </form>
 

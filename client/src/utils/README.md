@@ -1,139 +1,148 @@
-# API Utilities
+# Toast Notification Utilities
 
-This module provides centralized API request functions with proper error handling, authentication, and consistent response formatting.
+Utility functions untuk menampilkan toast notifications menggunakan react-hot-toast.
 
-## Features
-
-- **Centralized API calls**: All API requests go through this module
-- **Automatic error handling**: Consistent error messages and handling
-- **Authentication support**: Automatic token management from AuthContext
-- **Type safety**: Proper parameter validation
-- **File upload support**: Built-in FormData handling
-
-## Usage
-
-### Basic API Functions
-
-```javascript
-import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from '../utils/api';
-
-// GET request
-const data = await apiGet('/endpoint', { 
-  token: 'jwt_token',
-  params: { page: 1, limit: 10 }
-});
-
-// POST request
-const result = await apiPost('/endpoint', {
-  data: { name: 'value' },
-  token: 'jwt_token'
-});
-
-// PUT request
-const updated = await apiPut('/endpoint', {
-  data: { id: 1, name: 'new_value' },
-  token: 'jwt_token'
-});
-
-// DELETE request
-await apiDelete('/endpoint', { token: 'jwt_token' });
-
-// File upload
-const formData = new FormData();
-formData.append('file', file);
-const uploaded = await apiUpload('/upload', { formData, token: 'jwt_token' });
-```
-
-### Specific API Functions (with automatic token extraction)
+## Import
 
 ```javascript
 import { 
-  loginAdmin, 
-  verifyAdminToken, 
-  getGemstones, 
-  getGemstoneDetail,
-  createGemstone,
-  deleteGemstone,
-  verifyGemstone 
-} from '../utils/api';
-import { useAuth } from '../context/AuthContext';
-
-// In your component
-const { getAuthHeader } = useAuth();
-
-// Admin login
-const loginResult = await loginAdmin('username', 'password');
-
-// Verify admin token
-const isValid = await verifyAdminToken('jwt_token');
-
-// Get gemstones (admin) - automatic token extraction
-const gemstones = await getGemstones({ 
-  authHeader: getAuthHeader(),
-  params: { page: 1, limit: 50 }
-});
-
-// Get gemstone detail (admin) - automatic token extraction
-const gemstone = await getGemstoneDetail('gemstone_id', getAuthHeader());
-
-// Create gemstone - automatic token extraction
-const formData = new FormData();
-formData.append('name', 'Ruby');
-formData.append('gemstoneImage', file);
-const created = await createGemstone(formData, getAuthHeader());
-
-// Delete gemstone - automatic token extraction
-await deleteGemstone('gemstone_id', getAuthHeader());
-
-// Verify gemstone (public)
-const verified = await verifyGemstone('unique_id');
+  showSuccess, 
+  showError, 
+  showLoading, 
+  showInfo, 
+  dismissToast, 
+  dismissAllToasts,
+  showPromise 
+} from '../utils/toast';
 ```
 
-## Error Handling
+## Functions
 
-All functions throw errors with user-friendly messages:
+### showSuccess(message)
+Menampilkan toast notification dengan tipe success (hijau).
 
 ```javascript
-try {
-  const data = await getGemstones({ authHeader: getAuthHeader() });
-} catch (error) {
-  console.error(error.message); // "Authentication failed. Please login again."
-}
+showSuccess('Data berhasil disimpan!');
 ```
 
-## Configuration
-
-The API base URL is configured in `api.js`:
+### showError(message)
+Menampilkan toast notification dengan tipe error (merah).
 
 ```javascript
-const API_BASE_URL = 'http://localhost:5000/api';
+showError('Terjadi kesalahan saat menyimpan data');
 ```
 
-To change the base URL for different environments, modify this constant.
-
-## Authentication
-
-The module automatically handles JWT token authentication:
-
-- **Automatic token extraction**: Functions accept `authHeader` from `getAuthHeader()` and automatically extract the token
-- **No manual token handling**: Components no longer need to manually extract tokens with `getAuthHeader().Authorization?.replace('Bearer ', '')`
-- **Headers are automatically set**: With `Authorization: Bearer <token>`
-- **Failed authentication**: Throws appropriate error messages
-
-## File Uploads
-
-For file uploads, use the `apiUpload` function or specific functions like `createGemstone`:
+### showLoading(message)
+Menampilkan toast notification dengan loading state. Mengembalikan toast ID untuk dismiss.
 
 ```javascript
-const formData = new FormData();
-formData.append('name', 'Gemstone Name');
-formData.append('gemstoneImage', file);
-
-const result = await createGemstone(formData, getAuthHeader());
+const loadingToast = showLoading('Sedang memproses...');
+// ... async operation
+dismissToast(loadingToast);
 ```
 
-The module automatically handles:
-- FormData creation
-- Proper headers for multipart/form-data
-- File validation (done in components)
-- Automatic token extraction from AuthContext 
+### showInfo(message)
+Menampilkan toast notification dengan tipe info (abu-abu dengan icon ℹ️).
+
+```javascript
+showInfo('Demo credentials telah diisi');
+```
+
+### dismissToast(toastId)
+Menghilangkan toast notification berdasarkan ID.
+
+```javascript
+const toastId = showLoading('Loading...');
+// ... operation
+dismissToast(toastId);
+```
+
+### dismissAllToasts()
+Menghilangkan semua toast notifications yang sedang ditampilkan.
+
+```javascript
+dismissAllToasts();
+```
+
+### showPromise(promise, messages)
+Otomatis menangani loading, success, dan error state dari promise.
+
+```javascript
+showPromise(
+  apiCall(),
+  {
+    loading: 'Sedang menyimpan...',
+    success: 'Data berhasil disimpan!',
+    error: 'Gagal menyimpan data'
+  }
+);
+```
+
+## Contoh Penggunaan
+
+### Form Submission
+```javascript
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  const loadingToast = showLoading('Sedang menyimpan...');
+  
+  try {
+    await saveData(formData);
+    dismissToast(loadingToast);
+    showSuccess('Data berhasil disimpan!');
+  } catch (error) {
+    dismissToast(loadingToast);
+    showError(error.message);
+  }
+};
+```
+
+### Promise API
+```javascript
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  showPromise(
+    saveData(formData),
+    {
+      loading: 'Sedang menyimpan data...',
+      success: 'Data berhasil disimpan!',
+      error: 'Gagal menyimpan data'
+    }
+  );
+};
+```
+
+### Validation
+```javascript
+const validateForm = () => {
+  if (!formData.name.trim()) {
+    showError('Nama harus diisi');
+    return false;
+  }
+  
+  if (!formData.email.trim()) {
+    showError('Email harus diisi');
+    return false;
+  }
+  
+  return true;
+};
+```
+
+## Konfigurasi
+
+Toast notifications dikonfigurasi di `App.jsx` dengan pengaturan:
+
+- **Position**: `top-right`
+- **Duration**: 4000ms (default), 3000ms (success), 5000ms (error)
+- **Style**: Dark theme dengan warna yang sesuai untuk setiap tipe
+
+## Best Practices
+
+1. **Gunakan loading toast** untuk operasi async yang membutuhkan waktu
+2. **Dismiss loading toast** sebelum menampilkan success/error
+3. **Gunakan showPromise** untuk operasi yang sederhana
+4. **Validasi form** dengan showError untuk feedback yang cepat
+5. **Jangan spam** - hindari menampilkan terlalu banyak toast sekaligus 
