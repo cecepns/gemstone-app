@@ -14,6 +14,7 @@ import AddGemstone from './pages/AddGemstone'
 // Pages
 import Home from './pages/Home'
 import GemstoneList from './pages/GemstoneList'
+import GemstoneDetail from './pages/GemstoneDetail'
 import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import VerificationManagement from './pages/VerificationManagement'
@@ -40,6 +41,7 @@ function App() {
           >
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="gemstones" element={<GemstoneList />} />
+            <Route path="gemstones/:id" element={<GemstoneDetail />} />
             <Route path="gemstones/add" element={<AddGemstone />} />
             <Route path="verifications" element={<VerificationManagement />} />
             <Route path="settings" element={<AdminSettings />} />

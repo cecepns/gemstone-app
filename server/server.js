@@ -674,10 +674,142 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/gemstones/:id/detail - Get single gemstone by ID (Admin only)
+ * Returns detailed gemstone information for admin panel
+ */
+app.get('/api/gemstones/:id/detail', verifyToken, async (req, res) => {
+  try {
+    // Extract ID from URL parameter
+    const { id } = req.params;
+    
+    // Validate ID parameter
+    if (!id) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'ID parameter is required'
+      });
+    }
+    
+    // Query database for gemstone by ID
+    const [rows] = await pool.execute(
+      'SELECT * FROM gemstones WHERE id = ?',
+      [id]
+    );
+    
+    // Check if gemstone was found
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Gemstone not found'
+      });
+    }
+    
+    // Get the gemstone data
+    const gemstone = rows[0];
+    
+    // Format response with full photo URL
+    const responseData = {
+      ...gemstone,
+      photo_url: gemstone.photo_url ? `http://localhost:5000${gemstone.photo_url}` : null
+    };
+    
+    // Return gemstone data
+    res.status(200).json({
+      success: true,
+      message: 'Gemstone details retrieved successfully',
+      data: responseData
+    });
+    
+  } catch (error) {
+    console.error('Error fetching gemstone detail:', error);
+    
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch gemstone details: ' + error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/gemstones/:id - Delete gemstone by ID (Admin only)
+ * Permanently removes gemstone from database
+ */
+app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
+  try {
+    // Extract ID from URL parameter
+    const { id } = req.params;
+    
+    // Validate ID parameter
+    if (!id) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'ID parameter is required'
+      });
+    }
+    
+    // First, get the gemstone to check if it exists and get photo URL
+    const [existingRows] = await pool.execute(
+      'SELECT photo_url FROM gemstones WHERE id = ?',
+      [id]
+    );
+    
+    // Check if gemstone was found
+    if (existingRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Gemstone not found'
+      });
+    }
+    
+    const gemstone = existingRows[0];
+    
+    // Delete from database
+    const [result] = await pool.execute(
+      'DELETE FROM gemstones WHERE id = ?',
+      [id]
+    );
+    
+    // Check if deletion was successful
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Gemstone not found'
+      });
+    }
+    
+    // Delete associated photo file if it exists
+    if (gemstone.photo_url) {
+      try {
+        const filePath = path.join(__dirname, 'public', gemstone.photo_url);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (fileError) {
+        console.error('Error deleting photo file:', fileError);
+        // Don't fail the request if file deletion fails
+      }
+    }
+    
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'Gemstone deleted successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error deleting gemstone:', error);
+    
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to delete gemstone: ' + error.message
+    });
+  }
+});
+
 // TODO: Add more protected routes here
 // app.post('/api/gemstones', verifyToken, createGemstone); // Already has verifyToken
 // app.put('/api/gemstones/:id', verifyToken, updateGemstone);
-// app.delete('/api/gemstones/:id', verifyToken, deleteGemstone);
 // app.post('/api/admin/logout', verifyToken, logoutAdmin);
 // app.get('/api/admin/dashboard', verifyToken, getDashboardStats);
 

@@ -393,7 +393,7 @@ const GemstoneList = () => {
                        <Button
                          variant="primary"
                          size="sm"
-                         onClick={() => window.open(`/verify/${gemstone.unique_id_number}`, '_blank')}
+                         onClick={() => navigate(`/admin/gemstones/${gemstone.id}`)}
                          className="text-xs px-2 py-1"
                          title="View gemstone details"
                        >
