@@ -6,6 +6,7 @@ import { getGemstones, deleteGemstone } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Card } from '../components/ui';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import { showSuccess } from '../utils/toast';
 
 const GemstoneList = () => {
   // Get auth context for token
@@ -127,8 +128,7 @@ const GemstoneList = () => {
    */
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
-      // Could add a toast notification here
-      console.log('Copied to clipboard:', text);
+      showSuccess('Berhasil disalin ke clipboard!');
     });
   };
 
