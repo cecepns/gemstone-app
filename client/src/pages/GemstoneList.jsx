@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getGemstones } from '../utils/api';
+import { getGemstones, deleteGemstone } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Card } from '../components/ui';
 
@@ -135,6 +135,30 @@ const GemstoneList = () => {
    */
   const handleAddGemstone = () => {
     navigate('/admin/gemstones/add');
+  };
+
+  /**
+   * Handle delete gemstone
+   * @param {string} id - Gemstone ID
+   * @param {string} name - Gemstone name for confirmation
+   */
+  const handleDeleteGemstone = async (id, name) => {
+    const confirmMessage = `Are you sure you want to delete "${name || 'this gemstone'}"? This action cannot be undone.`;
+    
+    if (window.confirm(confirmMessage)) {
+      try {
+        await deleteGemstone(id, getAuthHeader());
+        
+        // Refresh the gemstone list after successful deletion
+        await fetchGemstones();
+        
+        // Could add a success notification here
+        console.log('Gemstone deleted successfully');
+      } catch (error) {
+        console.error('Error deleting gemstone:', error);
+        setError(error.message || 'Failed to delete gemstone');
+      }
+    }
   };
 
   /**
@@ -385,6 +409,7 @@ const GemstoneList = () => {
                        <Button
                          variant="danger"
                          size="sm"
+                         onClick={() => handleDeleteGemstone(gemstone.id, gemstone.name)}
                          className="text-xs px-2 py-1"
                          title="Delete gemstone"
                        >
