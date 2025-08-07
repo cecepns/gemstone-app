@@ -54,7 +54,7 @@ const Modal = ({
   );
   
   const backdropClasses = classNames(
-    'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50',
+    'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50',
     {
       'opacity-0 pointer-events-none': !isOpen,
       'opacity-100': isOpen

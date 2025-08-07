@@ -19,6 +19,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Button, Card } from '../components/ui';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 /**
  * GemstoneDetail component - Display detailed gemstone information
@@ -35,6 +36,7 @@ const GemstoneDetail = () => {
   const [gemstone, setGemstone] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false });
 
   /**
    * Fetch gemstone details from API
@@ -92,17 +94,29 @@ const GemstoneDetail = () => {
   };
 
   /**
+   * Open delete confirmation modal
+   */
+  const openDeleteModal = () => {
+    setDeleteModal({ isOpen: true });
+  };
+
+  /**
+   * Close delete confirmation modal
+   */
+  const closeDeleteModal = () => {
+    setDeleteModal({ isOpen: false });
+  };
+
+  /**
    * Handle delete action
    */
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this gemstone? This action cannot be undone.')) {
-      try {
-        await deleteGemstone(id, getAuthHeader());
-        navigate('/admin/gemstones');
-      } catch (error) {
-        console.error('Error deleting gemstone:', error);
-        setError(error.message || 'An error occurred while deleting the gemstone');
-      }
+    try {
+      await deleteGemstone(id, getAuthHeader());
+      navigate('/admin/gemstones');
+    } catch (error) {
+      console.error('Error deleting gemstone:', error);
+      setError(error.message || 'An error occurred while deleting the gemstone');
     }
   };
 
@@ -212,7 +226,7 @@ const GemstoneDetail = () => {
           </Button>
           <Button
             variant="danger"
-            onClick={handleDelete}
+            onClick={openDeleteModal}
             className="rounded-xl"
             title="Delete gemstone"
           >
@@ -376,6 +390,18 @@ const GemstoneDetail = () => {
           </div>
         </div>
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        itemName={gemstone?.name}
+        itemType="gemstone"
+        title="Delete Gemstone"
+        description="This action cannot be undone"
+        warningMessage="This will permanently delete the gemstone and all associated data including images and QR codes."
+      />
     </div>
   );
 };
