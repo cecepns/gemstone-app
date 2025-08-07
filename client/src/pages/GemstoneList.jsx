@@ -186,7 +186,7 @@ const GemstoneList = () => {
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-purple-600" />
             </div>
-            Gemstone
+            Batu Mulia
           </h3>
           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
             <FileText className="w-5 h-5 text-purple-600" />
@@ -195,7 +195,7 @@ const GemstoneList = () => {
         
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading gemstone data...</p>
+          <p className="text-gray-600">Memuat data batu mulia...</p>
         </div>
       </Card>
     );
@@ -212,7 +212,7 @@ const GemstoneList = () => {
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-purple-600" />
             </div>
-            Gemstone List
+            Daftar Batu Mulia
           </h3>
           <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
             <FileText className="w-5 h-5 text-purple-600" />
@@ -223,7 +223,7 @@ const GemstoneList = () => {
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Data</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Gagal Memuat Data</h3>
         </div>
       </Card>
     );
@@ -238,18 +238,18 @@ const GemstoneList = () => {
             <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
               <Gem className="w-5 h-5 text-purple-600" />
             </div>
-            Gemstone List
+            Daftar Batu Mulia
           </h3>
           <div className="flex items-center space-x-3">
             <span className="text-sm text-gray-600">
-              {filteredAndSortedGemstones.length} items
+              {filteredAndSortedGemstones.length} item
             </span>
             <Button
               variant="success"
               size="md"
               onClick={handleAddGemstone}
               className="p-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              title="Add new gemstone"
+              title="Tambah batu mulia baru"
             >
               <Plus className="w-5 h-5" />
             </Button>
@@ -258,7 +258,7 @@ const GemstoneList = () => {
               size="md"
               onClick={handleRefresh}
               className="p-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              title="Refresh data"
+              title="Segarkan data"
             >
               <RefreshCw className="w-5 h-5" />
             </Button>
@@ -271,7 +271,7 @@ const GemstoneList = () => {
           <div>
             <Input
               type="text"
-              placeholder="Search by name, ID, color, or origin..."
+              placeholder="Cari berdasarkan nama, ID, warna, atau asal..."
               value={searchTerm}
               onChange={handleSearchChange}
               size="lg"
@@ -281,12 +281,12 @@ const GemstoneList = () => {
 
           {/* Sort Options */}
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-gray-600">Sort by:</span>
+            <span className="text-sm text-gray-600">Urutkan berdasarkan:</span>
             {[
-              { field: 'created_at', label: 'Date' },
-              { field: 'name', label: 'Name' },
-              { field: 'weight_carat', label: 'Weight' },
-              { field: 'color', label: 'Color' }
+              { field: 'created_at', label: 'Tanggal' },
+              { field: 'name', label: 'Nama' },
+              { field: 'weight_carat', label: 'Berat' },
+              { field: 'color', label: 'Warna' }
             ].map(({ field, label }) => (
               <Button
                 key={field}
@@ -312,9 +312,9 @@ const GemstoneList = () => {
             <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Gem className="w-8 h-8 text-purple-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Gemstones Found</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tidak Ada Batu Mulia Ditemukan</h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm ? 'No gemstones match your search criteria.' : 'No gemstones have been added yet.'}
+              {searchTerm ? 'Tidak ada batu mulia yang sesuai dengan kriteria pencarian Anda.' : 'Belum ada batu mulia yang ditambahkan.'}
             </p>
             {searchTerm && (
               <Button
@@ -322,7 +322,7 @@ const GemstoneList = () => {
                 onClick={() => setSearchTerm('')}
                 className="rounded-xl"
               >
-                Clear Search
+                Bersihkan Pencarian
               </Button>
             )}
           </div>
@@ -332,19 +332,19 @@ const GemstoneList = () => {
               <thead className="bg-purple-50 border-b border-purple-200">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
-                    Image
+                    Gambar
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
-                    ID Number
+                    Nomor ID
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
-                    Name
+                    Nama
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
-                    Date Added
+                    Tanggal Ditambahkan
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
-                    Actions
+                    Aksi
                   </th>
                 </tr>
               </thead>
@@ -373,7 +373,7 @@ const GemstoneList = () => {
                       <span
                         className="text-sm text-purple-600 font-mono cursor-pointer hover:bg-purple-50 px-2 py-1 rounded transition duration-200"
                         onClick={() => copyToClipboard(gemstone.unique_id_number)}
-                        title="Click to copy"
+                        title="Klik untuk menyalin"
                       >
                         {gemstone.unique_id_number}
                       </span>
@@ -383,7 +383,7 @@ const GemstoneList = () => {
                     <td className="px-6 py-4">
                       <div>
                         <div className="text-sm font-semibold text-gray-900">
-                          {gemstone.name || 'Unnamed Gemstone'}
+                          {gemstone.name || 'Batu Mulia Tanpa Nama'}
                         </div>
                       </div>
                     </td>
@@ -402,17 +402,17 @@ const GemstoneList = () => {
                           variant="secondary"
                           size="sm"
                           className="text-xs px-2 py-1"
-                          title="Edit gemstone"
+                          title="Edit batu mulia"
                         >
                           <Edit className="w-3 h-3 mr-1" />
-                          Edit
+                          Ubah
                         </Button>
                         <Button
                           variant="primary"
                           size="sm"
                           onClick={() => navigate(`/admin/gemstones/${gemstone.id}`)}
                           className="text-xs px-2 py-1"
-                          title="View gemstone details"
+                          title="Lihat detail batu mulia"
                         >
                           <Search className="w-3 h-3 mr-1" />
                           Detail
@@ -422,10 +422,10 @@ const GemstoneList = () => {
                           size="sm"
                           onClick={() => openDeleteModal(gemstone)}
                           className="text-xs px-2 py-1"
-                          title="Delete gemstone"
+                          title="Hapus batu mulia"
                         >
                           <AlertCircle className="w-3 h-3 mr-1" />
-                          Delete
+                          Hapus
                         </Button>
                       </div>
                     </td>
@@ -443,9 +443,9 @@ const GemstoneList = () => {
         onConfirm={handleDeleteConfirm}
         itemName={deleteModal.gemstone?.name}
         itemType="gemstone"
-        title="Delete Gemstone"
-        description="This action cannot be undone"
-        warningMessage="This will permanently delete the gemstone and all associated data including images and QR codes."
+        title="Hapus Batu Mulia"
+        description="Tindakan ini tidak dapat dibatalkan"
+        warningMessage="Ini akan menghapus batu mulia secara permanen dan semua data terkait termasuk gambar dan kode QR."
       />
     </>
    );
