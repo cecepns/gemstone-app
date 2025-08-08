@@ -91,7 +91,7 @@ const GemstoneDetail = () => {
    * Handle edit action
    */
   const handleEdit = () => {
-    navigate(`/admin/gemstones/${id}/edit`);
+    navigate(`/admin/gemstones/${id}/edit`, { state: { from: 'detail' } });
   };
 
   /**

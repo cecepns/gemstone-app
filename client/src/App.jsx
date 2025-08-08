@@ -20,6 +20,7 @@ import Login from './pages/Login'
 import AdminDashboard from './pages/AdminDashboard'
 import VerificationManagement from './pages/VerificationManagement'
 import AdminSettings from './pages/AdminSettings'
+import EditGemstone from './pages/EditGemstone'
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="gemstones" element={<GemstoneList />} />
             <Route path="gemstones/:id" element={<GemstoneDetail />} />
+            <Route path="gemstones/:id/edit" element={<EditGemstone />} />
             <Route path="gemstones/add" element={<AddGemstone />} />
             <Route path="verifications" element={<VerificationManagement />} />
             <Route path="settings" element={<AdminSettings />} />

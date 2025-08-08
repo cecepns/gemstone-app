@@ -1,14 +1,16 @@
 // ANCHOR: AddGemstoneForm Component - Complete gemstone creation form with file upload
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createGemstone } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
-import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X } from 'lucide-react';
+import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X, ArrowLeft, Trash2  } from 'lucide-react';
 import { Button, Input, Textarea, Card, Alert } from '../components/ui';
 
 const AddGemstone = () => {
   // Get auth context for token
   const { getAuthHeader } = useAuth();
+  const navigate = useNavigate();
 
   // Form state management
   const [formData, setFormData] = useState({
@@ -182,7 +184,20 @@ const AddGemstone = () => {
   };
 
   return (
-    <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
+    <>
+      {/* Back button header (match GemstoneDetail layout) */}
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          variant="secondary"
+          onClick={() => navigate('/admin/gemstones')}
+          className="rounded-xl"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Kembali ke Daftar
+        </Button>
+      </div>
+
+      <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h3 className="text-2xl font-semibold text-gray-800 flex items-center gap-3">
@@ -232,6 +247,7 @@ const AddGemstone = () => {
           placeholder="Deskripsi detail tentang batu mulia..."
           rows={4}
           disabled={isLoading}
+          required
           size="lg"
           className="bg-white/50 backdrop-blur-sm"
         />
@@ -247,6 +263,7 @@ const AddGemstone = () => {
             onChange={handleInputChange}
             placeholder="2.50"
             disabled={isLoading}
+            required
             size="lg"
             className="bg-white/50 backdrop-blur-sm"
           />
@@ -259,6 +276,7 @@ const AddGemstone = () => {
             onChange={handleInputChange}
             placeholder="8.5 x 6.5 x 4.2"
             disabled={isLoading}
+            required
             size="lg"
             className="bg-white/50 backdrop-blur-sm"
           />
@@ -274,6 +292,7 @@ const AddGemstone = () => {
             onChange={handleInputChange}
             placeholder="Biru Royal"
             disabled={isLoading}
+            required
             size="lg"
             className="bg-white/50 backdrop-blur-sm"
           />
@@ -286,6 +305,7 @@ const AddGemstone = () => {
             onChange={handleInputChange}
             placeholder="Sri Lanka"
             disabled={isLoading}
+            required
             size="lg"
             className="bg-white/50 backdrop-blur-sm"
           />
@@ -300,6 +320,7 @@ const AddGemstone = () => {
           onChange={handleInputChange}
           placeholder="Perawatan Panas"
           disabled={isLoading}
+          required
           size="lg"
           className="bg-white/50 backdrop-blur-sm"
         />
@@ -320,6 +341,7 @@ const AddGemstone = () => {
               onChange={handleFileChange}
               className="hidden"
               disabled={isLoading}
+              required
             />
             <Button
               variant="outline"
@@ -331,21 +353,6 @@ const AddGemstone = () => {
               <Camera className="w-4 h-4 mr-2" />
               Pilih Gambar
             </Button>
-            
-            {selectedFile && (
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-600">{selectedFile.name}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFile}
-                  disabled={isLoading}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
           </div>
           
           {/* Image Preview */}
@@ -363,9 +370,10 @@ const AddGemstone = () => {
                   size="sm"
                   onClick={clearFile}
                   disabled={isLoading}
+                  iconOnly
                   className="absolute -top-2 -right-2 w-7 h-7 p-0 rounded-full"
                 >
-                  <X className="w-3 h-3" />
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -398,6 +406,7 @@ const AddGemstone = () => {
         </div>
       </form>
     </Card>
+    </>
   );
 };
 

@@ -12,6 +12,9 @@ const Button = ({
   disabled = false,
   loading = false,
   fullWidth = false,
+  // ANCHOR: iconOnly
+  // When true, render a square button sized for icons only
+  iconOnly = false,
   className = '',
   onClick,
   type = 'button',
@@ -38,6 +41,17 @@ const Button = ({
     xl: 'px-8 py-4 text-lg'
   };
   
+  // ANCHOR: Icon-only size classes
+  // Square dimensions for icon-only buttons
+  const iconSizeClasses = {
+    sm: 'h-8 w-8 p-0',
+    md: 'h-10 w-10 p-0',
+    lg: 'h-12 w-12 p-0',
+    xl: 'h-14 w-14 p-0'
+  };
+  
+  const resolvedSizeClass = iconOnly ? iconSizeClasses[size] : sizeClasses[size];
+  
   // Width classes
   const widthClasses = fullWidth ? 'w-full' : '';
   
@@ -47,7 +61,7 @@ const Button = ({
   const buttonClasses = classNames(
     baseClasses,
     variantClasses[variant],
-    sizeClasses[size],
+    resolvedSizeClass,
     widthClasses,
     loadingClasses,
     className

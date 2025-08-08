@@ -395,6 +395,7 @@ const GemstoneList = () => {
                           size="sm"
                           className="text-xs px-2 py-1"
                           title="Edit batu mulia"
+                          onClick={() => navigate(`/admin/gemstones/${gemstone.id}/edit`, { state: { from: 'list' } })}
                         >
                           <Edit className="w-3 h-3 mr-1" />
                           Ubah

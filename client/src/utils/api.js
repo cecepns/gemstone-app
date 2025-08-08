@@ -196,6 +196,26 @@ export const apiUpload = async (endpoint, { formData, token = null } = {}) => {
   }
 };
 
+/**
+ * Upload file to API using PUT method
+ * @param {string} endpoint
+ * @param {{ formData: FormData, token?: string }} options
+ */
+export const apiUploadPut = async (endpoint, { formData, token = null } = {}) => {
+  try {
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PUT',
+      headers,
+      body: formData
+    });
+    return await handleResponse(response);
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+};
+
 // Specific API functions for common operations
 
 /**
@@ -251,6 +271,22 @@ export const getGemstoneDetail = async (id, authHeader) => {
 export const createGemstone = async (formData, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiUpload('/gemstones', { formData, token });
+};
+
+/**
+ * Update gemstone by ID - supports JSON or FormData when updating image
+ * @param {string} id - Gemstone ID
+ * @param {FormData|Object} data - Payload (use FormData if including image)
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Updated gemstone response
+ */
+export const updateGemstone = async (id, data, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  if (data instanceof FormData) {
+    // Send as multipart for image update
+    return await apiUploadPut(`/gemstones/${id}`, { formData: data, token });
+  }
+  return await apiPut(`/gemstones/${id}`, { data, token });
 };
 
 /**

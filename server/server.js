@@ -813,6 +813,101 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
 // TODO: Add more protected routes here
 // app.post('/api/gemstones', verifyToken, createGemstone); // Already has verifyToken
 // app.put('/api/gemstones/:id', verifyToken, updateGemstone);
+
+/**
+ * PUT /api/gemstones/:id - Update gemstone by ID (Admin only)
+ * Allows updating text fields and optionally replacing the photo
+ */
+app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handleMulterError, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, weight_carat, dimensions_mm, color, treatment, origin } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
+    }
+
+    // Get existing gemstone to verify and get current photo path
+    const [existingRows] = await pool.execute('SELECT * FROM gemstones WHERE id = ?', [id]);
+    if (existingRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Gemstone not found' });
+    }
+    const existing = existingRows[0];
+
+    // Prepare update fields
+    const fields = {
+      name: name ?? existing.name,
+      description: description ?? existing.description,
+      weight_carat: weight_carat !== undefined && weight_carat !== null && weight_carat !== '' ? parseFloat(weight_carat) : existing.weight_carat,
+      dimensions_mm: dimensions_mm ?? existing.dimensions_mm,
+      color: color ?? existing.color,
+      treatment: treatment ?? existing.treatment,
+      origin: origin ?? existing.origin,
+      photo_url: existing.photo_url
+    };
+
+    // If new file uploaded, set new photo_url and delete old file
+    if (req.file) {
+      const newPhotoPath = `/uploads/${req.file.filename}`;
+      // delete old file if exists
+      if (existing.photo_url) {
+        try {
+          const filePath = path.join(__dirname, 'public', existing.photo_url);
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch (fileErr) {
+          console.error('Error deleting old photo:', fileErr);
+        }
+      }
+      fields.photo_url = newPhotoPath;
+    }
+
+    const updateQuery = `
+      UPDATE gemstones SET 
+        name = ?,
+        description = ?,
+        weight_carat = ?,
+        dimensions_mm = ?,
+        color = ?,
+        treatment = ?,
+        origin = ?,
+        photo_url = ?
+      WHERE id = ?
+    `;
+
+    const values = [
+      fields.name,
+      fields.description,
+      fields.weight_carat,
+      fields.dimensions_mm,
+      fields.color,
+      fields.treatment,
+      fields.origin,
+      fields.photo_url,
+      id
+    ];
+
+    await pool.execute(updateQuery, values);
+
+    // Return updated record
+    const [rows] = await pool.execute('SELECT * FROM gemstones WHERE id = ?', [id]);
+    const updated = rows[0];
+    res.status(200).json({
+      success: true,
+      message: 'Batu mulia berhasil diperbarui',
+      data: {
+        ...updated,
+        photo_url: updated.photo_url ? `${SERVER_BASE_URL}${updated.photo_url}` : null
+      }
+    });
+  } catch (error) {
+    console.error('Error updating gemstone:', error);
+    // If upload succeeded but update failed, cleanup new file
+    if (req.file) {
+      try { fs.unlinkSync(req.file.path); } catch {}
+    }
+    res.status(500).json({ error: 'Internal Server Error', message: 'Gagal memperbarui batu mulia: ' + error.message });
+  }
+});
 // app.post('/api/admin/logout', verifyToken, logoutAdmin);
 // app.get('/api/admin/dashboard', verifyToken, getDashboardStats);
 
