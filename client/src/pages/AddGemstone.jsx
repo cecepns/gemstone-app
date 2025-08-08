@@ -51,11 +51,6 @@ const AddGemstone = () => {
         return;
       }
       
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        showError('Ukuran file harus kurang dari 5MB');
-        return;
-      }
       
       setSelectedFile(file);
       
@@ -244,7 +239,7 @@ const AddGemstone = () => {
         {/* Weight and Dimensions Row */}
         <div className="grid md:grid-cols-2 gap-6">
           <Input
-            label="Berat (Karat)"
+            label="Berat"
             name="weight_carat"
             type="number"
             step="0.01"

@@ -75,9 +75,6 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ 
   storage: storage,
   fileFilter: fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
-  }
 });
 
 // Error handling middleware for multer
@@ -109,6 +106,12 @@ const handleMulterError = (error, req, res, next) => {
 // JWT Secret - In production, use environment variable
 const JWT_SECRET = process.env.JWT_SECRET || 'gemstone_verification_secret_key_2024';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+// ANCHOR: API Base URL
+// Global base URL for API responses and QR code links
+const SERVER_BASE_URL = process.env.SERVER_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.API_BASE_URL || `${SERVER_BASE_URL}/api`;
+const CLIENT_BASE_URL = process.env.CLIENT_BASE_URL || 'http://localhost:5173';
 
 // Create MySQL connection pool
 const pool = mysql.createPool({
@@ -151,7 +154,7 @@ async function generateIdentifiers() {
     const unique_id_number = `GEM-${timestamp}-${randomString}`;
     
     // Create verification URL that will be encoded in QR code
-    const verificationUrl = `http://localhost:5000/api/gemstones/${unique_id_number}`;
+    const verificationUrl = `${CLIENT_BASE_URL}/verify/${unique_id_number}`;
     
     // Generate QR code as data URL
     const qr_code_data_url = await QRCode.toDataURL(verificationUrl, {
@@ -362,7 +365,7 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       message: 'Batu mulia berhasil dibuat',
       data: {
         ...createdGemstone,
-        photo_url: createdGemstone.photo_url ? `http://localhost:5000${createdGemstone.photo_url}` : null
+        photo_url: createdGemstone.photo_url ? `${SERVER_BASE_URL}${createdGemstone.photo_url}` : null
       }
     });
     
@@ -422,7 +425,7 @@ app.get('/api/gemstones/:id', async (req, res) => {
     // Format response with full photo URL
     const responseData = {
       ...gemstone,
-      photo_url: gemstone.photo_url ? `http://localhost:5000${gemstone.photo_url}` : null,
+      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null,
       // Add verification status
       verified: true,
       verification_timestamp: new Date().toISOString()
@@ -641,7 +644,7 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     // Format response data with full photo URLs
     const formattedData = rows.map(gemstone => ({
       ...gemstone,
-      photo_url: gemstone.photo_url ? `http://localhost:5000${gemstone.photo_url}` : null
+      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null
     }));
     
     // Return success response
@@ -711,7 +714,7 @@ app.get('/api/gemstones/:id/detail', verifyToken, async (req, res) => {
     // Format response with full photo URL
     const responseData = {
       ...gemstone,
-      photo_url: gemstone.photo_url ? `http://localhost:5000${gemstone.photo_url}` : null
+      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null
     };
     
     // Return gemstone data
@@ -842,7 +845,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📍 Health check: ${API_BASE_URL}/health`);
 });
 
 // Export app for testing purposes

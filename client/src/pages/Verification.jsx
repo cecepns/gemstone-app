@@ -12,8 +12,10 @@ import {
   Calendar,
   Weight,
   Palette,
+  Ruler,
   MapPin,
-  Settings
+  Settings,
+  IdCard
 } from 'lucide-react';
 
 const Verification = () => {
@@ -193,7 +195,7 @@ const Verification = () => {
               {/* Unique ID */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
+                  <IdCard className="w-4 h-4" />
                   Nomor ID Unik
                 </label>
                 <p className="text-lg text-purple-600 font-mono bg-purple-50 px-4 py-3 rounded-xl border border-purple-200">
@@ -204,7 +206,10 @@ const Verification = () => {
               {/* Description */}
               {gemstone.description && (
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500">Deskripsi</label>
+                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Deskripsi
+                  </label>
                   <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
                     {gemstone.description}
                   </p>
@@ -223,7 +228,6 @@ const Verification = () => {
                     {gemstone.weight_carat ? (
                       <span className="inline-flex items-center">
                         <span className="font-semibold">{gemstone.weight_carat}</span>
-                        <span className="text-sm text-gray-500 ml-1">carat</span>
                       </span>
                     ) : (
                       'Tidak tersedia'
@@ -233,9 +237,12 @@ const Verification = () => {
 
                 {/* Dimensions */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500">Dimensi</label>
+                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
+                    <Ruler className="w-4 h-4" />
+                    Dimensi
+                  </label>
                   <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                                        {gemstone.dimensions_mm || 'Tidak tersedia'}
+                    {gemstone.dimensions_mm || 'Tidak tersedia'}
                   </p>
                 </div>
 

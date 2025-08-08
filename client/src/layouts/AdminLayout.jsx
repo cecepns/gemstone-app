@@ -31,7 +31,7 @@ const AdminLayout = () => {
       icon: <LayoutDashboard className="w-5 h-5" />
     },
     {
-      name: 'Kelola Gemstone',
+      name: 'Kelola Batu Mulia',
       href: '/admin/gemstones',
       icon: <Package className="w-5 h-5" />
     },
