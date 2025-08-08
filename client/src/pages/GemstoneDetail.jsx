@@ -10,7 +10,6 @@ import {
   Edit, 
   Trash2, 
   AlertCircle, 
-  Loader2,
   FileText,
   Calendar,
   Weight,
@@ -118,7 +117,7 @@ const GemstoneDetail = () => {
       navigate('/admin/gemstones');
     } catch (error) {
       console.error('Error deleting gemstone:', error);
-      setError(error.message || 'An error occurred while deleting the gemstone');
+      setError(error.message || 'Terjadi kesalahan saat menghapus batu mulia');
     }
   };
 
@@ -153,7 +152,7 @@ const GemstoneDetail = () => {
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Memuat Batu Mulia</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Gagal Memuat Batu Mulia</h3>
           <p className="text-gray-600 mb-6">{error}</p>
           <Button
             variant="primary"
@@ -161,7 +160,7 @@ const GemstoneDetail = () => {
             className="rounded-xl"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to List
+            Kembali ke Daftar
           </Button>
         </div>
       </div>
@@ -186,7 +185,7 @@ const GemstoneDetail = () => {
             className="rounded-xl"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to List
+            Kembali ke Daftar
           </Button>
         </div>
       </div>
@@ -215,7 +214,7 @@ const GemstoneDetail = () => {
             title="Cetak detail batu mulia"
           >
             <Printer className="w-4 h-4 mr-2" />
-            Print
+            Cetak
           </Button>
           <Button
             variant="primary"
@@ -224,7 +223,7 @@ const GemstoneDetail = () => {
             title="Edit batu mulia"
           >
             <Edit className="w-4 h-4 mr-2" />
-            Edit
+            Ubah
           </Button>
           <Button
             variant="danger"
@@ -233,7 +232,7 @@ const GemstoneDetail = () => {
             title="Hapus batu mulia"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete
+            Hapus
           </Button>
         </div>
       </div>
@@ -249,7 +248,7 @@ const GemstoneDetail = () => {
                 <div className="relative">
                   <img
                     src={gemstone.photo_url}
-                    alt={gemstone.name || 'Gemstone'}
+                    alt={gemstone.name || 'Batu Mulia'}
                     className="w-full aspect-square object-cover rounded-xl border border-gray-200 shadow-lg"
                   />
                 </div>
@@ -273,7 +272,7 @@ const GemstoneDetail = () => {
                 <div className="flex justify-center p-12">
                   <img
                     src={gemstone.qr_code_data_url}
-                    alt="QR Code"
+                    alt="Kode QR"
                     className="w-48 h-48 border border-gray-200 rounded-xl shadow-lg"
                   />
                 </div>
@@ -405,9 +404,9 @@ const GemstoneDetail = () => {
         onConfirm={handleDelete}
         itemName={gemstone?.name}
         itemType="gemstone"
-        title="Delete Gemstone"
-        description="This action cannot be undone"
-        warningMessage="This will permanently delete the gemstone and all associated data including images and QR codes."
+        title="Hapus Batu Mulia"
+        description="Tindakan ini tidak dapat dibatalkan"
+        warningMessage="Ini akan menghapus batu mulia secara permanen beserta semua data terkait termasuk gambar dan kode QR."
       />
     </div>
   );
