@@ -132,15 +132,6 @@ const Verification = () => {
                 <strong>ID yang dicari:</strong> {id}
               </p>
             </div>
-
-            <div className="space-y-3">
-              <Link 
-                to="/"
-                className="block w-full bg-gray-200 text-gray-700 py-3 px-6 rounded-xl hover:bg-gray-300 transition duration-200"
-              >
-                Kembali ke Beranda
-              </Link>
-            </div>
           </div>
         </div>
       </div>
