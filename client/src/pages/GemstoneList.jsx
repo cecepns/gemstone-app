@@ -1,6 +1,6 @@
 // ANCHOR: GemstoneList Component - Display and manage gemstone data
 import { useState, useEffect } from 'react';
-import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText, Plus } from 'lucide-react';
+import { Gem, RefreshCw, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getGemstones, deleteGemstone } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
@@ -252,15 +252,7 @@ const GemstoneList = () => {
               title="Tambah batu mulia baru"
             >
               <Plus className="w-5 h-5" />
-            </Button>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleRefresh}
-              className="p-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              title="Segarkan data"
-            >
-              <RefreshCw className="w-5 h-5" />
+              Tambah
             </Button>
           </div>
         </div>
@@ -424,7 +416,7 @@ const GemstoneList = () => {
                           className="text-xs px-2 py-1"
                           title="Hapus batu mulia"
                         >
-                          <AlertCircle className="w-3 h-3 mr-1" />
+                          <Trash2 className="w-3 h-3 mr-1" />
                           Hapus
                         </Button>
                       </div>
