@@ -47,6 +47,16 @@ export default {
           '0%': { boxShadow: '0 0 20px rgba(124, 58, 237, 0.5)' },
           '100%': { boxShadow: '0 0 30px rgba(124, 58, 237, 0.8)' },
         }
+      },
+      width: {
+        'sm': '24rem',
+        'md': '28rem',
+        'lg': '32rem',
+        'xl': '36rem',
+        '2xl': '42rem',
+        '3xl': '48rem',
+        '4xl': '56rem',
+        '5xl': '64rem',
       }
     },
   },

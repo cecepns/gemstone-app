@@ -42,3 +42,255 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+/* ANCHOR: Print Card Styles - Print-friendly gemstone card styling */
+@media print {
+  /* Hide everything except print card */
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-card,
+  .print-card * {
+    visibility: visible;
+  }
+  
+  .print-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .print-card::before {
+    display: none;
+  }
+  
+  .print-footer {
+    background: #f9f9f9;
+    border-top: 1px solid #000;
+  }
+}
+
+/* Print card styles (visible in preview) */
+.print-card {
+  width: 148mm;
+  height: 105mm;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+  border: 1px solid #e9d5ff;
+  position: relative;
+}
+
+.print-card-content {
+  padding: 0;
+  height: calc(100% - 20mm);
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  z-index: 1;
+}
+
+/* Left and right sides */
+.print-left-side {
+  flex: 0 0 60mm;
+  display: flex;
+  flex-direction: column;
+  padding: 4mm;
+  border-right: 1px solid #e5e7eb;
+}
+
+.print-right-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 4mm;
+}
+
+/* Top Header */
+.print-top-header {
+  height: 10mm;
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4mm;
+  font-weight: bold;
+}
+
+.print-report-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.print-lab-logo {
+  text-align: right;
+}
+
+.print-lab-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+
+/* Report number */
+.print-report-number {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 2mm;
+  color: #7c3aed;
+}
+
+/* Image container */
+.print-image-container {
+  width: 52mm;
+  height: 40mm;
+  border: 2px solid #e9d5ff;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  margin-bottom: 2mm;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1);
+}
+
+.print-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.print-image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  text-align: center;
+  font-size: 10px;
+}
+
+.print-placeholder-icon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 4px;
+}
+
+/* Scale */
+.print-scale {
+  font-size: 10px;
+  text-align: center;
+  margin-bottom: 2mm;
+  color: #6b7280;
+}
+
+/* Barcode container */
+.print-barcode-container {
+  width: 52mm;
+  height: 15mm;
+  border: 2px solid #e9d5ff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.1);
+}
+
+.print-barcode {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.print-barcode-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+/* Details section */
+.print-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+}
+
+.print-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  padding: 1mm 0;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.print-detail-item:hover {
+  background-color: #faf5ff;
+  border-radius: 4px;
+  padding: 1mm 2mm;
+  margin: 0 -2mm;
+}
+
+.print-detail-item:last-child {
+  border-bottom: none;
+}
+
+.print-detail-label {
+  font-weight: 600;
+  color: #7c3aed;
+  min-width: 80px;
+}
+
+.print-detail-value {
+  color: #1f2937;
+  text-align: right;
+  flex: 1;
+}
+
+/* Bottom Footer */
+.print-bottom-footer {
+  height: 10mm;
+  background: linear-gradient(135deg, #581c87 0%, #7c3aed 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4mm;
+  font-size: 10px;
+}
+
+.print-social-media {
+  display: flex;
+  gap: 4mm;
+}
+
+.print-website {
+  font-weight: 600;
+}
+
+/* Print preview styles */
+@media screen {
+  .print-card {
+    margin: 20px auto;
+    transform: scale(1.2);
+    transform-origin: top center;
+  }
+}

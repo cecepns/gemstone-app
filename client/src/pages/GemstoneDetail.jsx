@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, Badge, Modal, TransferOwnershipModal, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import PrintPreviewModal from '../components/PrintPreviewModal';
 
 /**
  * GemstoneDetail component - Display detailed gemstone information
@@ -60,6 +61,9 @@ const GemstoneDetail = () => {
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState(null);
+  
+  // Print card state
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
 
   /**
    * Fetch gemstone details from API
@@ -192,6 +196,13 @@ const GemstoneDetail = () => {
   };
 
   /**
+   * Open print preview modal
+   */
+  const openPrintPreview = () => {
+    setShowPrintPreview(true);
+  };
+
+  /**
    * Handle edit action
    */
   const handleEdit = () => {
@@ -313,12 +324,12 @@ const GemstoneDetail = () => {
         <div className="flex items-center space-x-3">
           <Button
             variant="secondary"
-            onClick={handlePrint}
+            onClick={openPrintPreview}
             className="rounded-xl"
-            title="Cetak detail batu mulia"
+            title="Cetak kartu batu mulia"
           >
             <Printer className="w-4 h-4 mr-2" />
-            Cetak
+            Cetak Kartu
           </Button>
           <Button
             variant="primary"
@@ -682,6 +693,13 @@ const GemstoneDetail = () => {
             }, 100);
           }}
         />
+
+       {/* Print Preview Modal */}
+       <PrintPreviewModal
+         isOpen={showPrintPreview}
+         onClose={() => setShowPrintPreview(false)}
+         gemstone={gemstone}
+       />
 
        {/* Delete Confirmation Modal */}
        <DeleteConfirmationModal
