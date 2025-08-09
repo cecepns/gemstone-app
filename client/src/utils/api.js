@@ -359,4 +359,16 @@ export const updateGemstoneOwner = async (gemstoneId, ownerId, ownerData, authHe
 export const deleteGemstoneOwner = async (gemstoneId, ownerId, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiDelete(`/gemstones/${gemstoneId}/owners/${ownerId}`, { token });
+};
+
+/**
+ * Transfer ownership
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {Object} transferData - Transfer data
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Transfer response
+ */
+export const transferOwnership = async (gemstoneId, transferData, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPost(`/gemstones/${gemstoneId}/transfer`, { data: transferData, token });
 }; 

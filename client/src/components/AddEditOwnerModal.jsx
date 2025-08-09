@@ -39,6 +39,10 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   // Validation state
   const [errors, setErrors] = useState({});
 
+
+  
+
+
   /**
    * Reset form data
    */
@@ -73,6 +77,8 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         [name]: ''
       }));
     }
+
+
   };
 
   /**
@@ -133,6 +139,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         dismissToast();
         showSuccess('Data pemilik berhasil diperbarui');
       } else {
+        // Add new owner (no transfer mode anymore)
         await addGemstoneOwner(gemstoneId, formData, getAuthHeader());
         dismissToast();
         showSuccess('Pemilik baru berhasil ditambahkan');
@@ -156,6 +163,24 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   };
 
   /**
+   * Format date from database to YYYY-MM-DD format for date input
+   * @param {string} dateString - Date string from database
+   * @returns {string} - Formatted date in YYYY-MM-DD format
+   */
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    
+    // Handle both ISO strings and date-only strings
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) return '';
+    
+    // Format to YYYY-MM-DD
+    return date.toISOString().split('T')[0];
+  };
+
+  /**
    * Handle modal close
    */
   const handleClose = () => {
@@ -166,13 +191,23 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   // Initialize form data when editing
   useEffect(() => {
     if (isOpen && editingOwner) {
+      // Debug: Log the raw date values from database
+      console.log('Raw ownership_start_date from DB:', editingOwner.ownership_start_date);
+      console.log('Raw ownership_end_date from DB:', editingOwner.ownership_end_date);
+      
+      const formattedStartDate = formatDateForInput(editingOwner.ownership_start_date);
+      const formattedEndDate = formatDateForInput(editingOwner.ownership_end_date);
+      
+      console.log('Formatted ownership_start_date:', formattedStartDate);
+      console.log('Formatted ownership_end_date:', formattedEndDate);
+      
       setFormData({
         owner_name: editingOwner.owner_name || '',
         owner_phone: editingOwner.owner_phone || '',
         owner_email: editingOwner.owner_email || '',
         owner_address: editingOwner.owner_address || '',
-        ownership_start_date: editingOwner.ownership_start_date || '',
-        ownership_end_date: editingOwner.ownership_end_date || '',
+        ownership_start_date: formattedStartDate,
+        ownership_end_date: formattedEndDate,
         notes: editingOwner.notes || ''
       });
     } else if (isOpen && !editingOwner) {
@@ -288,29 +323,26 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
               )}
             </div>
             
-            {/* Tanggal Berakhir Kepemilikan (only for editing) */}
-            {editingOwner && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tanggal Berakhir Kepemilikan
-                </label>
-                <Input
-                  name="ownership_end_date"
-                  type="date"
-                  value={formData.ownership_end_date || ''}
-                  onChange={handleInputChange}
-                  min={formData.ownership_start_date}
-                  max={getCurrentDate()}
-                  className={errors.ownership_end_date ? 'border-red-500' : ''}
-                />
-                {errors.ownership_end_date && (
-                  <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" />
-                    {errors.ownership_end_date}
-                  </p>
-                )}
-              </div>
-            )}
+            {/* Tanggal Berakhir Kepemilikan */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tanggal Berakhir Kepemilikan
+              </label>
+              <Input
+                name="ownership_end_date"
+                type="date"
+                value={formData.ownership_end_date || ''}
+                onChange={handleInputChange}
+                min={formData.ownership_start_date}
+                className={errors.ownership_end_date ? 'border-red-500' : ''}
+              />
+              {errors.ownership_end_date && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.ownership_end_date}
+                </p>
+              )}
+            </div>
           </div>
           
           {/* Alamat */}
@@ -340,6 +372,10 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
               rows={3}
             />
           </div>
+
+          
+
+
           
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">

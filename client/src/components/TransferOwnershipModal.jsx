@@ -1,30 +1,29 @@
-// ANCHOR: TransferOwnershipModal Component - Modal for transferring gemstone ownership
-import { useState } from 'react';
+// ANCHOR: TransferOwnershipModal Component - Modal for transferring ownership to existing owners
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { addGemstoneOwner } from '../utils/api';
+import { transferOwnership } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 import { 
   UserPlus, 
-  UserCheck, 
+  X, 
+  AlertCircle,
   Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  FileText,
-  X,
-  AlertCircle
+  Clock,
+  FileText
 } from 'lucide-react';
-import { Button, Input, Textarea, Modal } from './ui';
+import { Button, Input, Textarea, Modal, Select } from './ui';
 
 /**
- * TransferOwnershipModal component - Transfer gemstone ownership to new owner
+ * TransferOwnershipModal component - Modal for transferring ownership to existing owners
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Modal open state
  * @param {Function} props.onClose - Close modal function
  * @param {Function} props.onSuccess - Success callback function
  * @param {string} props.gemstoneId - Gemstone ID
  * @param {string} props.gemstoneName - Gemstone name for display
- * @param {Object} props.currentOwner - Current owner data (optional)
+ * @param {Object|null} props.currentOwner - Current owner data
+ * @param {Array} props.owners - List of all owners for selection
+ * @param {Function} props.onAddNewOwner - Callback to open add new owner modal
  * @returns {React.ReactElement} - Rendered modal component
  */
 const TransferOwnershipModal = ({ 
@@ -33,19 +32,37 @@ const TransferOwnershipModal = ({
   onSuccess, 
   gemstoneId, 
   gemstoneName, 
-  currentOwner 
+  currentOwner,
+  owners = [],
+  onAddNewOwner 
 }) => {
   const { getAuthHeader } = useAuth();
 
   // Form state
   const [formData, setFormData] = useState({
-    owner_name: '',
-    owner_phone: '',
-    owner_email: '',
-    owner_address: '',
+    fromOwnerId: '',
+    toOwnerId: '',
     ownership_start_date: '',
+    ownership_end_date: '',
     notes: ''
   });
+
+  // Validation state
+  const [errors, setErrors] = useState({});
+
+  /**
+   * Reset form data
+   */
+  const resetForm = () => {
+    setFormData({
+      fromOwnerId: '',
+      toOwnerId: '',
+      ownership_start_date: '',
+      ownership_end_date: '',
+      notes: ''
+    });
+    setErrors({});
+  };
 
   /**
    * Handle input field changes
@@ -57,20 +74,71 @@ const TransferOwnershipModal = ({
       ...prev,
       [name]: value
     }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   /**
-   * Reset form data
+   * Validate form data
+   * @returns {boolean} - True if valid, false otherwise
    */
-  const resetForm = () => {
-    setFormData({
-      owner_name: '',
-      owner_phone: '',
-      owner_email: '',
-      owner_address: '',
-      ownership_start_date: '',
-      notes: ''
-    });
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.toOwnerId) {
+      newErrors.toOwnerId = 'Pemilik tujuan harus dipilih';
+    }
+
+    if (!formData.ownership_start_date) {
+      newErrors.ownership_start_date = 'Tanggal mulai kepemilikan harus diisi';
+    }
+
+    // Validate date range if end date is provided
+    if (formData.ownership_end_date && formData.ownership_start_date) {
+      const startDate = new Date(formData.ownership_start_date);
+      const endDate = new Date(formData.ownership_end_date);
+      
+      if (endDate <= startDate) {
+        newErrors.ownership_end_date = 'Tanggal berakhir harus setelah tanggal mulai';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  /**
+   * Handle form submission
+   * @param {Event} e - Form submit event
+   */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      showLoading('Memproses transfer kepemilikan...');
+
+      await transferOwnership(gemstoneId, formData, getAuthHeader());
+      
+      dismissToast();
+      showSuccess('Kepemilikan berhasil ditransfer');
+
+      onSuccess(); // Call success callback
+      onClose(); // Close modal
+    } catch (error) {
+      console.error('Error transferring ownership:', error);
+      dismissToast();
+      showError(error.message || 'Gagal mentransfer kepemilikan');
+    }
   };
 
   /**
@@ -82,51 +150,30 @@ const TransferOwnershipModal = ({
   };
 
   /**
-   * Handle form submission
-   * @param {Event} e - Form submit event
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validate required fields
-    if (!formData.owner_name.trim() || !formData.owner_phone.trim() || !formData.ownership_start_date) {
-      showError('Nama pemilik, nomor telepon, dan tanggal transfer harus diisi');
-      return;
-    }
-
-    try {
-      showLoading('Memproses transfer kepemilikan...');
-
-      // Add new owner with transfer flag
-      await addGemstoneOwner(gemstoneId, {
-        ...formData,
-        is_transfer: true
-      }, getAuthHeader());
-
-      showSuccess('Kepemilikan berhasil ditransfer');
-      
-      resetForm();
-      onClose();
-      
-      // Call success callback to refresh data
-      if (onSuccess) {
-        onSuccess();
-      }
-    } catch (error) {
-      console.error('Error transferring ownership:', error);
-      showError(error.message || 'Gagal memproses transfer kepemilikan');
-    } finally {
-      dismissToast();
-    }
-  };
-
-  /**
    * Handle modal close
    */
   const handleClose = () => {
     resetForm();
     onClose();
   };
+
+  /**
+   * Get available owners for selection (excluding current owner)
+   */
+  const getAvailableOwners = () => {
+    return owners.filter(owner => owner.id !== currentOwner?.id);
+  };
+
+  // Initialize form data when modal opens
+  useEffect(() => {
+    if (isOpen && currentOwner) {
+      setFormData(prev => ({
+        ...prev,
+        fromOwnerId: currentOwner.id,
+        ownership_start_date: getCurrentDate()
+      }));
+    }
+  }, [isOpen, currentOwner]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
@@ -136,9 +183,9 @@ const TransferOwnershipModal = ({
           <div className="flex items-center gap-3">
             <UserPlus className="w-6 h-6 text-blue-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900">
                 Transfer Kepemilikan
-              </h2>
+              </h3>
               <p className="text-sm text-gray-600">{gemstoneName}</p>
             </div>
           </div>
@@ -147,109 +194,142 @@ const TransferOwnershipModal = ({
           </Button>
         </div>
 
-        {/* Current Owner Info */}
-        {currentOwner && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <UserCheck className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Pemilik Saat Ini</span>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Dari (Current Owner) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Dari (Pemilik Aktif)
+              </label>
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-900 font-medium">
+                  {currentOwner?.owner_name || 'Tidak ada pemilik aktif'}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {currentOwner?.owner_phone}
+                </p>
+              </div>
             </div>
-            <div className="text-sm text-blue-800">
-              <p><strong>{currentOwner.owner_name}</strong></p>
-              <p>{currentOwner.owner_phone}</p>
-              {currentOwner.owner_email && <p>{currentOwner.owner_email}</p>}
-            </div>
-          </div>
-        )}
 
-        {/* Transfer Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Ke (Target Owner) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nama Pemilik Baru *
+                Ke (Pemilik Tujuan) *
               </label>
-              <Input
-                name="owner_name"
-                value={formData.owner_name}
+              <Select
+                name="toOwnerId"
+                value={formData.toOwnerId}
                 onChange={handleInputChange}
-                placeholder="Masukkan nama pemilik baru"
-                required
-              />
+                className={errors.toOwnerId ? 'border-red-500' : ''}
+              >
+                <option value="">Pilih pemilik tujuan</option>
+                {getAvailableOwners().map((owner) => (
+                  <option key={owner.id} value={owner.id}>
+                    {owner.owner_name} - {owner.owner_phone}
+                    {owner.is_current_owner ? ' (Pemilik Aktif)' : ' (Mantan Pemilik)'}
+                  </option>
+                ))}
+              </Select>
+              {errors.toOwnerId && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.toOwnerId}
+                </p>
+              )}
             </div>
-            
+
+            {/* Tanggal Mulai Kepemilikan */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nomor Telepon *
-              </label>
-              <Input
-                name="owner_phone"
-                value={formData.owner_phone}
-                onChange={handleInputChange}
-                placeholder="Masukkan nomor telepon"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <Input
-                name="owner_email"
-                type="email"
-                value={formData.owner_email}
-                onChange={handleInputChange}
-                placeholder="Masukkan email (opsional)"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tanggal Transfer *
+                Tanggal Mulai Kepemilikan *
               </label>
               <Input
                 name="ownership_start_date"
                 type="date"
                 value={formData.ownership_start_date}
                 onChange={handleInputChange}
-                max={getCurrentDate()}
-                required
+                min={getCurrentDate()}
+                className={errors.ownership_start_date ? 'border-red-500' : ''}
               />
+              {errors.ownership_start_date && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.ownership_start_date}
+                </p>
+              )}
+            </div>
+
+            {/* Tanggal Berakhir Kepemilikan */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tanggal Berakhir Kepemilikan
+              </label>
+              <Input
+                name="ownership_end_date"
+                type="date"
+                value={formData.ownership_end_date}
+                onChange={handleInputChange}
+                min={formData.ownership_start_date}
+                className={errors.ownership_end_date ? 'border-red-500' : ''}
+              />
+              {errors.ownership_end_date && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.ownership_end_date}
+                </p>
+              )}
             </div>
           </div>
-          
+
+          {/* Catatan */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Alamat
-            </label>
-            <Textarea
-              name="owner_address"
-              value={formData.owner_address}
-              onChange={handleInputChange}
-              placeholder="Masukkan alamat pemilik baru (opsional)"
-              rows={3}
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Catatan Transfer
+              Catatan
             </label>
             <Textarea
               name="notes"
               value={formData.notes}
               onChange={handleInputChange}
-              placeholder="Masukkan catatan tentang transfer kepemilikan (opsional)"
+              placeholder="Catatan tambahan untuk transfer kepemilikan (opsional)"
               rows={3}
             />
           </div>
-          
-          <div className="flex items-center justify-end gap-3 pt-4">
+
+          {/* Add New Owner Option */}
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 text-blue-600">
+                <svg fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-900">
+                  Pemilik Tujuan Tidak Ada?
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Jika pemilik tujuan tidak ada dalam daftar, Anda dapat menambahkan pemilik baru terlebih dahulu.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onAddNewOwner}
+                className="ml-auto"
+              >
+                Tambah Pemilik Baru
+              </Button>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
             <Button type="button" variant="outline" onClick={handleClose}>
               Batal
             </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" disabled={!formData.toOwnerId}>
               Transfer Kepemilikan
             </Button>
           </div>

@@ -139,6 +139,18 @@ const GemstoneDetail = () => {
   };
 
   /**
+   * Handle add owner success and return to transfer modal if needed
+   */
+  const handleAddOwnerSuccess = () => {
+    fetchOwners(); // Refresh data
+    // If we came from transfer modal, go back to it
+    if (showTransferModal) {
+      setShowAddEditModal(false);
+      setShowTransferModal(true);
+    }
+  };
+
+  /**
    * Open transfer ownership modal
    */
   const openTransferModal = () => {
@@ -577,10 +589,10 @@ const GemstoneDetail = () => {
                            <Calendar className="w-4 h-4" />
                            <span>
                              {formatDate(owner.ownership_start_date)}
-                             {owner.ownership_end_date && (
-                               <span className="text-gray-400">
-                                 <br />sampai {formatDate(owner.ownership_end_date)}
-                               </span>
+                             {owner.ownership_end_date ? (
+                                <span> - {formatDate(owner.ownership_end_date)}</span>
+                             ) : (
+                                <span> - Sekarang</span>
                              )}
                            </span>
                          </div>
@@ -627,15 +639,15 @@ const GemstoneDetail = () => {
         </div>
       </Card>
 
-      {/* Add/Edit Owner Modal */}
-      <AddEditOwnerModal
-        isOpen={showAddEditModal}
-        onClose={() => setShowAddEditModal(false)}
-        onSuccess={fetchOwners}
-        gemstoneId={id}
-        gemstoneName={gemstone?.name}
-        editingOwner={editingOwner}
-      />
+             {/* Add/Edit Owner Modal */}
+               <AddEditOwnerModal
+          isOpen={showAddEditModal}
+          onClose={() => setShowAddEditModal(false)}
+          onSuccess={handleAddOwnerSuccess}
+          gemstoneId={id}
+          gemstoneName={gemstone?.name}
+          editingOwner={editingOwner}
+        />
 
       {/* Delete Owner Modal */}
       <DeleteOwnerModal
@@ -654,15 +666,22 @@ const GemstoneDetail = () => {
          gemstoneName={gemstone?.name}
        />
 
-       {/* Transfer Ownership Modal */}
-       <TransferOwnershipModal
-         isOpen={showTransferModal}
-         onClose={() => setShowTransferModal(false)}
-         onSuccess={handleTransferSuccess}
-         gemstoneId={id}
-         gemstoneName={gemstone?.name}
-         currentOwner={getCurrentOwner()}
-       />
+               {/* Transfer Ownership Modal */}
+        <TransferOwnershipModal
+          isOpen={showTransferModal}
+          onClose={() => setShowTransferModal(false)}
+          onSuccess={handleTransferSuccess}
+          gemstoneId={id}
+          gemstoneName={gemstone?.name}
+          currentOwner={getCurrentOwner()}
+          owners={owners}
+          onAddNewOwner={() => {
+            setShowTransferModal(false);
+            setTimeout(() => {
+              setShowAddEditModal(true);
+            }, 100);
+          }}
+        />
 
        {/* Delete Confirmation Modal */}
        <DeleteConfirmationModal

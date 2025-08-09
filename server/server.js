@@ -899,28 +899,85 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
     // Get admin ID from token
     const adminId = req.admin.id;
 
+    // Check if there's already a current owner
+    const [currentOwnerRows] = await pool.execute(`
+      SELECT id FROM gemstone_owners 
+      WHERE gemstone_id = ? AND is_current_owner = TRUE
+    `, [id]);
+
+    const hasCurrentOwner = currentOwnerRows.length > 0;
+
+    // Check if this owner already exists (reject if exists)
+    const [existingOwnerRows] = await pool.execute(`
+      SELECT id FROM gemstone_owners 
+      WHERE gemstone_id = ? AND owner_name = ? AND owner_phone = ?
+    `, [id, owner_name, owner_phone]);
+
+    if (existingOwnerRows.length > 0) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Pemilik dengan nama dan nomor telepon ini sudah ada'
+      });
+    }
+
     // Start transaction
     await pool.query('START TRANSACTION');
 
     try {
-      // If this is a transfer, end current owner's ownership
-      if (is_transfer) {
-        await pool.execute(`
-          UPDATE gemstone_owners 
-          SET ownership_end_date = ?, is_current_owner = FALSE 
-          WHERE gemstone_id = ? AND is_current_owner = TRUE
-        `, [ownership_start_date, id]);
+
+
+      // Handle regular new owner scenario
+      if (hasCurrentOwner) {
+        if (is_transfer) {
+          // Transfer ownership: end current owner's ownership
+          await pool.execute(`
+            UPDATE gemstone_owners 
+            SET ownership_end_date = ?, is_current_owner = FALSE 
+            WHERE gemstone_id = ? AND is_current_owner = TRUE
+          `, [ownership_start_date, id]);
+        } else {
+          // Adding new owner without transfer: set new owner as non-current
+          // This allows adding historical owners without affecting current owner
+          const [result] = await pool.execute(`
+            INSERT INTO gemstone_owners (
+              gemstone_id, owner_name, owner_phone, owner_email, owner_address,
+              ownership_start_date, ownership_end_date, is_current_owner, notes, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `, [
+            id, owner_name, owner_phone, owner_email, owner_address,
+            ownership_start_date, ownership_end_date || null, false, notes, adminId
+          ]);
+
+          // Get the created owner record
+          const [newOwnerRows] = await pool.execute(`
+            SELECT 
+              go.*,
+              a.username as created_by_username
+            FROM gemstone_owners go
+            LEFT JOIN admins a ON go.created_by = a.id
+            WHERE go.id = ?
+          `, [result.insertId]);
+
+          await pool.query('COMMIT');
+
+          res.status(201).json({
+            success: true,
+            message: 'Pemilik baru berhasil ditambahkan sebagai mantan pemilik',
+            data: newOwnerRows[0]
+          });
+          return;
+        }
       }
 
-      // Insert new owner
+      // Insert new owner as current owner (either no current owner exists, or this is a transfer)
       const [result] = await pool.execute(`
         INSERT INTO gemstone_owners (
           gemstone_id, owner_name, owner_phone, owner_email, owner_address,
-          ownership_start_date, is_current_owner, notes, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ownership_start_date, ownership_end_date, is_current_owner, notes, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         id, owner_name, owner_phone, owner_email, owner_address,
-        ownership_start_date, true, notes, adminId
+        ownership_start_date, ownership_end_date || null, true, notes, adminId
       ]);
 
       // Commit transaction
@@ -952,6 +1009,124 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Gagal menambahkan pemilik: ' + error.message
+    });
+  }
+});
+
+/**
+ * POST /api/gemstones/:id/transfer - Transfer ownership
+ */
+app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { 
+      fromOwnerId, 
+      toOwnerId, 
+      ownership_start_date,
+      ownership_end_date,
+      notes 
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
+    }
+
+    // Validate required fields
+    if (!fromOwnerId || !toOwnerId || !ownership_start_date) {
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'ID pemilik asal, ID pemilik tujuan, dan tanggal mulai kepemilikan harus diisi' 
+      });
+    }
+
+    // Validate date range if end date is provided
+    if (ownership_end_date && ownership_start_date) {
+      const startDate = new Date(ownership_start_date);
+      const endDate = new Date(ownership_end_date);
+      
+      if (endDate <= startDate) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Tanggal berakhir harus setelah tanggal mulai'
+        });
+      }
+    }
+
+    // Verify gemstone exists
+    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE id = ?', [id]);
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Gemstone not found' });
+    }
+
+    // Verify from owner exists and is current owner
+    const [fromOwnerRows] = await pool.execute(`
+      SELECT * FROM gemstone_owners 
+      WHERE id = ? AND gemstone_id = ? AND is_current_owner = TRUE
+    `, [fromOwnerId, id]);
+
+    if (fromOwnerRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Pemilik asal tidak ditemukan atau bukan pemilik aktif' });
+    }
+
+    // Verify to owner exists
+    const [toOwnerRows] = await pool.execute(`
+      SELECT * FROM gemstone_owners 
+      WHERE id = ? AND gemstone_id = ?
+    `, [toOwnerId, id]);
+
+    if (toOwnerRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Pemilik tujuan tidak ditemukan' });
+    }
+
+    // Get admin ID from token
+    const adminId = req.admin.id;
+
+    // Start transaction
+    await pool.query('START TRANSACTION');
+
+    try {
+      // End current owner's ownership
+      await pool.execute(`
+        UPDATE gemstone_owners 
+        SET ownership_end_date = ?, is_current_owner = FALSE 
+        WHERE id = ?
+      `, [ownership_start_date, fromOwnerId]);
+
+      // Start new owner's ownership
+      await pool.execute(`
+        UPDATE gemstone_owners 
+        SET ownership_start_date = ?, ownership_end_date = ?, is_current_owner = TRUE, notes = ?
+        WHERE id = ?
+      `, [ownership_start_date, ownership_end_date || null, notes, toOwnerId]);
+
+      // Get the updated records
+      const [updatedRows] = await pool.execute(`
+        SELECT 
+          go.*,
+          a.username as created_by_username
+        FROM gemstone_owners go
+        LEFT JOIN admins a ON go.created_by = a.id
+        WHERE go.id = ?
+      `, [toOwnerId]);
+
+      await pool.query('COMMIT');
+
+      res.status(200).json({
+        success: true,
+        message: 'Kepemilikan berhasil ditransfer',
+        data: updatedRows[0]
+      });
+
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Error transferring ownership:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal mentransfer kepemilikan: ' + error.message
     });
   }
 });
