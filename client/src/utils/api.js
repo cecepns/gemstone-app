@@ -307,4 +307,56 @@ export const deleteGemstone = async (id, authHeader) => {
  */
 export const verifyGemstone = async (uniqueId) => {
   return await apiGet(`/gemstones/${uniqueId}`);
+};
+
+// ======================================
+// GEMSTONE OWNERS API FUNCTIONS
+// ======================================
+
+/**
+ * Get gemstone owners history
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Owners history response
+ */
+export const getGemstoneOwners = async (gemstoneId, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiGet(`/gemstones/${gemstoneId}/owners`, { token });
+};
+
+/**
+ * Add new owner to gemstone
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {Object} ownerData - Owner data
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Add owner response
+ */
+export const addGemstoneOwner = async (gemstoneId, ownerData, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPost(`/gemstones/${gemstoneId}/owners`, { data: ownerData, token });
+};
+
+/**
+ * Update owner information
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {string} ownerId - Owner ID
+ * @param {Object} ownerData - Updated owner data
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Update owner response
+ */
+export const updateGemstoneOwner = async (gemstoneId, ownerId, ownerData, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPut(`/gemstones/${gemstoneId}/owners/${ownerId}`, { data: ownerData, token });
+};
+
+/**
+ * Delete owner record
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {string} ownerId - Owner ID
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Delete owner response
+ */
+export const deleteGemstoneOwner = async (gemstoneId, ownerId, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiDelete(`/gemstones/${gemstoneId}/owners/${ownerId}`, { token });
 }; 

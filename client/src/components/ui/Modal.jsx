@@ -36,25 +36,26 @@ const Modal = ({
   
   // Size classes
   const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    '2xl': 'max-w-2xl',
-    '3xl': 'max-w-3xl',
-    '4xl': 'max-w-4xl',
-    '5xl': 'max-w-5xl',
-    full: 'max-w-full mx-4'
+    sm: 'w-sm',
+    md: 'w-md',
+    lg: 'w-lg',
+    xl: 'w-xl',
+    '2xl': 'w-2xl',
+    '3xl': 'w-3xl',
+    '4xl': 'w-4xl',
+    '5xl': 'w-5xl',
+    full: 'w-full mx-4'
   };
   
   const modalClasses = classNames(
-    'bg-white rounded-lg shadow-xl transform transition-all',
+    'bg-white rounded-lg shadow-xl transform',
+    'flex flex-col transition-all w-full',
     sizeClasses[size],
     className
   );
   
   const backdropClasses = classNames(
-    'fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50',
+    'fixed inset-0 bg-black/50 overflow-y-auto flex justify-center items-start p-4 pt-8 z-50',
     {
       'opacity-0 pointer-events-none': !isOpen,
       'opacity-100': isOpen
@@ -62,7 +63,7 @@ const Modal = ({
   );
   
   const contentClasses = classNames(
-    'transform transition-all duration-300',
+    'transform transition-all duration-300 w-full flex justify-center',
     {
       'scale-95 opacity-0': !isOpen,
       'scale-100 opacity-100': isOpen
@@ -99,7 +100,7 @@ const ModalHeader = ({
   ...props
 }) => {
   const headerClasses = classNames(
-    'flex items-center justify-between p-6 border-b border-gray-200',
+    'flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0',
     className
   );
   
@@ -153,7 +154,7 @@ const ModalFooter = ({
   ...props
 }) => {
   const footerClasses = classNames(
-    'flex items-center justify-end space-x-3 p-6 border-t border-gray-200',
+    'flex items-center justify-end space-x-3 p-6 border-t border-gray-200 flex-shrink-0',
     className
   );
   

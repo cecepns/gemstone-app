@@ -587,14 +587,15 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     
     if (search) {
       whereClause = `
-        WHERE name LIKE ? OR 
-              unique_id_number LIKE ? OR 
-              color LIKE ? OR 
-              origin LIKE ? OR 
-              description LIKE ?
+        WHERE g.name LIKE ? OR 
+              g.unique_id_number LIKE ? OR 
+              g.color LIKE ? OR 
+              g.origin LIKE ? OR 
+              g.description LIKE ? OR
+              go.owner_name LIKE ?
       `;
       const searchPattern = `%${search}%`;
-      whereParams = [searchPattern, searchPattern, searchPattern, searchPattern, searchPattern];
+      whereParams = [searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern];
     }
     
     // Validate sortBy to prevent SQL injection
@@ -602,22 +603,26 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
     const validSortOrder = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     
-    // Build the main query
+    // Build the main query with current owner information
     const query = `
       SELECT 
-        id,
-        unique_id_number,
-        name,
-        description,
-        weight_carat,
-        dimensions_mm,
-        color,
-        treatment,
-        origin,
-        photo_url,
-        qr_code_data_url,
-        created_at
-      FROM gemstones 
+        g.id,
+        g.unique_id_number,
+        g.name,
+        g.description,
+        g.weight_carat,
+        g.dimensions_mm,
+        g.color,
+        g.treatment,
+        g.origin,
+        g.photo_url,
+        g.qr_code_data_url,
+        g.created_at,
+        go.owner_name as current_owner_name,
+        go.owner_phone as current_owner_phone,
+        go.ownership_start_date as current_owner_start_date
+      FROM gemstones g
+      LEFT JOIN gemstone_owners go ON g.id = go.gemstone_id AND go.is_current_owner = TRUE
       ${whereClause}
       ORDER BY ${validSortBy} ${validSortOrder}
       LIMIT ? OFFSET ?
@@ -630,7 +635,8 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     // Get total count for pagination
     const countQuery = `
       SELECT COUNT(*) as total 
-      FROM gemstones 
+      FROM gemstones g
+      LEFT JOIN gemstone_owners go ON g.id = go.gemstone_id AND go.is_current_owner = TRUE
       ${whereClause}
     `;
     const [countResult] = await pool.execute(countQuery, whereParams);
@@ -806,6 +812,273 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Gagal menghapus batu mulia: ' + error.message
+    });
+  }
+});
+
+// ======================================
+// GEMSTONE OWNERS API ENDPOINTS
+// ======================================
+
+/**
+ * GET /api/gemstones/:id/owners - Get gemstone owners history
+ */
+app.get('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
+    }
+
+    // Verify gemstone exists
+    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE id = ?', [id]);
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Gemstone not found' });
+    }
+
+    // Get owners history with admin info
+    const [rows] = await pool.execute(`
+      SELECT 
+        go.*,
+        a.username as created_by_username
+      FROM gemstone_owners go
+      LEFT JOIN admins a ON go.created_by = a.id
+      WHERE go.gemstone_id = ?
+      ORDER BY go.ownership_start_date DESC, go.created_at DESC
+    `, [id]);
+
+    res.status(200).json({
+      success: true,
+      data: rows
+    });
+
+  } catch (error) {
+    console.error('Error fetching gemstone owners:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal mengambil riwayat pemilik: ' + error.message
+    });
+  }
+});
+
+/**
+ * POST /api/gemstones/:id/owners - Add new owner to gemstone
+ */
+app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { 
+      owner_name, 
+      owner_phone, 
+      owner_email, 
+      owner_address, 
+      ownership_start_date, 
+      notes,
+      is_transfer = false 
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
+    }
+
+    // Validate required fields
+    if (!owner_name || !owner_phone || !ownership_start_date) {
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'Nama pemilik, nomor telepon, dan tanggal mulai kepemilikan harus diisi' 
+      });
+    }
+
+    // Verify gemstone exists
+    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE id = ?', [id]);
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Gemstone not found' });
+    }
+
+    // Get admin ID from token
+    const adminId = req.admin.id;
+
+    // Start transaction
+    await pool.query('START TRANSACTION');
+
+    try {
+      // If this is a transfer, end current owner's ownership
+      if (is_transfer) {
+        await pool.execute(`
+          UPDATE gemstone_owners 
+          SET ownership_end_date = ?, is_current_owner = FALSE 
+          WHERE gemstone_id = ? AND is_current_owner = TRUE
+        `, [ownership_start_date, id]);
+      }
+
+      // Insert new owner
+      const [result] = await pool.execute(`
+        INSERT INTO gemstone_owners (
+          gemstone_id, owner_name, owner_phone, owner_email, owner_address,
+          ownership_start_date, is_current_owner, notes, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        id, owner_name, owner_phone, owner_email, owner_address,
+        ownership_start_date, true, notes, adminId
+      ]);
+
+      // Commit transaction
+      await pool.query('COMMIT');
+
+      // Get the created owner record
+      const [newOwnerRows] = await pool.execute(`
+        SELECT 
+          go.*,
+          a.username as created_by_username
+        FROM gemstone_owners go
+        LEFT JOIN admins a ON go.created_by = a.id
+        WHERE go.id = ?
+      `, [result.insertId]);
+
+      res.status(201).json({
+        success: true,
+        message: is_transfer ? 'Kepemilikan berhasil ditransfer' : 'Pemilik baru berhasil ditambahkan',
+        data: newOwnerRows[0]
+      });
+
+    } catch (error) {
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Error adding gemstone owner:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal menambahkan pemilik: ' + error.message
+    });
+  }
+});
+
+/**
+ * PUT /api/gemstones/:id/owners/:ownerId - Update owner information
+ */
+app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
+  try {
+    const { id, ownerId } = req.params;
+    const { 
+      owner_name, 
+      owner_phone, 
+      owner_email, 
+      owner_address, 
+      ownership_start_date, 
+      ownership_end_date,
+      notes 
+    } = req.body;
+
+    if (!id || !ownerId) {
+      return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
+    }
+
+    // Validate required fields
+    if (!owner_name || !owner_phone || !ownership_start_date) {
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'Nama pemilik, nomor telepon, dan tanggal mulai kepemilikan harus diisi' 
+      });
+    }
+
+    // Verify owner exists and belongs to gemstone
+    const [ownerRows] = await pool.execute(`
+      SELECT * FROM gemstone_owners 
+      WHERE id = ? AND gemstone_id = ?
+    `, [ownerId, id]);
+
+    if (ownerRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Owner record not found' });
+    }
+
+    // Update owner information
+    await pool.execute(`
+      UPDATE gemstone_owners SET 
+        owner_name = ?,
+        owner_phone = ?,
+        owner_email = ?,
+        owner_address = ?,
+        ownership_start_date = ?,
+        ownership_end_date = ?,
+        notes = ?
+      WHERE id = ?
+    `, [
+      owner_name, owner_phone, owner_email, owner_address,
+      ownership_start_date, ownership_end_date, notes, ownerId
+    ]);
+
+    // Get updated record
+    const [updatedRows] = await pool.execute(`
+      SELECT 
+        go.*,
+        a.username as created_by_username
+      FROM gemstone_owners go
+      LEFT JOIN admins a ON go.created_by = a.id
+      WHERE go.id = ?
+    `, [ownerId]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Data pemilik berhasil diperbarui',
+      data: updatedRows[0]
+    });
+
+  } catch (error) {
+    console.error('Error updating gemstone owner:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal memperbarui data pemilik: ' + error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/gemstones/:id/owners/:ownerId - Delete owner record
+ */
+app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
+  try {
+    const { id, ownerId } = req.params;
+
+    if (!id || !ownerId) {
+      return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
+    }
+
+    // Verify owner exists and belongs to gemstone
+    const [ownerRows] = await pool.execute(`
+      SELECT * FROM gemstone_owners 
+      WHERE id = ? AND gemstone_id = ?
+    `, [ownerId, id]);
+
+    if (ownerRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Owner record not found' });
+    }
+
+    const owner = ownerRows[0];
+
+    // Prevent deletion of current owner
+    if (owner.is_current_owner) {
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'Tidak dapat menghapus pemilik aktif. Transfer kepemilikan terlebih dahulu.' 
+      });
+    }
+
+    // Delete owner record
+    await pool.execute('DELETE FROM gemstone_owners WHERE id = ?', [ownerId]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Data pemilik berhasil dihapus'
+    });
+
+  } catch (error) {
+    console.error('Error deleting gemstone owner:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal menghapus data pemilik: ' + error.message
     });
   }
 });

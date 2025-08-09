@@ -57,7 +57,8 @@ const GemstoneList = () => {
       gemstone.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       gemstone.unique_id_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       gemstone.color?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gemstone.origin?.toLowerCase().includes(searchTerm.toLowerCase())
+      gemstone.origin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      gemstone.current_owner_name?.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       let aValue = a[sortBy];
@@ -333,6 +334,9 @@ const GemstoneList = () => {
                     Nama
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
+                    Pemilik Aktif
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
                     Tanggal Ditambahkan
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-purple-900">
@@ -377,6 +381,19 @@ const GemstoneList = () => {
                         <div className="text-sm font-semibold text-gray-900">
                           {gemstone.name || 'Batu Mulia Tanpa Nama'}
                         </div>
+                      </div>
+                    </td>
+
+                    {/* Current Owner Column */}
+                    <td className="px-6 py-4">
+                      <div>
+                        {gemstone.current_owner_name ? (
+                          gemstone.current_owner_name
+                        ) : (
+                          <div className="text-sm text-gray-400 italic">
+                            Belum ada pemilik
+                          </div>
+                        )}
                       </div>
                     </td>
 

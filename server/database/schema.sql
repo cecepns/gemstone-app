@@ -50,6 +50,38 @@ CREATE TABLE IF NOT EXISTS gemstones (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create gemstone owners history table
+CREATE TABLE IF NOT EXISTS gemstone_owners (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    gemstone_id INT NOT NULL,
+    owner_name VARCHAR(255) NOT NULL,
+    owner_phone VARCHAR(50) NOT NULL,
+    owner_email VARCHAR(255) NULL,
+    owner_address TEXT NULL,
+    ownership_start_date DATE NOT NULL,
+    ownership_end_date DATE NULL,
+    is_current_owner BOOLEAN DEFAULT FALSE,
+    notes TEXT NULL,
+    created_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Foreign key constraints
+    FOREIGN KEY (gemstone_id) REFERENCES gemstones(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES admins(id) ON DELETE RESTRICT,
+    
+    -- Add indexes for performance
+    INDEX idx_gemstone_id (gemstone_id),
+    INDEX idx_owner_name (owner_name),
+    INDEX idx_owner_email (owner_email),
+    INDEX idx_is_current_owner (is_current_owner),
+    INDEX idx_ownership_start_date (ownership_start_date),
+    INDEX idx_created_at (created_at),
+    
+    -- Ensure only one current owner per gemstone
+    UNIQUE KEY unique_current_owner (gemstone_id, is_current_owner)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Optional: Insert sample data for testing
 -- INSERT INTO gemstones (
 --     unique_id_number, 
@@ -84,3 +116,4 @@ CREATE TABLE IF NOT EXISTS gemstones (
 
 -- Show table structure
 DESCRIBE gemstones;
+DESCRIBE gemstone_owners;
