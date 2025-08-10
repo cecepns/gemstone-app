@@ -78,8 +78,11 @@ CREATE TABLE IF NOT EXISTS gemstone_owners (
     INDEX idx_ownership_start_date (ownership_start_date),
     INDEX idx_created_at (created_at),
     
-    -- Ensure only one current owner per gemstone
-    UNIQUE KEY unique_current_owner (gemstone_id, is_current_owner)
+    -- Ensure only one current owner per gemstone using computed column
+    current_owner_key VARCHAR(50) GENERATED ALWAYS AS 
+      (CASE WHEN is_current_owner = TRUE THEN CONCAT(gemstone_id, '-', is_current_owner) ELSE NULL END) STORED,
+    UNIQUE KEY unique_current_owner (current_owner_key),
+    INDEX idx_current_owner_key (current_owner_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Optional: Insert sample data for testing

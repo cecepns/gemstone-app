@@ -874,6 +874,7 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
       owner_email, 
       owner_address, 
       ownership_start_date, 
+      ownership_end_date,
       notes,
       is_transfer = false 
     } = req.body;
@@ -907,18 +908,10 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
 
     const hasCurrentOwner = currentOwnerRows.length > 0;
 
-    // Check if this owner already exists (reject if exists)
-    const [existingOwnerRows] = await pool.execute(`
-      SELECT id FROM gemstone_owners 
-      WHERE gemstone_id = ? AND owner_name = ? AND owner_phone = ?
-    `, [id, owner_name, owner_phone]);
-
-    if (existingOwnerRows.length > 0) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'Pemilik dengan nama dan nomor telepon ini sudah ada'
-      });
-    }
+    // IMPORTANT: Duplicate owner validation has been removed
+    // This allows the same person to be recorded multiple times in ownership history
+    // For example: John Doe owned the gemstone from 2020-2022, then again from 2024-present
+    // This is essential for accurate historical tracking of gemstone ownership
 
     // Start transaction
     await pool.query('START TRANSACTION');
@@ -1254,6 +1247,39 @@ app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) =
     res.status(500).json({
       error: 'Internal Server Error',
       message: 'Gagal menghapus data pemilik: ' + error.message
+    });
+  }
+});
+
+/**
+ * GET /api/owners/all - Get all owners from all gemstones (for template selection)
+ */
+app.get('/api/owners/all', verifyToken, async (req, res) => {
+  try {
+    // Get all owners with gemstone information for context
+    const [ownerRows] = await pool.execute(`
+      SELECT 
+        go.*,
+        g.name as gemstone_name,
+        g.unique_id_number as gemstone_unique_id,
+        a.username as created_by_username
+      FROM gemstone_owners go
+      LEFT JOIN gemstones g ON go.gemstone_id = g.id
+      LEFT JOIN admins a ON go.created_by = a.id
+      ORDER BY go.owner_name ASC, go.created_at DESC
+    `);
+
+    res.status(200).json({
+      success: true,
+      message: 'Data semua pemilik berhasil diambil',
+      data: ownerRows
+    });
+
+  } catch (error) {
+    console.error('Error fetching all owners:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal mengambil data pemilik: ' + error.message
     });
   }
 });

@@ -362,13 +362,13 @@ export const deleteGemstoneOwner = async (gemstoneId, ownerId, authHeader) => {
 };
 
 /**
- * Transfer ownership
- * @param {string} gemstoneId - Gemstone ID
- * @param {Object} transferData - Transfer data
+ * Get all owners from all gemstones (for template selection)
  * @param {Object} authHeader - Auth header from getAuthHeader()
- * @returns {Promise<Object>} - Transfer response
+ * @returns {Promise<Object>} - All owners response
  */
-export const transferOwnership = async (gemstoneId, transferData, authHeader) => {
+export const getAllOwners = async (authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
-  return await apiPost(`/gemstones/${gemstoneId}/transfer`, { data: transferData, token });
-}; 
+  return await apiGet('/owners/all', { token });
+};
+
+ 

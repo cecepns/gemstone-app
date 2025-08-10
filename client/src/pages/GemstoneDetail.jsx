@@ -30,7 +30,7 @@ import {
   Loader2,
   UserPlus
 } from 'lucide-react';
-import { Button, Card, Badge, Modal, TransferOwnershipModal, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
+import { Button, Card, Badge, Modal, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import PrintPreviewModal from '../components/PrintPreviewModal';
 
@@ -57,7 +57,7 @@ const GemstoneDetail = () => {
   const [ownersError, setOwnersError] = useState('');
   const [editingOwner, setEditingOwner] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-  const [showTransferModal, setShowTransferModal] = useState(false);
+
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState(null);
@@ -143,23 +143,13 @@ const GemstoneDetail = () => {
   };
 
   /**
-   * Handle add owner success and return to transfer modal if needed
+   * Handle add owner success
    */
   const handleAddOwnerSuccess = () => {
     fetchOwners(); // Refresh data
-    // If we came from transfer modal, go back to it
-    if (showTransferModal) {
-      setShowAddEditModal(false);
-      setShowTransferModal(true);
-    }
   };
 
-  /**
-   * Open transfer ownership modal
-   */
-  const openTransferModal = () => {
-    setShowTransferModal(true);
-  };
+
 
   /**
    * Open edit owner modal
@@ -181,12 +171,7 @@ const GemstoneDetail = () => {
 
 
 
-  /**
-   * Handle transfer success callback
-   */
-  const handleTransferSuccess = () => {
-    fetchOwners(); // Refresh data
-  };
+
 
   /**
    * Handle print action
@@ -524,24 +509,14 @@ const GemstoneDetail = () => {
               <p className="text-sm text-gray-600">{gemstone.name}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={openTransferModal}
-              className="flex items-center gap-2"
-              disabled={isLoadingOwners}
-            >
-              <UserPlus className="w-4 h-4" />
-              Transfer Kepemilikan
-            </Button>
-            <Button
-              onClick={openAddModal}
-              className="flex items-center gap-2"
-              disabled={isLoadingOwners}
-            >
-              <Plus className="w-4 h-4" />
-              Tambah Pemilik
-            </Button>
-          </div>
+          <Button
+            onClick={openAddModal}
+            className="flex items-center gap-2"
+            disabled={isLoadingOwners}
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Pemilik
+          </Button>
         </div>
 
         {/* Owner History Content */}
@@ -677,22 +652,7 @@ const GemstoneDetail = () => {
          gemstoneName={gemstone?.name}
        />
 
-               {/* Transfer Ownership Modal */}
-        <TransferOwnershipModal
-          isOpen={showTransferModal}
-          onClose={() => setShowTransferModal(false)}
-          onSuccess={handleTransferSuccess}
-          gemstoneId={id}
-          gemstoneName={gemstone?.name}
-          currentOwner={getCurrentOwner()}
-          owners={owners}
-          onAddNewOwner={() => {
-            setShowTransferModal(false);
-            setTimeout(() => {
-              setShowAddEditModal(true);
-            }, 100);
-          }}
-        />
+ 
 
        {/* Print Preview Modal */}
        <PrintPreviewModal
