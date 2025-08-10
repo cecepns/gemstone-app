@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, Loader2, AlertCircle } from 'lucide-react';
+import React from 'react';
 
 /**
  * ANCHOR: Table Component
@@ -52,14 +52,18 @@ const Table = ({
 
   // Handle sort click
   const handleSort = (columnKey) => {
-    if (!sortable || !onSort) return;
+    if (!sortable || !onSort) {
+      return;
+    }
     onSort(columnKey);
   };
 
   // Render sort icon
   const renderSortIcon = (columnKey) => {
-    if (!sortable) return null;
-    
+    if (!sortable) {
+      return null;
+    }
+
     if (sortColumn === columnKey) {
       return sortDirection === 'asc' ? (
         <ChevronUp className="w-4 h-4 ml-1" />
@@ -67,7 +71,7 @@ const Table = ({
         <ChevronDown className="w-4 h-4 ml-1" />
       );
     }
-    
+
     return <ChevronUp className="w-4 h-4 ml-1 text-gray-300" />;
   };
 
@@ -129,7 +133,7 @@ const Table = ({
                   <th
                     key={column.key || index}
                     className={classNames(
-                      'px-3 sm:px-4 py-3 text-left font-medium text-gray-700 uppercase tracking-wider',
+                      'px-3 sm:px-4 py-3 text-left text-sm sm:text-base font-medium text-gray-700 capitalize tracking-wider',
                       sizeClasses[size],
                       {
                         'cursor-pointer hover:bg-gray-100 transition-colors': sortable && column.sortable !== false,
@@ -274,7 +278,7 @@ const Pagination = ({
   const renderPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -302,7 +306,7 @@ const Pagination = ({
         pages.push(totalPages);
       }
     }
-    
+
     return pages;
   };
 
@@ -341,7 +345,7 @@ const Pagination = ({
         >
           Sebelumnya
         </button>
-        
+
         {renderPageNumbers().map((page, index) => (
           <button
             key={index}
@@ -359,7 +363,7 @@ const Pagination = ({
             {page}
           </button>
         ))}
-        
+
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
