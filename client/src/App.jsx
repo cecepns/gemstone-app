@@ -1,26 +1,21 @@
 // ANCHOR: Main App Component with Router Configuration and Authentication
-import { Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
-import ProtectedRoute from './components/ProtectedRoute'
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast';
+import { Routes, Route } from 'react-router-dom';
 
-// Layouts
-import PublicLayout from './layouts/PublicLayout'
-import AdminLayout from './layouts/AdminLayout'
-
-// Components
-import AddGemstone from './pages/AddGemstone'
-
-// Pages
-import Verification from './pages/Verification'
-import Home from './pages/Home'
-import GemstoneList from './pages/GemstoneList'
-import GemstoneDetail from './pages/GemstoneDetail'
-import Login from './pages/Login'
-import AdminDashboard from './pages/AdminDashboard'
-import VerificationManagement from './pages/VerificationManagement'
-import AdminSettings from './pages/AdminSettings'
-import EditGemstone from './pages/EditGemstone'
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import AdminLayout from './layouts/AdminLayout';
+import PublicLayout from './layouts/PublicLayout';
+import AddGemstone from './pages/AddGemstone';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminSettings from './pages/AdminSettings';
+import EditGemstone from './pages/EditGemstone';
+import GemstoneDetail from './pages/GemstoneDetail';
+import GemstoneList from './pages/GemstoneList';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Verification from './pages/Verification';
+import VerificationManagement from './pages/VerificationManagement';
 
 function App() {
   return (
@@ -32,9 +27,9 @@ function App() {
             <Route path="verify/:id" element={<Verification />} />
             <Route path="login" element={<Login />} />
           </Route>
-          
-          <Route 
-            path="/admin" 
+
+          <Route
+            path="/admin"
             element={
               <ProtectedRoute>
                 <AdminLayout />
@@ -49,26 +44,26 @@ function App() {
             <Route path="verifications" element={<VerificationManagement />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
-          
-          <Route 
-            path="*" 
+
+          <Route
+            path="*"
             element={
               <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                   <h1 className="text-4xl font-bold text-gray-800 mb-4">404</h1>
                   <p className="text-gray-600 mb-6">Halaman tidak ditemukan</p>
-                  <a 
-                    href="/" 
+                  <a
+                    href="/"
                     className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
                   >
                     Kembali ke Beranda
                   </a>
                 </div>
               </div>
-            } 
+            }
           />
         </Routes>
-        <Toaster 
+        <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
@@ -94,7 +89,7 @@ function App() {
         />
       </div>
     </AuthProvider>
-  )
+  );
 }
 
-export default App
+export default App;

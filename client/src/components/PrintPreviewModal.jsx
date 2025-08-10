@@ -207,14 +207,14 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
         <div className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-200">
           {/* Visible scaled preview */}
           <div className="print-preview-viewport">
-            <div className="print-preview-content">
+            <div className="print-preview-content ">
               <GemstonePrintCard gemstone={gemstone} />
             </div>
           </div>
 
           {/* Off-screen original size container for export */}
           <div
-            style={{ position: 'absolute', left: '-9999px', top: 0 }}
+            className="print-source"
           >
             <div ref={printCardRef}>
               <GemstonePrintCard gemstone={gemstone} />

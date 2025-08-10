@@ -20,11 +20,18 @@
     visibility: hidden;
   }
 
-  .print-card,
-  .print-card * {
+  .print-source,
+  .print-source * {
     visibility: visible;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .print-source {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
   }
 }
 
@@ -61,7 +68,11 @@
 }
 
  
-
+.print-source {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
 
 /* Print card styles (visible in preview) */
 .print-card {
