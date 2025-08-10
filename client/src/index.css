@@ -6,6 +6,7 @@
   @page {
     margin: 0;
     size: A4;
+    orientation: portrait;
   }
   
   html, body {
@@ -22,22 +23,12 @@
   .print-card,
   .print-card * {
     visibility: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
-/* PDF container styles */
-.pdf-container {
-  /* ANCHOR: Set PDF container to A4 portrait size */
-  background: white;
-  width: 210mm;
-  min-height: 297mm;
-  max-width: 210mm;
-  max-height: 297mm;
-  padding: 20mm;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 0 auto;
-}
+ 
 
 /* ANCHOR: Responsive visible preview scaling */
 .print-preview-viewport {
@@ -69,29 +60,7 @@
   }
 }
 
-/* PDF generation specific styles */
-.pdf-container .print-card {
-  box-shadow: none;
-  border: 1px solid #e5e7eb;
-  margin: 0;
-}
-
-.pdf-container .print-card-toggle {
-  display: none;
-}
-
-.pdf-container .print-card-hidden {
-  display: block;
-}
-
-/* Image generation specific styles */
-.pdf-container .print-card[style*="display: none"] {
-  display: block;
-}
-
-.pdf-container .print-card[style*="visibility: hidden"] {
-  visibility: visible;
-}
+ 
 
 
 /* Print card styles (visible in preview) */
