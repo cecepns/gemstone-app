@@ -388,7 +388,6 @@ const GemstoneList = () => {
           striped={false}
           hoverable
           sortable={false}
-          className="overflow-hidden rounded-xl shadow-lg"
         />
       </Card>
 

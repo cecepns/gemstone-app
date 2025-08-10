@@ -133,7 +133,7 @@ const Table = ({
                   <th
                     key={column.key || index}
                     className={classNames(
-                      'px-3 sm:px-4 py-3 text-left text-sm sm:text-base font-medium text-gray-700 capitalize tracking-wider',
+                      'px-3 sm:px-4 py-3 text-left font-medium text-gray-700 capitalize tracking-wider',
                       sizeClasses[size],
                       {
                         'cursor-pointer hover:bg-gray-100 transition-colors': sortable && column.sortable !== false,
@@ -143,7 +143,7 @@ const Table = ({
                     )}
                     onClick={() => handleSort(column.key)}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center text-sm">
                       {column.header}
                       {renderSortIcon(column.key)}
                     </div>
