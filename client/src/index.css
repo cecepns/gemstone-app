@@ -137,6 +137,117 @@
   }
 }
 
+/* PDF container styles */
+.pdf-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* PDF generation specific styles */
+.pdf-container .print-card {
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+  margin: 0;
+}
+
+.pdf-container .print-card-toggle {
+  display: none;
+}
+
+.pdf-container .print-card-hidden {
+  display: block !important;
+}
+
+/* Image generation specific styles */
+.pdf-container .print-card[style*="display: none"] {
+  display: block !important;
+}
+
+.pdf-container .print-card[style*="visibility: hidden"] {
+  visibility: visible !important;
+}
+
+/* High precision image generation styles */
+.print-card-for-capture {
+  position: relative !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+}
+
+.print-card-for-capture * {
+  position: relative !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+}
+
+.print-card-for-capture .print-card-content {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.print-card-for-capture .print-left-side,
+.print-card-for-capture .print-right-side {
+  position: relative !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.print-card-for-capture .print-image-container,
+.print-card-for-capture .print-barcode-container {
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.print-card-for-capture .print-image,
+.print-card-for-capture .print-barcode {
+  position: relative !important;
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+.print-card-for-capture .print-top-header,
+.print-card-for-capture .print-bottom-footer {
+  position: relative !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.print-card-for-capture .print-details {
+  position: relative !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.print-card-for-capture .print-detail-item {
+  position: relative !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 4px 0 !important;
+}
+
 /* Print card styles (visible in preview) */
 .print-card {
   width: 148mm;
