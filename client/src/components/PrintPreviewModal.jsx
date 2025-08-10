@@ -52,7 +52,7 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
 
       // PDF options
       const options = {
-        margin: [1, 1, 1, 1],
+        margin: [20, 20, 20, 20],
         filename: `gemstone-${gemstone?.unique_id_number || 'card'}.pdf`,
         image: { type: 'jpeg', quality: 1 },
         html2canvas: {
@@ -214,12 +214,11 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
 
           {/* Off-screen original size container for export */}
           <div
-            ref={printCardRef}
-            className="pdf-container"
             style={{ position: 'absolute', left: '-9999px', top: 0 }}
-            aria-hidden="true"
           >
-            <GemstonePrintCard gemstone={gemstone} />
+            <div ref={printCardRef}>
+              <GemstonePrintCard gemstone={gemstone} />
+            </div>
           </div>
         </div>
       </Modal.Body>
