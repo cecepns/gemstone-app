@@ -71,8 +71,6 @@ const Button = ({
     if (disabled || loading) return;
     onClick?.(e);
   };
-
-  console.log(buttonClasses);
   
   return (
     <button

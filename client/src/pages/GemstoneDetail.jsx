@@ -22,13 +22,15 @@ import {
   Mail,
   Loader2,
   UserPlus,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import PrintPreviewModal from '../components/PrintPreviewModal';
-import { Button, Card, Badge, Modal, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
+import { Button, Card, Badge, Modal, Alert, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { getGemstoneDetail, deleteGemstone,
   getGemstoneOwners,
@@ -64,6 +66,22 @@ const GemstoneDetail = () => {
 
   // Print card state
   const [showPrintPreview, setShowPrintPreview] = useState(false);
+
+  // Copy state
+  const [isCopied, setIsCopied] = useState(false);
+
+  /**
+   * Copy gemstone ID to clipboard
+   */
+  const handleCopyId = async() => {
+    try {
+      await navigator.clipboard.writeText(gemstone.unique_id_number);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
 
   /**
    * Fetch gemstone details from API
@@ -211,10 +229,10 @@ const GemstoneDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <Card className="p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-4" />
           <p className="text-gray-600">Memuat detail batu mulia...</p>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -225,21 +243,25 @@ const GemstoneDetail = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Gagal Memuat Batu Mulia</h3>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <Button
-            variant="primary"
-            onClick={handleBack}
-            className="rounded-xl"
+        <Card className="p-8 max-w-md">
+          <Alert
+            type="danger"
+            title="Gagal Memuat Batu Mulia"
+            className="mb-6"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Kembali ke Daftar
-          </Button>
-        </div>
+            {error}
+          </Alert>
+          <div className="text-center">
+            <Button
+              variant="primary"
+              onClick={handleBack}
+              fullWidth
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Kembali ke Daftar
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -250,7 +272,7 @@ const GemstoneDetail = () => {
   if (!gemstone) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <Card className="p-8 max-w-md text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Gem className="w-8 h-8 text-gray-400" />
           </div>
@@ -259,12 +281,12 @@ const GemstoneDetail = () => {
           <Button
             variant="primary"
             onClick={handleBack}
-            className="rounded-xl"
+            fullWidth
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali ke Daftar
           </Button>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -276,7 +298,6 @@ const GemstoneDetail = () => {
         <Button
           variant="secondary"
           onClick={handleBack}
-          className="rounded-xl"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Kembali ke Daftar
@@ -287,7 +308,6 @@ const GemstoneDetail = () => {
           <Button
             variant="secondary"
             onClick={openPrintPreview}
-            className="rounded-xl"
             title="Cetak kartu batu mulia"
           >
             <Printer className="w-4 h-4 mr-2" />
@@ -296,7 +316,6 @@ const GemstoneDetail = () => {
           <Button
             variant="primary"
             onClick={handleEdit}
-            className="rounded-xl"
             title="Edit batu mulia"
           >
             <Edit className="w-4 h-4 mr-2" />
@@ -305,7 +324,6 @@ const GemstoneDetail = () => {
           <Button
             variant="danger"
             onClick={openDeleteModal}
-            className="rounded-xl"
             title="Hapus batu mulia"
           >
             <Trash2 className="w-4 h-4 mr-2" />
@@ -315,7 +333,7 @@ const GemstoneDetail = () => {
       </div>
 
       {/* Main content card */}
-      <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
+      <Card variant="elevated" padding="lg">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left column - Gemstone image and QR code */}
           <div className="space-y-6">
@@ -376,9 +394,24 @@ const GemstoneDetail = () => {
                 <IdCard className="w-4 h-4" />
                 Nomor ID Unik
               </label>
-              <p className="text-lg text-purple-600 font-mono bg-purple-50 px-4 py-3 rounded-xl border border-purple-200">
-                {gemstone.unique_id_number}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-lg text-purple-600 font-mono bg-purple-50 px-4 py-3 rounded-xl border border-purple-200 flex-1">
+                  {gemstone.unique_id_number}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyId}
+                  title="Salin ID"
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                >
+                  {isCopied ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
             </div>
 
             {/* Description */}
@@ -475,7 +508,7 @@ const GemstoneDetail = () => {
       </Card>
 
       {/* Owner History Section */}
-      <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100">
+      <Card variant="elevated" padding="lg">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Users className="w-6 h-6 text-blue-600" />
@@ -487,11 +520,11 @@ const GemstoneDetail = () => {
             </div>
           </div>
           <Button
+            variant="primary"
             onClick={openAddModal}
-            className="flex items-center gap-2"
             disabled={isLoadingOwners}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 mr-2" />
             Tambah Pemilik
           </Button>
         </div>
@@ -504,15 +537,17 @@ const GemstoneDetail = () => {
               <span className="ml-2 text-gray-600">Memuat riwayat pemilik...</span>
             </div>
           ) : ownersError ? (
-            <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <span className="text-red-700">{ownersError}</span>
-            </div>
+            <Alert
+              type="danger"
+              title="Gagal Memuat Riwayat Pemilik"
+            >
+              {ownersError}
+            </Alert>
           ) : owners.length === 0 ? (
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-600">Belum ada data pemilik</p>
-              <Button onClick={openAddModal} className="mt-3">
+              <Button variant="primary" onClick={openAddModal} className="mt-3">
                 Tambah Pemilik Pertama
               </Button>
             </div>
@@ -565,6 +600,7 @@ const GemstoneDetail = () => {
                           <Button
                             variant="outline"
                             size="sm"
+                            iconOnly
                             onClick={() => openDetailModal(owner)}
                             disabled={isLoadingOwners}
                             title="Detail pemilik"
@@ -574,6 +610,7 @@ const GemstoneDetail = () => {
                           <Button
                             variant="outline"
                             size="sm"
+                            iconOnly
                             onClick={() => openEditModal(owner)}
                             disabled={isLoadingOwners}
                             title="Edit pemilik"
@@ -584,6 +621,7 @@ const GemstoneDetail = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              iconOnly
                               onClick={() => setShowDeleteConfirm(owner)}
                               disabled={isLoadingOwners}
                               title="Hapus pemilik"
