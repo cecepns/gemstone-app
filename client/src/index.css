@@ -1,47 +1,3 @@
-/* a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */
 
 /* ANCHOR: Print Card Styles - Print-friendly gemstone card styling */
 @media print {
@@ -81,7 +37,7 @@ button:focus-visible {
 /* Print card styles (visible in preview) */
 .print-card {
   width: 148mm;
-  height: 105mm;
+  height: 92mm;
   margin: 0 auto;
   background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
   box-shadow: 0 8px 32px rgba(124, 58, 237, 0.15);
@@ -94,7 +50,6 @@ button:focus-visible {
 
 .print-card-content {
   padding: 0;
-  height: calc(100% - 20mm);
   display: flex;
   flex-direction: row;
   position: relative;
@@ -290,7 +245,115 @@ button:focus-visible {
 @media screen {
   .print-card {
     margin: 20px auto;
-    transform: scale(1.2);
     transform-origin: top center;
+  }
+}
+
+/* Card Container and Toggle */
+.print-card-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.print-card-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.print-flip-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #581c87 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.print-flip-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+}
+
+.print-flip-button:active {
+  transform: translateY(0);
+}
+
+/* Card Hidden State */
+.print-card-hidden {
+  display: none;
+}
+
+/* Back Card Styles */
+.print-card-back {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.print-back-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+  padding: 3.9mm;
+}
+
+.print-back-section {
+  background: white;
+  border-radius: 6px;
+  padding: 2.5mm;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-left: 3px solid #7c3aed;
+}
+
+.print-back-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7c3aed;
+  margin: 0 0 1.5mm 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.print-back-info {
+  font-size: 9px;
+  color: #374151;
+  line-height: 1.3;
+}
+
+.print-back-info p {
+  margin: 0.8mm 0;
+  padding: 0;
+}
+
+/* Print Media Query - Hide toggle button when printing */
+@media print {
+  .print-card-toggle {
+    display: none;
+  }
+  
+  .print-card-hidden {
+    display: block !important;
+  }
+  
+  .print-card-container {
+    gap: 0;
+  }
+  
+  /* Show both cards when printing */
+  .print-card {
+    page-break-after: always;
+  }
+  
+  .print-card:last-child {
+    page-break-after: auto;
   }
 }

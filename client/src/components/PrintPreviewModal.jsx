@@ -1,13 +1,14 @@
 // ANCHOR: PrintPreviewModal Component - Preview gemstone print card before printing
-import React from 'react';
 import { X, Printer, Download } from 'lucide-react';
-import { Modal, Button } from './ui';
+import React from 'react';
+
 import GemstonePrintCard from './GemstonePrintCard';
+import { Modal, Button } from './ui';
 
 /**
  * PrintPreviewModal component - Preview and print gemstone card
  * Shows a preview of the print card and provides print/download options
- * 
+ *
  * @param {boolean} isOpen - Whether modal is open
  * @param {Function} onClose - Function to close modal
  * @param {Object} gemstone - Gemstone data to print
@@ -47,7 +48,7 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
               {gemstone?.name || 'Batu Mulia'}
             </p>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
@@ -83,11 +84,7 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              <p>• Kartu akan dicetak dalam format A4</p>
-              <p>• Pastikan printer Anda siap dan kertas tersedia</p>
-            </div>
+          <div className="flex items-center justify-end">
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
