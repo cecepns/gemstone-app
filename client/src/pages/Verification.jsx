@@ -14,7 +14,6 @@ import {
   Users,
   UserCheck,
   UserX,
-  Loader2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -57,7 +56,6 @@ const Verification = () => {
       setGemstone(result.data);
 
     } catch (error) {
-      console.error('Verification error:', error);
       setError(error.message || 'Gagal memverifikasi sertifikat');
     } finally {
       setLoading(false);
@@ -76,7 +74,6 @@ const Verification = () => {
       const result = await getGemstoneOwnersPublic(uniqueId);
       setOwners(result.data);
     } catch (error) {
-      console.error('Error fetching owners:', error);
       setOwnersError(error.message || 'Gagal memuat riwayat pemilik');
     } finally {
       setIsLoadingOwners(false);

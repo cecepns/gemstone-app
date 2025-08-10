@@ -1,5 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 /**
  * ANCHOR: Button Component
@@ -12,8 +12,6 @@ const Button = ({
   disabled = false,
   loading = false,
   fullWidth = false,
-  // ANCHOR: iconOnly
-  // When true, render a square button sized for icons only
   iconOnly = false,
   className = '',
   onClick,
@@ -22,7 +20,7 @@ const Button = ({
 }) => {
   // Base button classes
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+
   // Variant classes
   const variantClasses = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
@@ -30,48 +28,50 @@ const Button = ({
     outline: 'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
     success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500'
+    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
   };
-  
+
   // Size classes
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm',
     lg: 'px-6 py-3 text-base',
-    xl: 'px-8 py-4 text-lg'
+    xl: 'px-8 py-4 text-lg',
   };
-  
+
   // ANCHOR: Icon-only size classes
   // Square dimensions for icon-only buttons
   const iconSizeClasses = {
     sm: 'h-8 w-8 p-0',
     md: 'h-10 w-10 p-0',
     lg: 'h-12 w-12 p-0',
-    xl: 'h-14 w-14 p-0'
+    xl: 'h-14 w-14 p-0',
   };
-  
+
   const resolvedSizeClass = iconOnly ? iconSizeClasses[size] : sizeClasses[size];
-  
+
   // Width classes
   const widthClasses = fullWidth ? 'w-full' : '';
-  
+
   // Loading state
   const loadingClasses = loading ? 'cursor-wait' : '';
-  
+
   const buttonClasses = classNames(
     baseClasses,
     variantClasses[variant],
     resolvedSizeClass,
     widthClasses,
     loadingClasses,
-    className
+    className,
   );
-  
+
   const handleClick = (e) => {
-    if (disabled || loading) return;
+    if (disabled || loading) {
+      return;
+    }
     onClick?.(e);
   };
-  
+
   return (
     <button
       type={type}
@@ -91,4 +91,4 @@ const Button = ({
   );
 };
 
-export default Button; 
+export default Button;

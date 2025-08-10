@@ -1,21 +1,21 @@
 // ANCHOR: LoginPage Component - Admin authentication interface with complete form handling
+import { Rocket, User, Key, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+
+import { Button, Input, Card } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { loginAdmin } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
-import { Lock, AlertCircle, Loader2, Rocket, User, Key, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { Button, Input, Alert, Card } from '../components/ui';
 
 const Login = () => {
   // Form state management
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  
+
   // Hooks
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -35,15 +35,8 @@ const Login = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-  };
-
-  /**
-   * Toggle password visibility
-   */
-  const togglePasswordVisibility = () => {
-    setShowPassword(prev => !prev);
   };
 
   /**
@@ -55,22 +48,22 @@ const Login = () => {
       showError('Username harus diisi');
       return false;
     }
-    
+
     if (!formData.password.trim()) {
       showError('Password harus diisi');
       return false;
     }
-    
+
     if (formData.username.length < 3) {
       showError('Username minimal 3 karakter');
       return false;
     }
-    
+
     if (formData.password.length < 6) {
       showError('Password minimal 6 karakter');
       return false;
     }
-    
+
     return true;
   };
 
@@ -78,9 +71,9 @@ const Login = () => {
    * Handle form submission
    * @param {Event} e - Form submit event
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!validateForm()) {
       return;
@@ -93,7 +86,7 @@ const Login = () => {
       // Use API utility for login
       const result = await loginAdmin(
         formData.username.trim(),
-        formData.password
+        formData.password,
       );
 
       // Dismiss loading toast
@@ -101,18 +94,15 @@ const Login = () => {
 
       // Login successful - use AuthContext login function
       login(result.data.token, result.data.admin);
-      
-      console.log('Login successful:', result.data.admin);
-      
-      
+
       // Navigate to admin dashboard
       navigate('/admin/dashboard', { replace: true });
     } catch (error) {
       console.error('Login error:', error);
-      
+
       // Dismiss loading toast
       dismissToast(loadingToast);
-      
+
       // Show error toast
       showError(error.message || 'Login gagal. Silakan periksa username dan password Anda.');
     } finally {
@@ -126,7 +116,7 @@ const Login = () => {
   const handleDemoLogin = () => {
     setFormData({
       username: 'admin',
-      password: 'admin123'
+      password: 'admin123',
     });
     showSuccess('Demo credentials telah diisi. Silakan klik Login.');
   };
@@ -142,88 +132,98 @@ const Login = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto pt-15">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Login Admin
-        </h1>
-        <p className="text-gray-600">Masukkan kredensial Anda untuk mengakses panel admin</p>
-      </div>
+    <div className="min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
+        {/* Header Section */}
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-3 sm:mb-4 leading-tight">
+            Login Admin
+          </h1>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed px-2">
+            Masukkan kredensial Anda untuk mengakses panel admin
+          </p>
+        </div>
 
-      <Card className="bg-white/80 backdrop-blur-sm border-gray-100 shadow-xl">
-        <Card.Body className="p-2">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              label="Nama Pengguna"
-              name="username"
-              type="text"
-              value={formData.username}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              placeholder="Masukkan nama pengguna admin"
-              leftIcon={<User className="w-5 h-5" />}
-              disabled={isLoading}
-              required
-              autoComplete="username"
-            />
+        {/* Login Form Card */}
+        <Card size="md">
+          <Card.Body>
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-6">
+              <Input
+                label="Nama Pengguna"
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                placeholder="Masukkan nama pengguna admin"
+                leftIcon={<User className="w-4 h-4 sm:w-5 sm:h-5" />}
+                disabled={isLoading}
+                required
+                size="lg"
+                autoComplete="username"
+              />
 
-            <Input
-              label="Kata Sandi"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              placeholder="Masukkan kata sandi"
-              leftIcon={<Key className="w-5 h-5" />}
-              disabled={isLoading}
-              required
-              autoComplete="current-password"
-            />
+              <Input
+                label="Kata Sandi"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                placeholder="Masukkan kata sandi"
+                leftIcon={<Key className="w-4 h-4 sm:w-5 sm:h-5" />}
+                disabled={isLoading}
+                required
+                size="lg"
+                autoComplete="current-password"
+              />
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={isLoading}
-              disabled={!formData.username.trim() || !formData.password.trim()}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
-            >
-              {!isLoading && (
-                <>
-                  <Rocket className="w-5 h-5 mr-2" />
-                  Login ke Dashboard
-                </>
-              )}
-            </Button>
+              <div className="pt-3">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  loading={isLoading}
+                  disabled={!formData.username.trim() || !formData.password.trim()}
+                >
+                  {!isLoading && (
+                    <>
+                      Login ke Dashboard
+                    </>
+                  )}
+                </Button>
+              </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              fullWidth
-              onClick={handleDemoLogin}
-              disabled={isLoading}
-              className="text-gray-600 border-gray-300 hover:bg-gray-50"
-            >
-              Demo Login
-            </Button>
-          </form>
+              <div className="pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+                  onClick={handleDemoLogin}
+                  disabled={isLoading}
+                >
+                  Demo Login
+                </Button>
+              </div>
+            </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="flex justify-between items-center text-sm">
-              <Link 
-                to="/"
-                className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-1"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Kembali ke Beranda</span>
-              </Link>
+            {/* Footer Section */}
+            <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-200">
+              <div className="flex justify-center items-center">
+                <Link
+                  to="/"
+                  className="text-purple-600 hover:text-purple-800 transition duration-200 flex items-center space-x-2 text-sm sm:text-base md:text-lg hover:scale-105 transform"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Kembali ke Beranda</span>
+                </Link>
+              </div>
             </div>
-          </div>
-        </Card.Body>
-      </Card>
+          </Card.Body>
+        </Card>
+      </div>
     </div>
   );
 };
