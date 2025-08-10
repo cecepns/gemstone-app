@@ -19,7 +19,7 @@ import {
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { Card, Badge } from '../components/ui';
+import { Card, Badge, Table } from '../components/ui';
 import { verifyGemstone, getGemstoneOwnersPublic } from '../utils/api';
 
 const Verification = () => {
@@ -93,10 +93,61 @@ const Verification = () => {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
+
+  // Column definitions for owners table
+  const ownerColumns = [
+    {
+      key: 'owner_name',
+      header: 'Nama Pemilik',
+      render: (value, row) => (
+        <div>
+          <div className="font-medium text-gray-900">{value}</div>
+          {row.owner_phone && (
+            <div className="text-sm text-gray-600">{row.owner_phone}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'is_current_owner',
+      header: 'Status',
+      align: 'center',
+      render: (value) => (
+        value ? (
+          <Badge variant="success" className="flex items-center gap-1 w-fit text-xs">
+            <UserCheck className="w-3 h-3" />
+            <span className="hidden sm:inline">Pemilik Aktif</span>
+            <span className="sm:hidden">Aktif</span>
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="flex items-center gap-1 w-fit text-xs">
+            <UserX className="w-3 h-3" />
+            <span className="hidden sm:inline">Mantan Pemilik</span>
+            <span className="sm:hidden">Mantan</span>
+          </Badge>
+        )
+      ),
+    },
+    {
+      key: 'ownership_start_date',
+      header: 'Periode Kepemilikan',
+      render: (value, row) => (
+        <div className="flex items-center gap-2 text-gray-600">
+          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="text-xs sm:text-sm">
+            {formatDate(value)}
+            {row.ownership_end_date ? (
+              <span> - {formatDate(row.ownership_end_date)}</span>
+            ) : (
+              <span> - Sekarang</span>
+            )}
+          </span>
+        </div>
+      ),
+    },
+  ];
 
   // Loading state
   if (loading) {
@@ -326,89 +377,18 @@ const Verification = () => {
             </div>
           </div>
 
-          {/* Owner History Content */}
-          <div className="space-y-4">
-            {isLoadingOwners ? (
-              <div className="flex items-center justify-center py-6 sm:py-8">
-                <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-blue-600" />
-                <span className="ml-2 text-sm sm:text-base text-gray-600">Memuat riwayat kepemilikan...</span>
-              </div>
-            ) : ownersError ? (
-              <div className="text-center py-6 sm:py-8">
-                <AlertCircle className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm sm:text-base text-gray-600">Gagal memuat riwayat kepemilikan</p>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">{ownersError}</p>
-              </div>
-            ) : owners.length === 0 ? (
-              <div className="text-center py-6 sm:py-8">
-                <Users className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm sm:text-base text-gray-600">Belum ada data kepemilikan</p>
-              </div>
-            ) : (
-              /* Owners Table */
-              <div className="overflow-x-auto -mx-4 sm:mx-0">
-                <div className="min-w-full inline-block align-middle">
-                  <div className="overflow-hidden border border-gray-200 rounded-xl">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700 uppercase tracking-wider">
-                            Nama Pemilik
-                          </th>
-                          <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-3 sm:px-4 py-3 text-left text-xs sm:text-sm font-medium text-gray-700 uppercase tracking-wider">
-                            Periode Kepemilikan
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {owners.map((owner, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="px-3 sm:px-4 py-3 whitespace-nowrap">
-                              <div className="text-sm sm:text-base font-medium text-gray-900">{owner.owner_name}</div>
-                              {owner.owner_phone && (
-                                <div className="text-xs sm:text-sm text-gray-600">{owner.owner_phone}</div>
-                              )}
-                            </td>
-                            <td className="px-3 sm:px-4 py-3 whitespace-nowrap">
-                              {owner.is_current_owner ? (
-                                <Badge variant="success" className="flex items-center gap-1 w-fit text-xs">
-                                  <UserCheck className="w-3 h-3" />
-                                  <span className="hidden sm:inline">Pemilik Aktif</span>
-                                  <span className="sm:hidden">Aktif</span>
-                                </Badge>
-                              ) : (
-                                <Badge variant="secondary" className="flex items-center gap-1 w-fit text-xs">
-                                  <UserX className="w-3 h-3" />
-                                  <span className="hidden sm:inline">Mantan Pemilik</span>
-                                  <span className="sm:hidden">Mantan</span>
-                                </Badge>
-                              )}
-                            </td>
-                            <td className="px-3 sm:px-4 py-3">
-                              <div className="flex items-center gap-2 text-gray-600">
-                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                                <span className="text-xs sm:text-sm">
-                                  {formatDate(owner.ownership_start_date)}
-                                  {owner.ownership_end_date ? (
-                                    <span> - {formatDate(owner.ownership_end_date)}</span>
-                                  ) : (
-                                    <span> - Sekarang</span>
-                                  )}
-                                </span>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Owner History Table */}
+          <Table
+            data={owners}
+            columns={ownerColumns}
+            loading={isLoadingOwners}
+            error={ownersError}
+            emptyMessage="Belum ada data kepemilikan"
+            size="md"
+            hoverable
+            striped
+            className="mt-4"
+          />
         </Card>
       </div>
     </div>
