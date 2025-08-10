@@ -1,17 +1,10 @@
 // ANCHOR: GemstoneDetail Component - Display detailed gemstone information for admin
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { getGemstoneDetail, deleteGemstone } from '../utils/api';
-import { 
-  getGemstoneOwners
-} from '../utils/api';
-import { 
-  Gem, 
-  ArrowLeft, 
-  Printer, 
-  Edit, 
-  Trash2, 
+import {
+  Gem,
+  ArrowLeft,
+  Printer,
+  Edit,
+  Trash2,
   AlertCircle,
   FileText,
   Calendar,
@@ -28,16 +21,23 @@ import {
   Phone,
   Mail,
   Loader2,
-  UserPlus
+  UserPlus,
 } from 'lucide-react';
-import { Button, Card, Badge, Modal, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import PrintPreviewModal from '../components/PrintPreviewModal';
+import { Button, Card, Badge, Modal, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
+import { useAuth } from '../context/AuthContext';
+import { getGemstoneDetail, deleteGemstone,
+  getGemstoneOwners,
+} from '../utils/api';
 
 /**
  * GemstoneDetail component - Display detailed gemstone information
  * Shows all gemstone details, QR code, owner history, and admin action buttons
- * 
+ *
  * @returns {React.ReactElement} - Rendered gemstone detail page
  */
 const GemstoneDetail = () => {
@@ -50,7 +50,7 @@ const GemstoneDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteModal, setDeleteModal] = useState({ isOpen: false });
-  
+
   // Owner history state
   const [owners, setOwners] = useState([]);
   const [isLoadingOwners, setIsLoadingOwners] = useState(false);
@@ -61,14 +61,14 @@ const GemstoneDetail = () => {
   const [showAddEditModal, setShowAddEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedOwner, setSelectedOwner] = useState(null);
-  
+
   // Print card state
   const [showPrintPreview, setShowPrintPreview] = useState(false);
 
   /**
    * Fetch gemstone details from API
    */
-  const fetchGemstoneDetail = async () => {
+  const fetchGemstoneDetail = async() => {
     try {
       setIsLoading(true);
       setError('');
@@ -77,7 +77,6 @@ const GemstoneDetail = () => {
 
       setGemstone(result.data);
     } catch (error) {
-      console.error('Error fetching gemstone detail:', error);
       setError(error.message || 'Gagal memuat detail batu mulia');
     } finally {
       setIsLoading(false);
@@ -87,7 +86,7 @@ const GemstoneDetail = () => {
   /**
    * Fetch owners history from API
    */
-  const fetchOwners = async () => {
+  const fetchOwners = async() => {
     try {
       setIsLoadingOwners(true);
       setOwnersError('');
@@ -95,7 +94,6 @@ const GemstoneDetail = () => {
       const result = await getGemstoneOwners(id, getAuthHeader());
       setOwners(result.data);
     } catch (error) {
-      console.error('Error fetching owners:', error);
       setOwnersError(error.message || 'Gagal memuat riwayat pemilik');
     } finally {
       setIsLoadingOwners(false);
@@ -108,6 +106,7 @@ const GemstoneDetail = () => {
       fetchGemstoneDetail();
       fetchOwners();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   /**
@@ -116,22 +115,14 @@ const GemstoneDetail = () => {
    * @returns {string} - Formatted date
    */
   const formatDate = (dateString) => {
-    if (!dateString) return '-';
+    if (!dateString) {
+      return '-';
+    }
     return new Date(dateString).toLocaleDateString('id-ID', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
-  };
-
-
-
-  /**
-   * Get current owner from owners list
-   * @returns {Object|null} - Current owner or null
-   */
-  const getCurrentOwner = () => {
-    return owners.find(owner => owner.is_current_owner) || null;
   };
 
   /**
@@ -149,8 +140,6 @@ const GemstoneDetail = () => {
     fetchOwners(); // Refresh data
   };
 
-
-
   /**
    * Open edit owner modal
    * @param {Object} owner - Owner data to edit
@@ -167,17 +156,6 @@ const GemstoneDetail = () => {
   const openDetailModal = (owner) => {
     setSelectedOwner(owner);
     setShowDetailModal(true);
-  };
-
-
-
-
-
-  /**
-   * Handle print action
-   */
-  const handlePrint = () => {
-    window.print();
   };
 
   /**
@@ -211,12 +189,11 @@ const GemstoneDetail = () => {
   /**
    * Handle delete action
    */
-  const handleDelete = async () => {
+  const handleDelete = async() => {
     try {
       await deleteGemstone(id, getAuthHeader());
       navigate('/admin/gemstones');
     } catch (error) {
-      console.error('Error deleting gemstone:', error);
       setError(error.message || 'Terjadi kesalahan saat menghapus batu mulia');
     }
   };
@@ -235,7 +212,7 @@ const GemstoneDetail = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600 mx-auto mb-4" />
           <p className="text-gray-600">Memuat detail batu mulia...</p>
         </div>
       </div>
@@ -407,7 +384,7 @@ const GemstoneDetail = () => {
             {/* Description */}
             {gemstone.description && (
               <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Deskripsi
                 </label>
@@ -443,7 +420,7 @@ const GemstoneDetail = () => {
                   Dimensi
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                                      {gemstone.dimensions_mm || 'Tidak tersedia'}
+                  {gemstone.dimensions_mm || 'Tidak tersedia'}
                 </p>
               </div>
 
@@ -454,7 +431,7 @@ const GemstoneDetail = () => {
                   Warna
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                                      {gemstone.color || 'Tidak tersedia'}
+                  {gemstone.color || 'Tidak tersedia'}
                 </p>
               </div>
 
@@ -465,7 +442,7 @@ const GemstoneDetail = () => {
                   Asal
                 </label>
                 <p className="text-gray-900 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
-                                      {gemstone.origin || 'Tidak tersedia'}
+                  {gemstone.origin || 'Tidak tersedia'}
                 </p>
               </div>
             </div>
@@ -540,100 +517,100 @@ const GemstoneDetail = () => {
               </Button>
             </div>
           ) : (
-              /* Owners Table */
-             <div className="overflow-x-auto">
-               <table className="w-full border-collapse">
-                 <thead>
-                   <tr className="bg-gray-50 border-b border-gray-200">
-                     <th className="text-left py-3 px-4 font-medium text-gray-700">Nama Pemilik</th>
-                     <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                     <th className="text-left py-3 px-4 font-medium text-gray-700">Periode Kepemilikan</th>
-                     <th className="text-center py-3 px-4 font-medium text-gray-700">Aksi</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {owners.map((owner) => (
-                     <tr key={owner.id} className="border-b border-gray-100 hover:bg-gray-50">
-                       <td className="py-3 px-4">
-                         <div className="font-medium text-gray-900">{owner.owner_name}</div>
-                       </td>
-                       <td className="py-3 px-4">
-                         {owner.is_current_owner ? (
-                           <Badge variant="success" className="flex items-center gap-1 w-fit">
-                             <UserCheck className="w-3 h-3" />
-                             Pemilik Aktif
-                           </Badge>
-                         ) : (
-                           <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                             <UserX className="w-3 h-3" />
-                             Mantan Pemilik
-                           </Badge>
-                         )}
-                       </td>
-                       <td className="py-3 px-4">
-                         <div className="flex items-center gap-2 text-gray-600">
-                           <Calendar className="w-4 h-4" />
-                           <span>
-                             {formatDate(owner.ownership_start_date)}
-                             {owner.ownership_end_date ? (
-                                <span> - {formatDate(owner.ownership_end_date)}</span>
-                             ) : (
-                                <span> - Sekarang</span>
-                             )}
-                           </span>
-                         </div>
-                       </td>
-                       <td className="py-3 px-4">
-                         <div className="flex items-center justify-center gap-2">
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => openDetailModal(owner)}
-                             disabled={isLoadingOwners}
-                             title="Detail pemilik"
-                           >
-                             <FileText className="w-4 h-4" />
-                           </Button>
-                           <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => openEditModal(owner)}
-                             disabled={isLoadingOwners}
-                             title="Edit pemilik"
-                           >
-                             <Edit className="w-4 h-4" />
-                           </Button>
-                           {!owner.is_current_owner && (
-                             <Button
-                               variant="outline"
-                               size="sm"
-                               onClick={() => setShowDeleteConfirm(owner)}
-                               disabled={isLoadingOwners}
-                               title="Hapus pemilik"
-                             >
-                               <Trash2 className="w-4 h-4" />
-                             </Button>
-                           )}
-                         </div>
-                       </td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-             </div>
+          /* Owners Table */
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-700">Nama Pemilik</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-700">Periode Kepemilikan</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-700">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {owners.map((owner) => (
+                    <tr key={owner.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-gray-900">{owner.owner_name}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        {owner.is_current_owner ? (
+                          <Badge variant="success" className="flex items-center gap-1 w-fit">
+                            <UserCheck className="w-3 h-3" />
+                            Pemilik Aktif
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+                            <UserX className="w-3 h-3" />
+                            Mantan Pemilik
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <Calendar className="w-4 h-4" />
+                          <span>
+                            {formatDate(owner.ownership_start_date)}
+                            {owner.ownership_end_date ? (
+                              <span> - {formatDate(owner.ownership_end_date)}</span>
+                            ) : (
+                              <span> - Sekarang</span>
+                            )}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openDetailModal(owner)}
+                            disabled={isLoadingOwners}
+                            title="Detail pemilik"
+                          >
+                            <FileText className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditModal(owner)}
+                            disabled={isLoadingOwners}
+                            title="Edit pemilik"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          {!owner.is_current_owner && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowDeleteConfirm(owner)}
+                              disabled={isLoadingOwners}
+                              title="Hapus pemilik"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </Card>
 
-             {/* Add/Edit Owner Modal */}
-               <AddEditOwnerModal
-          isOpen={showAddEditModal}
-          onClose={() => setShowAddEditModal(false)}
-          onSuccess={handleAddOwnerSuccess}
-          gemstoneId={id}
-          gemstoneName={gemstone?.name}
-          editingOwner={editingOwner}
-        />
+      {/* Add/Edit Owner Modal */}
+      <AddEditOwnerModal
+        isOpen={showAddEditModal}
+        onClose={() => setShowAddEditModal(false)}
+        onSuccess={handleAddOwnerSuccess}
+        gemstoneId={id}
+        gemstoneName={gemstone?.name}
+        editingOwner={editingOwner}
+      />
 
       {/* Delete Owner Modal */}
       <DeleteOwnerModal
@@ -644,36 +621,34 @@ const GemstoneDetail = () => {
         owner={showDeleteConfirm}
       />
 
-             {/* Owner Detail Modal */}
-       <OwnerDetailModal
-         isOpen={showDetailModal}
-         onClose={() => setShowDetailModal(false)}
-         owner={selectedOwner}
-         gemstoneName={gemstone?.name}
-       />
+      {/* Owner Detail Modal */}
+      <OwnerDetailModal
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        owner={selectedOwner}
+        gemstoneName={gemstone?.name}
+      />
 
- 
+      {/* Print Preview Modal */}
+      <PrintPreviewModal
+        isOpen={showPrintPreview}
+        onClose={() => setShowPrintPreview(false)}
+        gemstone={gemstone}
+      />
 
-       {/* Print Preview Modal */}
-       <PrintPreviewModal
-         isOpen={showPrintPreview}
-         onClose={() => setShowPrintPreview(false)}
-         gemstone={gemstone}
-       />
-
-       {/* Delete Confirmation Modal */}
-       <DeleteConfirmationModal
-         isOpen={deleteModal.isOpen}
-         onClose={closeDeleteModal}
-         onConfirm={handleDelete}
-         itemName={gemstone?.name}
-         itemType="gemstone"
-         title="Hapus Batu Mulia"
-         description="Tindakan ini tidak dapat dibatalkan"
-         warningMessage="Ini akan menghapus batu mulia secara permanen beserta semua data terkait termasuk gambar dan kode QR."
-       />
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        itemName={gemstone?.name}
+        itemType="gemstone"
+        title="Hapus Batu Mulia"
+        description="Tindakan ini tidak dapat dibatalkan"
+        warningMessage="Ini akan menghapus batu mulia secara permanen beserta semua data terkait termasuk gambar dan kode QR."
+      />
     </div>
   );
 };
 
-export default GemstoneDetail; 
+export default GemstoneDetail;

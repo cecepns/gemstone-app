@@ -1,11 +1,14 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import js from '@eslint/js';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import importPlugin from 'eslint-plugin-import';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import globals from 'globals';
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'node_modules', 'build', 'coverage']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -13,17 +16,183 @@ export default defineConfig([
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
     ],
+    plugins: {
+      react,
+      'jsx-a11y': jsxA11y,
+      import: importPlugin,
+    },
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        ...globals.es2020,
+      },
       parserOptions: {
         ecmaVersion: 'latest',
-        ecmaFeatures: { jsx: true },
+        ecmaFeatures: {
+          jsx: true,
+          modules: true,
+        },
         sourceType: 'module',
       },
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.jsx'],
+        },
+      },
+    },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // ANCHOR: React specific rules
+      'react/jsx-uses-react': 'error',
+      'react/jsx-uses-vars': 'error',
+      'react/jsx-no-undef': 'error',
+      'react/jsx-pascal-case': 'error',
+      'react/jsx-no-duplicate-props': 'error',
+      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+      'react/jsx-boolean-value': ['error', 'never'],
+      'react/jsx-closing-bracket-location': ['error', 'line-aligned'],
+      'react/jsx-closing-tag-location': 'error',
+      'react/jsx-curly-spacing': ['error', 'never'],
+      'react/jsx-equals-spacing': ['error', 'never'],
+      'react/jsx-indent': ['error', 2],
+      'react/jsx-indent-props': ['error', 2],
+      'react/jsx-key': 'error',
+      'react/jsx-max-props-per-line': ['error', { maximum: 1, when: 'multiline' }],
+      'react/jsx-no-bind': ['error', { allowArrowFunctions: true }],
+      'react/jsx-no-literals': 'off',
+      'react/jsx-no-target-blank': 'error',
+      'react/jsx-props-no-multi-spaces': 'error',
+      'react/jsx-sort-props': 'off',
+      'react/jsx-tag-spacing': ['error', { beforeSelfClosing: 'always' }],
+      'react/jsx-wrap-multilines': 'error',
+      'react/no-array-index-key': 'warn',
+      'react/no-danger': 'warn',
+      'react/no-deprecated': 'error',
+      'react/no-direct-mutation-state': 'error',
+      'react/no-find-dom-node': 'error',
+      'react/no-is-mounted': 'error',
+      'react/no-multi-comp': 'off',
+      'react/no-render-return-value': 'error',
+      'react/no-string-refs': 'error',
+      'react/no-unescaped-entities': 'error',
+      'react/no-unknown-property': 'error',
+      'react/no-unsafe': 'warn',
+      'react/prefer-es6-class': 'error',
+      'react/prefer-stateless-function': 'warn',
+      'react/prop-types': 'off', // Using TypeScript-like patterns
+      'react/react-in-jsx-scope': 'off', // Not needed in React 17+
+      'react/require-render-return': 'error',
+      'react/self-closing-comp': 'error',
+      'react/sort-comp': 'off',
+      'react/void-dom-elements-no-children': 'error',
+
+      // ANCHOR: Accessibility rules
+      'jsx-a11y/alt-text': 'error',
+      'jsx-a11y/anchor-has-content': 'error',
+      'jsx-a11y/anchor-is-valid': 'error',
+      'jsx-a11y/aria-props': 'error',
+      'jsx-a11y/aria-proptypes': 'error',
+      'jsx-a11y/aria-unsupported-elements': 'error',
+      'jsx-a11y/click-events-have-key-events': 'warn',
+      'jsx-a11y/heading-has-content': 'error',
+      'jsx-a11y/html-has-lang': 'error',
+      'jsx-a11y/iframe-has-title': 'error',
+      'jsx-a11y/img-redundant-alt': 'error',
+      'jsx-a11y/no-access-key': 'error',
+      'jsx-a11y/no-distracting-elements': 'error',
+      'jsx-a11y/no-redundant-roles': 'error',
+      'jsx-a11y/role-has-required-aria-props': 'error',
+      'jsx-a11y/role-supports-aria-props': 'error',
+      'jsx-a11y/scope': 'error',
+      'jsx-a11y/tabindex-no-positive': 'error',
+
+      // ANCHOR: Import rules
+      'import/no-unresolved': 'error',
+      'import/named': 'error',
+      'import/default': 'error',
+      'import/namespace': 'error',
+      'import/no-duplicates': 'error',
+      'import/no-unused-modules': 'warn',
+      'import/no-absolute-path': 'error',
+      'import/no-dynamic-require': 'warn',
+      'import/no-webpack-loader-syntax': 'error',
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+
+      // ANCHOR: General JavaScript rules
+      'no-unused-vars': ['error', {
+        varsIgnorePattern: '^[A-Z_]',
+        argsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
+      'no-console': 'warn',
+      'no-debugger': 'error',
+      'no-alert': 'warn',
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'prefer-arrow-callback': 'error',
+      'arrow-spacing': 'error',
+      'no-duplicate-imports': 'error',
+      'object-shorthand': 'error',
+      'prefer-template': 'error',
+      'template-curly-spacing': 'error',
+      'no-useless-constructor': 'error',
+      'no-useless-rename': 'error',
+      'prefer-destructuring': ['error', { object: true, array: false }],
+      'no-param-reassign': 'error',
+      'no-return-assign': 'error',
+      'no-self-compare': 'error',
+      'no-sequences': 'error',
+      'no-throw-literal': 'error',
+      'no-unmodified-loop-condition': 'error',
+      'no-unused-expressions': 'error',
+      'no-useless-call': 'error',
+      'no-useless-concat': 'error',
+      'no-useless-return': 'error',
+      'radix': 'error',
+      'yoda': 'error',
+      'eqeqeq': 'error',
+      'curly': 'error',
+      'brace-style': ['error', '1tbs'],
+      'comma-dangle': ['error', 'always-multiline'],
+      'comma-spacing': 'error',
+      'comma-style': 'error',
+      'eol-last': 'error',
+      'indent': ['error', 2],
+      'key-spacing': 'error',
+      'keyword-spacing': 'error',
+      'max-len': ['warn', { code: 170, ignoreUrls: true, ignoreStrings: true }],
+      'no-multiple-empty-lines': ['error', { max: 1 }],
+      'no-trailing-spaces': 'error',
+      'object-curly-spacing': ['error', 'always'],
+      'quotes': ['error', 'single', { avoidEscape: true }],
+      'semi': ['error', 'always'],
+      'space-before-blocks': 'error',
+      'space-before-function-paren': ['error', 'never'],
+      'space-in-parens': 'error',
+      'space-infix-ops': 'error',
+      'spaced-comment': 'error',
     },
   },
-])
+]);

@@ -1,27 +1,29 @@
 // ANCHOR: AddEditOwnerModal Component - Modal for adding or editing gemstone owners
+import {
+  UserPlus,
+  Edit,
+  X,
+  AlertCircle,
+  Copy,
+  Users,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
+
 import { useAuth } from '../context/AuthContext';
 import { addGemstoneOwner, updateGemstoneOwner, getGemstoneOwners, getAllOwners } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
-import { 
-  UserPlus, 
-  Edit, 
-  X, 
-  AlertCircle,
-  Copy,
-  Users
-} from 'lucide-react';
+
 import { Button, Input, Textarea, Modal, Checkbox, Select } from './ui';
 
 /**
  * AddEditOwnerModal component - Modal for adding or editing gemstone owners
- * 
+ *
  * Features:
  * - Add new owner with transfer option
  * - Edit existing owner data
  * - Template selection: Use existing owner data as template for new owner
  * - Visual indicators for template-filled fields
- * 
+ *
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Modal open state
  * @param {Function} props.onClose - Close modal function
@@ -43,7 +45,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
     ownership_start_date: '',
     ownership_end_date: '',
     notes: '',
-    is_transfer: false
+    is_transfer: false,
   });
 
   // Validation state
@@ -58,15 +60,12 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   /**
    * Fetch available owners for template selection
    */
-  const fetchAvailableOwners = async () => {
+  const fetchAvailableOwners = async() => {
     try {
       setIsLoadingTemplates(true);
-      console.log('Fetching all owners for template selection');
       const result = await getAllOwners(getAuthHeader());
-      console.log('Fetched all owners result:', result);
       setAvailableOwners(result.data || []);
-    } catch (error) {
-      console.error('Error fetching all owners for template:', error);
+    } catch {
       setAvailableOwners([]);
     } finally {
       setIsLoadingTemplates(false);
@@ -76,14 +75,12 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   /**
    * Check if current gemstone has an active owner
    */
-  const checkCurrentOwner = async () => {
+  const checkCurrentOwner = async() => {
     try {
       const result = await getGemstoneOwners(gemstoneId, getAuthHeader());
       const hasOwner = result.data && result.data.some(owner => owner.is_current_owner);
       setHasCurrentOwner(hasOwner);
-      console.log('Has current owner:', hasOwner);
-    } catch (error) {
-      console.error('Error checking current owner:', error);
+    } catch {
       setHasCurrentOwner(false);
     }
   };
@@ -93,29 +90,19 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
    * @param {string} ownerId - Selected owner ID
    */
   const handleTemplateSelect = (ownerId) => {
-    console.log('=== TEMPLATE SELECTION DEBUG ===');
-    console.log('Template selected:', ownerId, 'Type:', typeof ownerId);
-    console.log('Available owners count:', availableOwners.length);
-    console.log('Available owners:', availableOwners);
-    
     if (!ownerId) {
-      console.log('No owner ID selected, clearing template');
       setSelectedTemplate('');
       return;
     }
 
     // Find the selected owner using loose comparison
     const selectedOwner = availableOwners.find(owner => {
-      console.log('Comparing:', owner.id, 'with', ownerId, 'Types:', typeof owner.id, typeof ownerId);
-      return owner.id == ownerId;
+      return owner.id === ownerId;
     });
-    
-    console.log('Selected owner found:', selectedOwner);
-    
+
     if (selectedOwner) {
-      console.log('Setting template and updating form...');
       setSelectedTemplate(ownerId);
-      
+
       // Update form data immediately
       setFormData(prev => {
         const newData = {
@@ -128,10 +115,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
           // Keep current dates and transfer mode unchanged
           ownership_start_date: prev.ownership_start_date,
           ownership_end_date: prev.ownership_end_date,
-          is_transfer: prev.is_transfer
+          is_transfer: prev.is_transfer,
         };
-        
-        console.log('Form data updated:', newData);
+
         return newData;
       });
 
@@ -140,13 +126,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         ...prev,
         owner_name: '',
         owner_phone: '',
-        owner_email: ''
+        owner_email: '',
       }));
-      
-      console.log('Template selection completed');
-    } else {
-      console.error('Owner not found for ID:', ownerId);
-      console.error('Available owners:', availableOwners);
+
     }
   };
 
@@ -170,7 +152,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       ownership_start_date: '',
       ownership_end_date: '',
       notes: '',
-      is_transfer: false
+      is_transfer: false,
     });
     setErrors({});
   };
@@ -182,18 +164,18 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     const fieldValue = type === 'checkbox' ? checked : value;
-    
+
     setFormData(prev => {
       const newData = {
         ...prev,
-        [name]: fieldValue
+        [name]: fieldValue,
       };
-      
+
       // Clear ownership_end_date when transfer mode is enabled
       if (name === 'is_transfer' && fieldValue === true) {
         newData.ownership_end_date = '';
       }
-      
+
       return newData;
     });
 
@@ -201,7 +183,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
@@ -241,11 +223,11 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
     }
 
     // Validate date range if end date is provided and not editing current owner and not in transfer mode
-    if (formData.ownership_end_date && formData.ownership_start_date && 
+    if (formData.ownership_end_date && formData.ownership_start_date &&
         !(editingOwner && editingOwner.is_current_owner) && !formData.is_transfer && hasCurrentOwner) {
       const startDate = new Date(formData.ownership_start_date);
       const endDate = new Date(formData.ownership_end_date);
-      
+
       if (endDate <= startDate) {
         newErrors.ownership_end_date = 'Tanggal berakhir harus setelah tanggal mulai';
       }
@@ -259,7 +241,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
    * Handle form submission
    * @param {Event} e - Form submit event
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -273,9 +255,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         // Prepare data for update - ensure end date is null for current owner
         const updateData = {
           ...formData,
-          ownership_end_date: editingOwner.is_current_owner ? null : (formData.ownership_end_date || null)
+          ownership_end_date: editingOwner.is_current_owner ? null : (formData.ownership_end_date || null),
         };
-        
+
         // Update existing owner
         await updateGemstoneOwner(gemstoneId, editingOwner.id, updateData, getAuthHeader());
         dismissToast();
@@ -284,9 +266,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         // Prepare data for add - ensure end date is null for transfer mode
         const addData = {
           ...formData,
-          ownership_end_date: formData.is_transfer ? null : (formData.ownership_end_date || null)
+          ownership_end_date: formData.is_transfer ? null : (formData.ownership_end_date || null),
         };
-        
+
         // Add new owner with transfer option
         await addGemstoneOwner(gemstoneId, addData, getAuthHeader());
         dismissToast();
@@ -296,7 +278,6 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       onSuccess(); // Call success callback
       onClose(); // Close modal
     } catch (error) {
-      console.error('Error saving owner:', error);
       dismissToast();
       showError(error.message || 'Gagal menyimpan data pemilik');
     }
@@ -316,14 +297,18 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
    * @returns {string} - Formatted date in YYYY-MM-DD format
    */
   const formatDateForInput = (dateString) => {
-    if (!dateString) return '';
-    
+    if (!dateString) {
+      return '';
+    }
+
     // Handle both ISO strings and date-only strings
     const date = new Date(dateString);
-    
+
     // Check if date is valid
-    if (isNaN(date.getTime())) return '';
-    
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+
     // Format to YYYY-MM-DD
     return date.toISOString().split('T')[0];
   };
@@ -349,7 +334,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         ownership_start_date: formattedStartDate,
         ownership_end_date: editingOwner.is_current_owner ? '' : formattedEndDate, // Clear end date for current owner
         notes: editingOwner.notes || '',
-        is_transfer: false // Reset transfer mode when editing
+        is_transfer: false, // Reset transfer mode when editing
       });
     } else if (isOpen && !editingOwner) {
       resetForm();
@@ -357,6 +342,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       fetchAvailableOwners();
       checkCurrentOwner();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, editingOwner, gemstoneId]);
 
   return (
@@ -398,15 +384,15 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                     value={selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
                     disabled={isLoadingTemplates}
-                    placeholder={isLoadingTemplates ? "Memuat data pemilik..." : "Pilih pemilik untuk digunakan sebagai template..."}
+                    placeholder={isLoadingTemplates ? 'Memuat data pemilik...' : 'Pilih pemilik untuk digunakan sebagai template...'}
                     options={[
-                      { value: '', label: isLoadingTemplates ? "Memuat data pemilik..." : "Pilih pemilik untuk digunakan sebagai template..." },
+                      { value: '', label: isLoadingTemplates ? 'Memuat data pemilik...' : 'Pilih pemilik untuk digunakan sebagai template...' },
                       ...availableOwners.map((owner) => {
                         return {
                           value: owner.id,
-                          label: `${owner.owner_name} - ${owner.owner_phone} (${owner.gemstone_name || 'Unknown Gemstone'})`
+                          label: `${owner.owner_name} - ${owner.owner_phone} (${owner.gemstone_name || 'Unknown Gemstone'})`,
                         };
-                      })
+                      }),
                     ]}
                   />
                 </div>
@@ -428,7 +414,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                   <Users className="w-3 h-3" />
                   Template dipilih: Data akan mengisi form secara otomatis. Anda masih bisa mengubah data sebelum menyimpan.
                   {(() => {
-                    const selectedOwner = availableOwners.find(owner => owner.id == selectedTemplate);
+                    const selectedOwner = availableOwners.find(owner => owner.id === selectedTemplate);
                     return selectedOwner ? ` (Dari: ${selectedOwner.gemstone_name || 'Unknown Gemstone'})` : '';
                   })()}
                 </p>
@@ -456,7 +442,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 </p>
               )}
             </div>
-            
+
             {/* Nomor Telepon */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -476,7 +462,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 </p>
               )}
             </div>
-            
+
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -497,7 +483,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 </p>
               )}
             </div>
-            
+
             {/* Tanggal Mulai Kepemilikan */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -518,7 +504,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 </p>
               )}
             </div>
-            
+
             {/* Tanggal Berakhir Kepemilikan - Hidden for current owner, transfer mode, or first owner */}
             {!(editingOwner && editingOwner.is_current_owner) && !formData.is_transfer && hasCurrentOwner && (
               <div>
@@ -574,12 +560,13 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
               <p className="text-sm text-green-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
                 <span>
-                  <strong>Pemilik Pertama:</strong> Tanggal berakhir kepemilikan tidak diperlukan karena ini adalah pemilik pertama. Pemilik akan otomatis menjadi pemilik aktif.
+                  <strong>Pemilik Pertama:</strong> Tanggal berakhir kepemilikan tidak diperlukan karena ini adalah pemilik pertama. {' '}
+                  Pemilik akan otomatis menjadi pemilik aktif.
                 </span>
               </p>
             </div>
           )}
-          
+
           {/* Alamat */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -594,7 +581,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
               className={`${selectedTemplate && formData.owner_address ? 'border-green-300 bg-green-50' : ''}`}
             />
           </div>
-          
+
           {/* Catatan */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
