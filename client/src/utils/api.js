@@ -309,6 +309,15 @@ export const verifyGemstone = async (uniqueId) => {
   return await apiGet(`/gemstones/${uniqueId}`);
 };
 
+/**
+ * Get gemstone owners history (public)
+ * @param {string} uniqueId - Unique gemstone ID
+ * @returns {Promise<Object>} - Owners history response
+ */
+export const getGemstoneOwnersPublic = async (uniqueId) => {
+  return await apiGet(`/gemstones/${uniqueId}/owners/public`);
+};
+
 // ======================================
 // GEMSTONE OWNERS API FUNCTIONS
 // ======================================

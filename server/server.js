@@ -821,6 +821,56 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
 // ======================================
 
 /**
+ * GET /api/gemstones/:uniqueId/owners/public - Get gemstone owners history (public)
+ */
+app.get('/api/gemstones/:uniqueId/owners/public', async (req, res) => {
+  try {
+    const { uniqueId } = req.params;
+
+    if (!uniqueId) {
+      return res.status(400).json({ error: 'Bad Request', message: 'Unique ID parameter is required' });
+    }
+
+    // Verify gemstone exists by unique ID
+    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE unique_id_number = ?', [uniqueId]);
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Gemstone not found' });
+    }
+
+    const gemstoneId = gemstoneRows[0].id;
+
+    // Get owners history (public version - no admin info)
+    const [rows] = await pool.execute(`
+      SELECT 
+        go.owner_name,
+        go.owner_phone,
+        go.owner_email,
+        go.owner_address,
+        go.ownership_start_date,
+        go.ownership_end_date,
+        go.is_current_owner,
+        go.notes,
+        go.created_at
+      FROM gemstone_owners go
+      WHERE go.gemstone_id = ?
+      ORDER BY go.ownership_start_date DESC, go.created_at DESC
+    `, [gemstoneId]);
+
+    res.status(200).json({
+      success: true,
+      data: rows
+    });
+
+  } catch (error) {
+    console.error('Error fetching gemstone owners (public):', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal mengambil riwayat pemilik: ' + error.message
+    });
+  }
+});
+
+/**
  * GET /api/gemstones/:id/owners - Get gemstone owners history
  */
 app.get('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
