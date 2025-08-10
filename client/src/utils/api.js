@@ -240,6 +240,15 @@ export const verifyAdminToken = async (token) => {
 };
 
 /**
+ * Get basic admin dashboard stats
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ */
+export const getAdminStats = async (authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiGet('/admin/stats', { token });
+};
+
+/**
  * Get all gemstones (admin) - with automatic token extraction
  * @param {Object} options - Request options
  * @param {Object} options.authHeader - Auth header from getAuthHeader()

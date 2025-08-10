@@ -566,6 +566,105 @@ app.get('/api/admin/verify', verifyToken, (req, res) => {
 });
 
 /**
+ * ANCHOR: Basic Admin Dashboard Stats Endpoint
+ * GET /api/admin/stats - Returns basic counts and simple distributions for dashboard
+ */
+app.get('/api/admin/stats', verifyToken, async (req, res) => {
+  try {
+    // Totals
+    const [totalGemstonesRows] = await pool.execute('SELECT COUNT(*) AS total FROM gemstones');
+    const totalGemstones = totalGemstonesRows[0]?.total || 0;
+
+    const [withOwnerRows] = await pool.execute(`
+      SELECT COUNT(DISTINCT g.id) AS total
+      FROM gemstones g
+      JOIN gemstone_owners go ON go.gemstone_id = g.id AND go.is_current_owner = TRUE
+    `);
+    const gemstonesWithCurrentOwner = withOwnerRows[0]?.total || 0;
+    const gemstonesWithoutOwner = Math.max(0, totalGemstones - gemstonesWithCurrentOwner);
+
+    const [totalOwnersRows] = await pool.execute('SELECT COUNT(*) AS total FROM gemstone_owners');
+    const totalOwnersRecords = totalOwnersRows[0]?.total || 0;
+
+    const [totalCurrentOwnersRows] = await pool.execute('SELECT COUNT(*) AS total FROM gemstone_owners WHERE is_current_owner = TRUE');
+    const totalCurrentOwners = totalCurrentOwnersRows[0]?.total || 0;
+
+    // Distributions (top 5)
+    const [colorRows] = await pool.execute(`
+      SELECT color AS name, COUNT(*) AS count
+      FROM gemstones
+      WHERE color IS NOT NULL AND color <> ''
+      GROUP BY color
+      ORDER BY count DESC
+      LIMIT 5
+    `);
+
+    const [originRows] = await pool.execute(`
+      SELECT origin AS name, COUNT(*) AS count
+      FROM gemstones
+      WHERE origin IS NOT NULL AND origin <> ''
+      GROUP BY origin
+      ORDER BY count DESC
+      LIMIT 5
+    `);
+
+    const [treatmentRows] = await pool.execute(`
+      SELECT treatment AS name, COUNT(*) AS count
+      FROM gemstones
+      WHERE treatment IS NOT NULL AND treatment <> ''
+      GROUP BY treatment
+      ORDER BY count DESC
+      LIMIT 5
+    `);
+
+    // Recent (optional basic list)
+    const [recentGemstones] = await pool.execute(`
+      SELECT id, unique_id_number, name, created_at
+      FROM gemstones
+      ORDER BY created_at DESC
+      LIMIT 5
+    `);
+
+    const [recentOwnerships] = await pool.execute(`
+      SELECT go.id, g.name AS gemstone_name, go.owner_name, go.is_current_owner, go.created_at
+      FROM gemstone_owners go
+      LEFT JOIN gemstones g ON g.id = go.gemstone_id
+      ORDER BY go.created_at DESC
+      LIMIT 5
+    `);
+
+    res.status(200).json({
+      success: true,
+      message: 'Statistik dashboard berhasil diambil',
+      data: {
+        totals: {
+          totalGemstones,
+          gemstonesWithCurrentOwner,
+          gemstonesWithoutOwner,
+          totalOwnersRecords,
+          totalCurrentOwners
+        },
+        distributions: {
+          byColor: colorRows,
+          byOrigin: originRows,
+          byTreatment: treatmentRows
+        },
+        recent: {
+          gemstones: recentGemstones,
+          ownerships: recentOwnerships
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching admin stats:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Gagal mengambil statistik: ' + error.message
+    });
+  }
+});
+
+/**
  * GET /api/gemstones - Get all gemstones (Admin only)
  * Returns paginated list of all gemstones with optional filtering
  */
