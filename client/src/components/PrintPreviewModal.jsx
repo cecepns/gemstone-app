@@ -3,6 +3,8 @@ import html2pdf from 'html2pdf.js';
 import { X, Printer, Download, Loader2, Image } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 
+import { showError } from '../utils/toast';
+
 import GemstonePrintCard from './GemstonePrintCard';
 import { Modal, Button } from './ui';
 
@@ -50,9 +52,9 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
 
       // PDF options
       const options = {
-        margin: [10, 10, 10, 10],
+        margin: [1, 1, 1, 1],
         filename: `gemstone-${gemstone?.unique_id_number || 'card'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: 1 },
         html2canvas: {
           scale: 2,
           useCORS: true,
@@ -74,9 +76,8 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
         .set(options)
         .save();
 
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Terjadi kesalahan saat mengunduh PDF. Silakan coba lagi.');
+    } catch (_error) {
+      showError('Terjadi kesalahan saat mengunduh PDF. Silakan coba lagi.');
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -96,6 +97,12 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
       // Wait a bit for any images to load and ensure proper rendering
       await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Import html2canvas dynamically to avoid SSR issues
+      const html2canvas = (await import('html2canvas')).default;
+
+      // Get the card container
+      const cardContainer = printCardRef.current;
+
       // Ensure all images are loaded
       const images = cardContainer.querySelectorAll('img');
       await Promise.all(
@@ -109,12 +116,6 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
           });
         }),
       );
-
-      // Import html2canvas dynamically to avoid SSR issues
-      const html2canvas = (await import('html2canvas')).default;
-
-      // Get the card container
-      const cardContainer = printCardRef.current;
       const frontCard = cardContainer.querySelector('.print-card:not(.print-card-back)');
       const backCard = cardContainer.querySelector('.print-card-back');
 
@@ -142,56 +143,19 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
         windowHeight: cardHeight,
         foreignObjectRendering: false,
         removeContainer: true,
-        ignoreElements: (element) => {
-          // Ignore any hidden elements
-          return element.style.display === 'none' ||
-                 element.style.visibility === 'hidden' ||
-                 element.classList.contains('print-card-toggle');
-        },
       };
 
-      // Create temporary container with exact positioning
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '-9999px';
-      tempContainer.style.width = `${cardWidth}px`;
-      tempContainer.style.height = `${cardHeight}px`;
-      tempContainer.style.overflow = 'hidden';
-      tempContainer.style.backgroundColor = '#ffffff';
-      document.body.appendChild(tempContainer);
-
-      // Clone and capture front card with exact styling
-      const frontClone = frontCard.cloneNode(true);
-      frontClone.classList.add('print-card-for-capture');
-      frontClone.classList.remove('print-card-hidden');
-      frontClone.style.width = `${cardWidth}px`;
-      frontClone.style.height = `${cardHeight}px`;
-      tempContainer.appendChild(frontClone);
-
       // Wait for DOM to update
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      const frontCanvas = await html2canvas(frontClone, canvasOptions);
+      const frontCanvas = await html2canvas(frontCard, canvasOptions);
       const frontImageData = frontCanvas.toDataURL('image/png', 1.0);
 
-      // Clear container and clone back card with exact styling
-      tempContainer.innerHTML = '';
-      const backClone = backCard.cloneNode(true);
-      backClone.classList.add('print-card-for-capture');
-      backClone.classList.remove('print-card-hidden');
-      backClone.style.width = `${cardWidth}px`;
-      backClone.style.height = `${cardHeight}px`;
-      tempContainer.appendChild(backClone);
-
       // Wait for DOM to update
       await new Promise(resolve => setTimeout(resolve, 200));
 
-      const backCanvas = await html2canvas(backClone, canvasOptions);
+      const backCanvas = await html2canvas(backCard, canvasOptions);
       const backImageData = backCanvas.toDataURL('image/png', 1.0);
-
-      // Clean up temporary container
-      document.body.removeChild(tempContainer);
 
       // Create download links
       const frontLink = document.createElement('a');
@@ -212,10 +176,8 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
       document.body.removeChild(backLink);
 
       // Show success message
-      console.log('Images downloaded successfully');
-    } catch (error) {
-      console.error('Error generating images:', error);
-      alert('Terjadi kesalahan saat mengunduh gambar. Silakan coba lagi.');
+    } catch {
+      showError('Terjadi kesalahan saat mengunduh gambar. Silakan coba lagi.');
     } finally {
       setIsGeneratingImages(false);
     }
@@ -228,9 +190,8 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
       size="full"
       className="max-w-7xl"
     >
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <Modal.Header onClose={onClose}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               Preview Kartu Batu Mulia
@@ -239,74 +200,68 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
               {gemstone?.name || 'Batu Mulia'}
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={handleDownloadImages}
-              disabled={isGeneratingImages}
-              className="flex items-center gap-2"
-            >
-              {isGeneratingImages ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Image className="w-4 h-4" />
-              )}
-              {isGeneratingImages ? 'Generating Images...' : 'Download Images'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleDownload}
-              disabled={isGeneratingPDF}
-              className="flex items-center gap-2"
-            >
-              {isGeneratingPDF ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4" />
-              )}
-              {isGeneratingPDF ? 'Generating PDF...' : 'Download PDF'}
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              iconOnly
-              size="sm"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
         </div>
+      </Modal.Header>
 
-        {/* Content */}
-        <div className="p-6 overflow-auto bg-gray-200">
-          <div ref={printCardRef} className="pdf-container">
+      <Modal.Body className="p-0">
+        <div className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-200">
+          {/* Visible scaled preview */}
+          <div className="print-preview-viewport">
+            <div className="print-preview-content">
+              <GemstonePrintCard gemstone={gemstone} />
+            </div>
+          </div>
+
+          {/* Off-screen original size container for export */}
+          <div
+            ref={printCardRef}
+            className="pdf-container"
+            style={{ position: 'absolute', left: '-9999px', top: 0 }}
+            aria-hidden="true"
+          >
             <GemstonePrintCard gemstone={gemstone} />
           </div>
         </div>
+      </Modal.Body>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-end">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                onClick={onClose}
-              >
-                Tutup
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handlePrint}
-                className="flex items-center gap-2"
-              >
-                <Printer className="w-4 h-4" />
-                Cetak Sekarang
-              </Button>
-            </div>
-          </div>
+      <Modal.Footer>
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full justify-end">
+          <Button
+            variant="outline"
+            onClick={handleDownloadImages}
+            disabled={isGeneratingImages}
+            className="flex items-center gap-2 w-full sm:w-auto"
+          >
+            {isGeneratingImages ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Image className="w-4 h-4" />
+            )}
+            {isGeneratingImages ? 'Generating Images...' : 'Download Images'}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleDownload}
+            disabled={isGeneratingPDF}
+            className="flex items-center gap-2 w-full sm:w-auto"
+          >
+            {isGeneratingPDF ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {isGeneratingPDF ? 'Generating PDF...' : 'Download PDF'}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handlePrint}
+            className="flex items-center gap-2 w-full sm:w-auto"
+          >
+            <Printer className="w-4 h-4" />
+            Cetak Sekarang
+          </Button>
         </div>
-      </div>
+      </Modal.Footer>
     </Modal>
   );
 };

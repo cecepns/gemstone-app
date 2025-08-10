@@ -13,136 +13,60 @@
     padding: 0;
     height: 100%;
   }
-}
-@media print {
-  /* Force background colors and images to print */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  
+
   /* Hide everything except print card */
   body * {
     visibility: hidden;
   }
-  
+
   .print-card,
   .print-card * {
     visibility: visible;
-  }
-  
-  .print-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background: white !important;
-    box-shadow: none;
-    border: 1px solid #000;
-  }
-  
-  .print-card::before {
-    display: none;
-  }
-  
-  .print-footer {
-    background: #f9f9f9 !important;
-    border-top: 1px solid #000;
-  }
-  
-  /* Ensure all background colors are preserved */
-  .print-top-header {
-    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
-    color: white !important;
-  }
-  
-  .print-bottom-footer {
-    background: linear-gradient(135deg, #581c87 0%, #7c3aed 100%) !important;
-    color: white !important;
-  }
-  
-  .print-card-back {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
-  }
-  
-  .print-back-section {
-    background: white !important;
-    border-left: 3px solid #7c3aed !important;
-  }
-  
-  .print-image-container {
-    background: white !important;
-    border: 2px solid #e9d5ff !important;
-  }
-  
-  .print-barcode-container {
-    background: white !important;
-    border: 2px solid #e9d5ff !important;
-  }
-  
-  /* Ensure all gradients and colors print correctly */
-  .print-card {
-    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
-  }
-  
-  .print-detail-item:hover {
-    background-color: transparent !important;
-  }
-  
-  /* Force all text colors to print */
-  .print-detail-label {
-    color: #7c3aed !important;
-  }
-  
-  .print-detail-value {
-    color: #1f2937 !important;
-  }
-  
-  .print-back-section-title {
-    color: #7c3aed !important;
-  }
-  
-  .print-back-info {
-    color: #374151 !important;
-  }
-  
-  .print-report-number {
-    color: #7c3aed !important;
-  }
-  
-  /* Hide toggle button when printing */
-  .print-card-toggle {
-    display: none !important;
-  }
-  
-  /* Show both cards when printing */
-  .print-card-hidden {
-    display: block !important;
-  }
-  
-  .print-card-container {
-    gap: 0;
-  }
-  
-  .print-card {
-    page-break-after: always;
-  }
-  
-  .print-card:last-child {
-    page-break-after: auto;
   }
 }
 
 /* PDF container styles */
 .pdf-container {
+  /* ANCHOR: Set PDF container to A4 portrait size */
   background: white;
-  padding: 20px;
+  width: 210mm;
+  min-height: 297mm;
+  max-width: 210mm;
+  max-height: 297mm;
+  padding: 20mm;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+/* ANCHOR: Responsive visible preview scaling */
+.print-preview-viewport {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.print-preview-content {
+  transform-origin: top center;
+}
+
+/* Default: fit nicely on small screens */
+@media (max-width: 640px) {
+  .print-preview-content {
+    transform: scale(0.7);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .print-preview-content {
+    transform: scale(0.85);
+  }
+}
+
+@media (min-width: 1024px) {
+  .print-preview-content {
+    transform: scale(1);
+  }
 }
 
 /* PDF generation specific styles */
@@ -157,96 +81,18 @@
 }
 
 .pdf-container .print-card-hidden {
-  display: block !important;
+  display: block;
 }
 
 /* Image generation specific styles */
 .pdf-container .print-card[style*="display: none"] {
-  display: block !important;
+  display: block;
 }
 
 .pdf-container .print-card[style*="visibility: hidden"] {
-  visibility: visible !important;
+  visibility: visible;
 }
 
-/* High precision image generation styles */
-.print-card-for-capture {
-  position: relative !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  transform: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  overflow: hidden !important;
-  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
-}
-
-.print-card-for-capture * {
-  position: relative !important;
-  transform: none !important;
-  box-sizing: border-box !important;
-}
-
-.print-card-for-capture .print-card-content {
-  position: relative !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  flex-direction: row !important;
-}
-
-.print-card-for-capture .print-left-side,
-.print-card-for-capture .print-right-side {
-  position: relative !important;
-  flex: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.print-card-for-capture .print-image-container,
-.print-card-for-capture .print-barcode-container {
-  position: relative !important;
-  overflow: hidden !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.print-card-for-capture .print-image,
-.print-card-for-capture .print-barcode {
-  position: relative !important;
-  max-width: 100% !important;
-  height: auto !important;
-  object-fit: contain !important;
-}
-
-.print-card-for-capture .print-top-header,
-.print-card-for-capture .print-bottom-footer {
-  position: relative !important;
-  width: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-}
-
-.print-card-for-capture .print-details {
-  position: relative !important;
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-}
-
-.print-card-for-capture .print-detail-item {
-  position: relative !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 4px 0 !important;
-}
 
 /* Print card styles (visible in preview) */
 .print-card {
@@ -339,8 +185,8 @@
 
 .print-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: 200px;
+  overflow: hidden;
 }
 
 .print-image-placeholder {
@@ -369,20 +215,13 @@
 
 /* Barcode container */
 .print-barcode-container {
-  width: 52mm;
-  height: 15mm;
-  border: 2px solid #e9d5ff;
-  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.1);
 }
 
 .print-barcode {
-  width: 100%;
-  height: 100%;
+  width: 15mm;
   object-fit: contain;
 }
 
@@ -453,14 +292,6 @@
 
 .print-website {
   font-weight: 600;
-}
-
-/* Print preview styles */
-@media screen {
-  .print-card {
-    margin: 20px auto;
-    transform-origin: top center;
-  }
 }
 
 /* Card Container and Toggle */
@@ -549,3 +380,4 @@
 }
 
 
+ 

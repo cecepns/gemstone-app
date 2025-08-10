@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import classNames from 'classnames';
+import React, { useEffect } from 'react';
 
 /**
  * ANCHOR: Modal Component
@@ -22,18 +22,18 @@ const Modal = ({
         onClose?.();
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
     }
-    
+
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose, closeOnEscape]);
-  
+
   // Size classes
   const sizeClasses = {
     sm: 'w-sm',
@@ -44,40 +44,42 @@ const Modal = ({
     '3xl': 'w-3xl',
     '4xl': 'w-4xl',
     '5xl': 'w-5xl',
-    full: 'w-full mx-4'
+    full: 'w-full mx-4',
   };
-  
+
   const modalClasses = classNames(
     'bg-white rounded-lg shadow-xl transform',
     'flex flex-col transition-all w-full',
     sizeClasses[size],
-    className
+    className,
   );
-  
+
   const backdropClasses = classNames(
     'fixed inset-0 bg-black/50 overflow-y-auto flex justify-center items-start p-4 pt-8 z-50',
     {
       'opacity-0 pointer-events-none': !isOpen,
-      'opacity-100': isOpen
-    }
+      'opacity-100': isOpen,
+    },
   );
-  
+
   const contentClasses = classNames(
     'transform transition-all duration-300 w-full flex justify-center',
     {
       'scale-95 opacity-0': !isOpen,
-      'scale-100 opacity-100': isOpen
-    }
+      'scale-100 opacity-100': isOpen,
+    },
   );
-  
+
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget && closeOnBackdrop) {
       onClose?.();
     }
   };
-  
-  if (!isOpen) return null;
-  
+
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <div className={backdropClasses} onClick={handleBackdropClick} {...props}>
       <div className={contentClasses}>
@@ -101,9 +103,9 @@ const ModalHeader = ({
 }) => {
   const headerClasses = classNames(
     'flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0',
-    className
+    className,
   );
-  
+
   return (
     <div className={headerClasses} {...props}>
       <div className="flex-1">
@@ -134,9 +136,9 @@ const ModalBody = ({
 }) => {
   const bodyClasses = classNames(
     'p-6',
-    className
+    className,
   );
-  
+
   return (
     <div className={bodyClasses} {...props}>
       {children}
@@ -155,9 +157,9 @@ const ModalFooter = ({
 }) => {
   const footerClasses = classNames(
     'flex items-center justify-end space-x-3 p-6 border-t border-gray-200 flex-shrink-0',
-    className
+    className,
   );
-  
+
   return (
     <div className={footerClasses} {...props}>
       {children}
@@ -169,4 +171,4 @@ Modal.Header = ModalHeader;
 Modal.Body = ModalBody;
 Modal.Footer = ModalFooter;
 
-export default Modal; 
+export default Modal;

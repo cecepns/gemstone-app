@@ -1,6 +1,6 @@
 // ANCHOR: GemstonePrintCard Component - Print-friendly gemstone card/memo
-import { Gem, Calendar, Weight, Palette, MapPin, Settings, Ruler, RotateCcw, RotateCw } from 'lucide-react';
-import React, { useState } from 'react';
+import { Gem } from 'lucide-react';
+import React from 'react';
 
 /**
  * GemstonePrintCard component - Print-friendly gemstone information card
@@ -11,7 +11,6 @@ import React, { useState } from 'react';
  * @returns {React.ReactElement} - Rendered print card
  */
 const GemstonePrintCard = ({ gemstone }) => {
-  const [showBack, setShowBack] = useState(false);
 
   /**
    * Format date for display
@@ -29,13 +28,6 @@ const GemstonePrintCard = ({ gemstone }) => {
     });
   };
 
-  /**
-   * Handle card flip toggle
-   */
-  const handleFlipCard = () => {
-    setShowBack(!showBack);
-  };
-
   if (!gemstone) {
     return (
       <div className="print-card">
@@ -48,30 +40,8 @@ const GemstonePrintCard = ({ gemstone }) => {
 
   return (
     <div className="print-card-container">
-      {/* Card Flip Toggle Button */}
-      <div className="print-card-toggle">
-        <button
-          onClick={handleFlipCard}
-          className="print-flip-button"
-          title={showBack ? 'Tampilkan Depan' : 'Tampilkan Belakang'}
-        >
-          {showBack ? (
-            <>
-              <RotateCw size={16} />
-              <span>Depan</span>
-            </>
-          ) : (
-            <>
-              <RotateCcw size={16} />
-              <span>Belakang</span>
-            </>
-          )}
-        </button>
-      </div>
 
-      {/* Front Card */}
-      <div className={`print-card ${showBack ? 'print-card-hidden' : ''}`}>
-        {/* Top Header */}
+      <div className="print-card">
         <div className="print-top-header">
           <div className="print-report-title">REPORT</div>
           <div className="print-lab-logo">
@@ -157,15 +127,14 @@ const GemstonePrintCard = ({ gemstone }) => {
         {/* Bottom Footer */}
         <div className="print-bottom-footer">
           <div className="print-social-media">
-            <span>@gemstonelab</span>
-            <span>@GemstoneLab</span>
+            <span>@gemstonestory</span>
           </div>
-          <div className="print-website">www.gemstonelab.net</div>
+          <div className="print-website">gemstonestory.id</div>
         </div>
       </div>
 
       {/* Back Card */}
-      <div className={`print-card print-card-back ${!showBack ? 'print-card-hidden' : ''}`}>
+      <div className="print-card print-card-back">
         {/* Back Header */}
         <div className="print-top-header">
           <div className="print-report-title">INFORMASI TAMBAHAN</div>
@@ -181,15 +150,15 @@ const GemstonePrintCard = ({ gemstone }) => {
             <div className="print-back-info">
               <p>• QR Code unik untuk verifikasi</p>
               <p>• Nomor ID: {gemstone.unique_id_number}</p>
-              <p>• Scan QR atau kunjungi www.gemstonelab.net</p>
+              <p>• Scan QR atau kunjungi gemstonestory.id</p>
             </div>
           </div>
 
           <div className="print-back-section">
             <h3 className="print-back-section-title">Kontak</h3>
             <div className="print-back-info">
-              <p>Email: info@gemstonelab.net</p>
-              <p>WA: +62 812-3456-7890 | IG: @gemstonelab</p>
+              <p>Email: info@gemstonestory.net</p>
+              <p>WA: +62 812-3456-7890 | IG: @gemstonestory</p>
             </div>
           </div>
 
@@ -206,10 +175,9 @@ const GemstonePrintCard = ({ gemstone }) => {
         {/* Back Footer */}
         <div className="print-bottom-footer">
           <div className="print-social-media">
-            <span>@gemstonelab</span>
-            <span>@GemstoneLab</span>
+            <span>@gemstonestory</span>
           </div>
-          <div className="print-website">www.gemstonelab.net</div>
+          <div className="print-website">gemstonestory.id</div>
         </div>
       </div>
     </div>

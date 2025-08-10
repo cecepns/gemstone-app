@@ -1,5 +1,6 @@
 import { Download, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+
 import { useAuth } from '../context/AuthContext';
 import { changeAdminPassword, downloadDatabaseBackup } from '../utils/api';
 import { showError, showSuccess } from '../utils/toast';
@@ -12,7 +13,7 @@ const AdminSettings = () => {
   const { getAuthHeader } = useAuth();
 
   // ANCHOR: Handle password change form submission
-  const handlePasswordChange = async (e) => {
+  const handlePasswordChange = async(e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -43,7 +44,7 @@ const AdminSettings = () => {
   };
 
   // ANCHOR: Handle database backup
-  const handleBackupDatabase = async () => {
+  const handleBackupDatabase = async() => {
     setIsLoading(true);
 
     try {
@@ -95,7 +96,7 @@ const AdminSettings = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showCurrentPassword ? "text" : "password"}
+                    type={showCurrentPassword ? 'text' : 'password'}
                     required
                     name="currentPassword"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
@@ -114,14 +115,14 @@ const AdminSettings = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Sandi Baru
                 </label>
                 <div className="relative">
                   <input
-                    type={showNewPassword ? "text" : "password"}
+                    type={showNewPassword ? 'text' : 'password'}
                     required
                     name="newPassword"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
@@ -140,14 +141,14 @@ const AdminSettings = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Konfirmasi Sandi Baru
                 </label>
                 <div className="relative">
                   <input
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirmPassword ? 'text' : 'password'}
                     required
                     name="confirmPassword"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
@@ -166,7 +167,7 @@ const AdminSettings = () => {
                   </button>
                 </div>
               </div>
-              
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -174,7 +175,7 @@ const AdminSettings = () => {
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                     Mengubah Sandi...
                   </>
                 ) : (
@@ -199,24 +200,6 @@ const AdminSettings = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Informasi Backup</h4>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex justify-between">
-                    <span>Cadangan Terakhir:</span>
-                    <span className="font-medium">2 jam yang lalu</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Ukuran Database:</span>
-                    <span className="font-medium">~15.2 MB</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Status:</span>
-                    <span className="font-medium text-green-600">Siap</span>
-                  </div>
-                </div>
-              </div>
-              
               <button
                 onClick={handleBackupDatabase}
                 disabled={isLoading}
@@ -224,7 +207,7 @@ const AdminSettings = () => {
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                     Membuat Backup...
                   </>
                 ) : (
@@ -234,7 +217,7 @@ const AdminSettings = () => {
                   </>
                 )}
               </button>
-              
+
               <div className="text-xs text-gray-500 text-center">
                 File backup akan otomatis diunduh dalam format .sql
               </div>
@@ -246,4 +229,4 @@ const AdminSettings = () => {
   );
 };
 
-export default AdminSettings; 
+export default AdminSettings;

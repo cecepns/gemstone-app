@@ -171,10 +171,7 @@ const AddGemstone = () => {
       });
       clearFile();
 
-      console.log('Gemstone created successfully:', result.data);
     } catch (error) {
-      console.error('Error creating gemstone:', error);
-
       // Dismiss loading toast
       dismissToast(loadingToast);
 
