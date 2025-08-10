@@ -1,6 +1,7 @@
 // ANCHOR: Express Server Setup for Gemstone Verification App
 const express = require('express');
 const mysql = require('mysql2/promise');
+const mysqlLib = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
@@ -562,6 +563,117 @@ app.get('/api/admin/verify', verifyToken, (req, res) => {
       error: 'Internal Server Error',
       message: 'Gagal memverifikasi token'
     });
+  }
+});
+
+/**
+ * ANCHOR: Change Admin Password Endpoint
+ * POST /api/admin/change-password - Change password for authenticated admin
+ */
+app.post('/api/admin/change-password', verifyToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Sandi saat ini dan sandi baru harus diisi'
+      });
+    }
+
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Sandi baru minimal 6 karakter'
+      });
+    }
+
+    // Get admin by ID from token
+    const adminId = req.admin.id;
+    const [rows] = await pool.execute('SELECT * FROM admins WHERE id = ?', [adminId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Not Found', message: 'Admin tidak ditemukan' });
+    }
+
+    const admin = rows[0];
+    const isCurrentValid = await bcrypt.compare(currentPassword, admin.password);
+    if (!isCurrentValid) {
+      return res.status(401).json({ error: 'Unauthorized', message: 'Sandi saat ini salah' });
+    }
+
+    // Hash and update new password
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await pool.execute('UPDATE admins SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [hashed, adminId]);
+
+    res.status(200).json({ success: true, message: 'Kata sandi berhasil diubah' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: 'Gagal mengubah kata sandi: ' + error.message });
+  }
+});
+
+/**
+ * Generate SQL dump for the current database (basic implementation)
+ */
+async function generateSqlDump() {
+  const lines = [];
+  lines.push('-- Gemstone Verification System SQL Backup');
+  lines.push(`-- Generated at: ${new Date().toISOString()}`);
+  lines.push('SET FOREIGN_KEY_CHECKS = 0;');
+  lines.push('');
+
+  // Discover tables dynamically
+  const [tables] = await pool.query('SHOW TABLES');
+  const tableNames = tables.map((row) => Object.values(row)[0]);
+
+  for (const table of tableNames) {
+    // DDL
+    const [createRows] = await pool.query(`SHOW CREATE TABLE \`${table}\``);
+    const createSql = createRows[0]['Create Table'];
+    lines.push(`--\n-- Table structure for table \`${table}\`\n--`);
+    lines.push(`DROP TABLE IF EXISTS \`${table}\`;`);
+    lines.push(`${createSql};`);
+    lines.push('');
+
+    // Data
+    const [dataRows] = await pool.query(`SELECT * FROM \`${table}\``);
+    if (dataRows.length > 0) {
+      lines.push(`--\n-- Dumping data for table \`${table}\`\n--`);
+      for (const row of dataRows) {
+        const columns = Object.keys(row).map((c) => `\`${c}\``).join(', ');
+        const values = Object.values(row).map((v) => mysqlLib.escape(v)).join(', ');
+        lines.push(`INSERT INTO \`${table}\` (${columns}) VALUES (${values});`);
+      }
+      lines.push('');
+    }
+  }
+
+  lines.push('SET FOREIGN_KEY_CHECKS = 1;');
+  lines.push('');
+  return lines.join('\n');
+}
+
+/**
+ * ANCHOR: Database Backup Endpoint
+ * GET /api/admin/backup - Generates and downloads a SQL backup
+ */
+app.get('/api/admin/backup', verifyToken, async (req, res) => {
+  try {
+    const sqlDump = await generateSqlDump();
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-:]/g, '')
+      .replace('T', '_')
+      .replace(/\..+/, '');
+    const filename = `gemstone_backup_${timestamp}.sql`;
+
+    res.setHeader('Content-Type', 'application/sql; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.status(200).send(sqlDump);
+  } catch (error) {
+    console.error('Error generating backup:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: 'Gagal membuat backup: ' + error.message });
   }
 });
 

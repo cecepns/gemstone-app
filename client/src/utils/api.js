@@ -169,6 +169,37 @@ export const apiDelete = async (endpoint, { token = null } = {}) => {
 };
 
 /**
+ * Make GET request that expects a Blob (e.g., file download)
+ * @param {string} endpoint - API endpoint (without base URL)
+ * @param {Object} options - Request options
+ * @param {string} options.token - JWT token for authentication
+ * @returns {Promise<{ blob: Blob, response: Response }>} - Blob and raw response
+ */
+export const apiGetBlob = async (endpoint, { token = null } = {}) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      // Try to parse JSON error if available
+      try {
+        const data = await response.json();
+        throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+      } catch (_) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    }
+
+    const blob = await response.blob();
+    return { blob, response };
+  } catch (error) {
+    throw new Error(handleError(error));
+  }
+};
+
+/**
  * Upload file to API
  * @param {string} endpoint - API endpoint (without base URL)
  * @param {Object} options - Request options
@@ -387,6 +418,35 @@ export const deleteGemstoneOwner = async (gemstoneId, ownerId, authHeader) => {
 export const getAllOwners = async (authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiGet('/owners/all', { token });
+};
+
+// ======================================
+// ADMIN SETTINGS API FUNCTIONS
+// ======================================
+
+/**
+ * Change admin password
+ * @param {{ currentPassword: string, newPassword: string }} payload
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Response
+ */
+export const changeAdminPassword = async (payload, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPost('/admin/change-password', { data: payload, token });
+};
+
+/**
+ * Download database backup as SQL file
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<{ blob: Blob, filename: string }>} - Backup blob and filename
+ */
+export const downloadDatabaseBackup = async (authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  const { blob, response } = await apiGetBlob('/admin/backup', { token });
+  const disposition = response.headers.get('Content-Disposition') || '';
+  const match = disposition.match(/filename="?([^";]+)"?/i);
+  const filename = match ? match[1] : 'gemstone_backup.sql';
+  return { blob, filename };
 };
 
  

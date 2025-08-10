@@ -1,33 +1,67 @@
 import { Download, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { changeAdminPassword, downloadDatabaseBackup } from '../utils/api';
+import { showError, showSuccess } from '../utils/toast';
 
 const AdminSettings = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { getAuthHeader } = useAuth();
 
   // ANCHOR: Handle password change form submission
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // TODO: Implement password change logic
-    setTimeout(() => {
-      setIsLoading(false);
-      // Reset form
+
+    try {
+      const formData = new FormData(e.target);
+      const currentPassword = formData.get('currentPassword');
+      const newPassword = formData.get('newPassword');
+      const confirmPassword = formData.get('confirmPassword');
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        showError('Semua field sandi wajib diisi');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showError('Konfirmasi sandi tidak cocok');
+        return;
+      }
+
+      await changeAdminPassword({ currentPassword, newPassword }, getAuthHeader());
+      showSuccess('Kata sandi berhasil diubah');
       e.target.reset();
-    }, 2000);
+    } catch (error) {
+      showError(error.message || 'Gagal mengubah kata sandi');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // ANCHOR: Handle database backup
   const handleBackupDatabase = async () => {
     setIsLoading(true);
-    
-    // TODO: Implement database backup logic
-    setTimeout(() => {
+
+    try {
+      const { blob, filename } = await downloadDatabaseBackup(getAuthHeader());
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      showSuccess('Backup database berhasil dibuat');
+    } catch (error) {
+      showError(error.message || 'Gagal membuat backup database');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -63,6 +97,7 @@ const AdminSettings = () => {
                   <input
                     type={showCurrentPassword ? "text" : "password"}
                     required
+                    name="currentPassword"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Masukkan sandi saat ini"
                   />
@@ -88,6 +123,7 @@ const AdminSettings = () => {
                   <input
                     type={showNewPassword ? "text" : "password"}
                     required
+                    name="newPassword"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Masukkan sandi baru"
                   />
@@ -113,6 +149,7 @@ const AdminSettings = () => {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     required
+                    name="confirmPassword"
                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Konfirmasi sandi baru"
                   />
