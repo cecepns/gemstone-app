@@ -1,11 +1,12 @@
 // ANCHOR: DeleteConfirmationModal Component - Reusable delete confirmation modal
 import { AlertCircle } from 'lucide-react';
+
 import { Modal, Button } from './ui';
 
 /**
  * DeleteConfirmationModal - Reusable component for delete confirmation
  * Handles the display and logic for confirming deletion of items
- * 
+ *
  * @param {Object} props - Component props
  * @param {boolean} props.isOpen - Whether the modal is open
  * @param {Function} props.onClose - Function to close the modal
@@ -22,10 +23,10 @@ const DeleteConfirmationModal = ({
   onClose,
   onConfirm,
   itemName,
-  itemType = "item",
-  title = "Konfirmasi Hapus",
-  description = "Tindakan ini tidak dapat dibatalkan",
-  warningMessage = "Ini akan menghapus item secara permanen dan semua data terkait."
+  itemType = 'item',
+  title = 'Konfirmasi Hapus',
+  description = 'Tindakan ini tidak dapat dibatalkan',
+  warningMessage = 'Ini akan menghapus item secara permanen dan semua data terkait.',
 }) => {
   /**
    * Handle confirm button click
@@ -54,7 +55,7 @@ const DeleteConfirmationModal = ({
           <p className="text-gray-700">
             Apakah Anda yakin ingin menghapus{' '}
             <span className="font-semibold text-gray-900">
-              "{itemName || `${itemType} ini`}"
+              &quot;{itemName || `${itemType} ini`}&quot;
             </span>?
           </p>
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -89,4 +90,4 @@ const DeleteConfirmationModal = ({
   );
 };
 
-export default DeleteConfirmationModal; 
+export default DeleteConfirmationModal;

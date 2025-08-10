@@ -30,7 +30,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import PrintPreviewModal from '../components/PrintPreviewModal';
-import { Button, Card, Badge, Modal, Alert, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
+import { Button, Card, Badge, Modal, Alert, Table, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { getGemstoneDetail, deleteGemstone,
   getGemstoneOwners,
@@ -222,6 +222,97 @@ const GemstoneDetail = () => {
   const handleBack = () => {
     navigate('/admin/gemstones');
   };
+
+  // ANCHOR: Table columns configuration for owners
+  const ownerColumns = [
+    {
+      key: 'owner_name',
+      header: 'Nama Pemilik',
+      render: (value) => (
+        <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">{value}</div>
+      ),
+    },
+    {
+      key: 'is_current_owner',
+      header: 'Status',
+      align: 'center',
+      render: (value) => (
+        value ? (
+          <Badge variant="success" className="flex items-center gap-1 w-fit">
+            <UserCheck className="w-3 h-3" />
+            Pemilik Aktif
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="flex items-center gap-1 w-fit">
+            <UserX className="w-3 h-3" />
+            Mantan Pemilik
+          </Badge>
+        )
+      ),
+    },
+    {
+      key: 'ownership_period',
+      header: 'Periode Kepemilikan',
+      render: (value, row) => (
+        <div className="flex items-center gap-2 text-gray-600">
+          <Calendar className="w-4 h-4" />
+          <span className="text-xs sm:text-sm">
+            {formatDate(row.ownership_start_date)}
+            {row.ownership_end_date ? (
+              <span> - {formatDate(row.ownership_end_date)}</span>
+            ) : (
+              <span> - Sekarang</span>
+            )}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Aksi',
+      align: 'center',
+      nowrap: true,
+      render: (value, row) => (
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => openDetailModal(row)}
+            disabled={isLoadingOwners}
+            title="Detail pemilik"
+            className="text-xs px-2 py-1 w-full sm:w-auto"
+          >
+            <FileText className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Detail</span>
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => openEditModal(row)}
+            disabled={isLoadingOwners}
+            title="Edit pemilik"
+            className="text-xs px-2 py-1 w-full sm:w-auto"
+          >
+            <Edit className="w-3 h-3 mr-1" />
+            <span className="hidden sm:inline">Ubah</span>
+          </Button>
+          {!row.is_current_owner && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => setShowDeleteConfirm(row)}
+              disabled={isLoadingOwners}
+              title="Hapus pemilik"
+              className="text-xs px-2 py-1 w-full sm:w-auto"
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              <span className="hidden sm:inline">Hapus</span>
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   /**
    * Loading state
@@ -509,135 +600,66 @@ const GemstoneDetail = () => {
 
       {/* Owner History Section */}
       <Card variant="elevated" padding="lg">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Users className="w-6 h-6 text-blue-600" />
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Riwayat Pemilik Batu Mulia
-              </h2>
-              <p className="text-sm text-gray-600">{gemstone.name}</p>
+        <Card.Header>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Users className="w-6 h-6 text-blue-600" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Riwayat Pemilik Batu Mulia
+                </h2>
+                <p className="text-sm text-gray-600">{gemstone.name}</p>
+              </div>
             </div>
-          </div>
-          <Button
-            variant="primary"
-            onClick={openAddModal}
-            disabled={isLoadingOwners}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Tambah Pemilik
-          </Button>
-        </div>
-
-        {/* Owner History Content */}
-        <div className="space-y-4">
-          {isLoadingOwners ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-              <span className="ml-2 text-gray-600">Memuat riwayat pemilik...</span>
-            </div>
-          ) : ownersError ? (
-            <Alert
-              type="danger"
-              title="Gagal Memuat Riwayat Pemilik"
+            <Button
+              variant="primary"
+              onClick={openAddModal}
+              disabled={isLoadingOwners}
             >
-              {ownersError}
-            </Alert>
-          ) : owners.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p className="text-gray-600">Belum ada data pemilik</p>
-              <Button variant="primary" onClick={openAddModal} className="mt-3">
-                Tambah Pemilik Pertama
-              </Button>
-            </div>
-          ) : (
-          /* Owners Table */
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Nama Pemilik</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-700">Periode Kepemilikan</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-700">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {owners.map((owner) => (
-                    <tr key={owner.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-gray-900">{owner.owner_name}</div>
-                      </td>
-                      <td className="py-3 px-4">
-                        {owner.is_current_owner ? (
-                          <Badge variant="success" className="flex items-center gap-1 w-fit">
-                            <UserCheck className="w-3 h-3" />
-                            Pemilik Aktif
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="flex items-center gap-1 w-fit">
-                            <UserX className="w-3 h-3" />
-                            Mantan Pemilik
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {formatDate(owner.ownership_start_date)}
-                            {owner.ownership_end_date ? (
-                              <span> - {formatDate(owner.ownership_end_date)}</span>
-                            ) : (
-                              <span> - Sekarang</span>
-                            )}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            iconOnly
-                            onClick={() => openDetailModal(owner)}
-                            disabled={isLoadingOwners}
-                            title="Detail pemilik"
-                          >
-                            <FileText className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            iconOnly
-                            onClick={() => openEditModal(owner)}
-                            disabled={isLoadingOwners}
-                            title="Edit pemilik"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          {!owner.is_current_owner && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              iconOnly
-                              onClick={() => setShowDeleteConfirm(owner)}
-                              disabled={isLoadingOwners}
-                              title="Hapus pemilik"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+              <Plus className="w-4 h-4 mr-2" />
+              Tambah Pemilik
+            </Button>
+          </div>
+        </Card.Header>
+
+        <Card.Body>
+          {/* Owner History Content */}
+          <div className="space-y-4">
+            {isLoadingOwners ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                <span className="ml-2 text-gray-600">Memuat riwayat pemilik...</span>
+              </div>
+            ) : ownersError ? (
+              <Alert
+                type="danger"
+                title="Gagal Memuat Riwayat Pemilik"
+              >
+                {ownersError}
+              </Alert>
+            ) : owners.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600">Belum ada data pemilik</p>
+                <Button variant="primary" onClick={openAddModal} className="mt-3">
+                  Tambah Pemilik Pertama
+                </Button>
+              </div>
+            ) : (
+              /* Owners Table using atomic Table component */
+              <Table
+                data={owners}
+                columns={ownerColumns}
+                loading={isLoadingOwners}
+                error={ownersError}
+                emptyMessage="Belum ada data pemilik"
+                size="md"
+                hoverable
+                striped
+              />
+            )}
+          </div>
+        </Card.Body>
       </Card>
 
       {/* Add/Edit Owner Modal */}
