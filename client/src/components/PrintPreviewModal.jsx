@@ -59,14 +59,6 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
               Download PDF
             </Button>
             <Button
-              variant="primary"
-              onClick={handlePrint}
-              className="flex items-center gap-2"
-            >
-              <Printer className="w-4 h-4" />
-              Cetak
-            </Button>
-            <Button
               variant="ghost"
               onClick={onClose}
               iconOnly

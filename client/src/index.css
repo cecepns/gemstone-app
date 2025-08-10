@@ -1,6 +1,27 @@
 
 /* ANCHOR: Print Card Styles - Print-friendly gemstone card styling */
+
+/* Global print settings */
 @media print {
+  @page {
+    margin: 0;
+    size: A4;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+}
+@media print {
+  /* Force background colors and images to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
   /* Hide everything except print card */
   body * {
     visibility: hidden;
@@ -19,7 +40,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background: white;
+    background: white !important;
     box-shadow: none;
     border: 1px solid #000;
   }
@@ -29,8 +50,90 @@
   }
   
   .print-footer {
-    background: #f9f9f9;
+    background: #f9f9f9 !important;
     border-top: 1px solid #000;
+  }
+  
+  /* Ensure all background colors are preserved */
+  .print-top-header {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+    color: white !important;
+  }
+  
+  .print-bottom-footer {
+    background: linear-gradient(135deg, #581c87 0%, #7c3aed 100%) !important;
+    color: white !important;
+  }
+  
+  .print-card-back {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+  }
+  
+  .print-back-section {
+    background: white !important;
+    border-left: 3px solid #7c3aed !important;
+  }
+  
+  .print-image-container {
+    background: white !important;
+    border: 2px solid #e9d5ff !important;
+  }
+  
+  .print-barcode-container {
+    background: white !important;
+    border: 2px solid #e9d5ff !important;
+  }
+  
+  /* Ensure all gradients and colors print correctly */
+  .print-card {
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+  }
+  
+  .print-detail-item:hover {
+    background-color: transparent !important;
+  }
+  
+  /* Force all text colors to print */
+  .print-detail-label {
+    color: #7c3aed !important;
+  }
+  
+  .print-detail-value {
+    color: #1f2937 !important;
+  }
+  
+  .print-back-section-title {
+    color: #7c3aed !important;
+  }
+  
+  .print-back-info {
+    color: #374151 !important;
+  }
+  
+  .print-report-number {
+    color: #7c3aed !important;
+  }
+  
+  /* Hide toggle button when printing */
+  .print-card-toggle {
+    display: none !important;
+  }
+  
+  /* Show both cards when printing */
+  .print-card-hidden {
+    display: block !important;
+  }
+  
+  .print-card-container {
+    gap: 0;
+  }
+  
+  .print-card {
+    page-break-after: always;
+  }
+  
+  .print-card:last-child {
+    page-break-after: auto;
   }
 }
 
@@ -334,26 +437,4 @@
   padding: 0;
 }
 
-/* Print Media Query - Hide toggle button when printing */
-@media print {
-  .print-card-toggle {
-    display: none;
-  }
-  
-  .print-card-hidden {
-    display: block !important;
-  }
-  
-  .print-card-container {
-    gap: 0;
-  }
-  
-  /* Show both cards when printing */
-  .print-card {
-    page-break-after: always;
-  }
-  
-  .print-card:last-child {
-    page-break-after: auto;
-  }
-}
+
