@@ -13,9 +13,10 @@ const jwt = require('jsonwebtoken');
 // Create Express application
 const app = express();
 
-// ANCHOR: Uploads Directory Constant
-// Centralized absolute path for uploaded gemstone images
+// ANCHOR: Uploads Directory Constants
+// Centralized absolute paths for uploaded gemstone images (new and legacy)
 const UPLOADS_DIR = path.join(__dirname, 'upload-gemstonestory');
+const LEGACY_UPLOADS_DIR = path.join(__dirname, 'public/uploads');
 
 // Enable CORS for all routes
 app.use(cors());
@@ -44,6 +45,16 @@ app.use('/uploads', express.static(UPLOADS_DIR, {
   }
 }));
 
+// Fallback static route to serve legacy files that still reside in the old directory
+app.use('/uploads', express.static(LEGACY_UPLOADS_DIR, {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.png') || path.endsWith('.gif')) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.setHeader('Content-Type', 'image/' + path.split('.').pop());
+    }
+  }
+}));
+
 // ======================================
 // MULTER CONFIGURATION FOR FILE UPLOAD
 // ======================================
@@ -66,6 +77,35 @@ const storage = multer.diskStorage({
     cb(null, fileName);
   }
 });
+
+// ANCHOR: Helper - Delete uploaded file by URL (supports new and legacy dirs)
+function deleteUploadedFileByUrl(urlOrPath) {
+  try {
+    if (!urlOrPath) return;
+    const fileName = path.basename(String(urlOrPath));
+    if (!fileName || fileName === '/' || fileName === '.' || fileName.includes('..')) return;
+
+    const candidates = [
+      path.join(UPLOADS_DIR, fileName),
+      path.join(LEGACY_UPLOADS_DIR, fileName)
+    ];
+
+    for (const candidate of candidates) {
+      try {
+        if (fs.existsSync(candidate)) {
+          fs.unlinkSync(candidate);
+          // stop after first successful delete
+          break;
+        }
+      } catch (err) {
+        // log and continue to try next candidate
+        console.error('Error deleting file candidate:', candidate, err.message);
+      }
+    }
+  } catch (error) {
+    console.error('deleteUploadedFileByUrl error:', error.message);
+  }
+}
 
 // File filter to accept only images
 const fileFilter = (req, file, cb) => {
@@ -1002,18 +1042,8 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
       });
     }
     
-    // Delete associated photo file if it exists
-    if (gemstone.photo_url) {
-      try {
-        const filePath = path.join(UPLOADS_DIR, path.basename(gemstone.photo_url));
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      } catch (fileError) {
-        console.error('Error deleting photo file:', fileError);
-        // Don't fail the request if file deletion fails
-      }
-    }
+    // Delete associated photo file if it exists (supports new and legacy dirs)
+    deleteUploadedFileByUrl(gemstone.photo_url);
     
     // Return success response
     res.status(200).json({
@@ -1590,12 +1620,7 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       const newPhotoPath = `/uploads/${req.file.filename}`;
       // delete old file if exists
       if (existing.photo_url) {
-        try {
-          const filePath = path.join(UPLOADS_DIR, path.basename(existing.photo_url));
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        } catch (fileErr) {
-          console.error('Error deleting old photo:', fileErr);
-        }
+        deleteUploadedFileByUrl(existing.photo_url);
       }
       fields.photo_url = newPhotoPath;
     }
