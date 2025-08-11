@@ -13,6 +13,10 @@ const jwt = require('jsonwebtoken');
 // Create Express application
 const app = express();
 
+// ANCHOR: Uploads Directory Constant
+// Centralized absolute path for uploaded gemstone images
+const UPLOADS_DIR = path.join(__dirname, 'upload-gemstonestory');
+
 // Enable CORS for all routes
 app.use(cors());
 
@@ -30,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Specific route for uploads with proper headers
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
+app.use('/uploads', express.static(UPLOADS_DIR, {
   // Set proper cache headers for images
   setHeaders: (res, path) => {
     if (path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.png') || path.endsWith('.gif')) {
@@ -47,7 +51,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, 'public/uploads');
+    const uploadPath = UPLOADS_DIR;
     // Ensure directory exists
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
@@ -1001,7 +1005,7 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
     // Delete associated photo file if it exists
     if (gemstone.photo_url) {
       try {
-        const filePath = path.join(__dirname, 'public', gemstone.photo_url);
+        const filePath = path.join(UPLOADS_DIR, path.basename(gemstone.photo_url));
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
@@ -1587,7 +1591,7 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       // delete old file if exists
       if (existing.photo_url) {
         try {
-          const filePath = path.join(__dirname, 'public', existing.photo_url);
+          const filePath = path.join(UPLOADS_DIR, path.basename(existing.photo_url));
           if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         } catch (fileErr) {
           console.error('Error deleting old photo:', fileErr);

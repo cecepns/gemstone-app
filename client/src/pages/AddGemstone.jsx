@@ -372,6 +372,7 @@ const AddGemstone = () => {
                     size="sm"
                     onClick={clearFile}
                     disabled={isLoading}
+                    className="absolute top-2 right-2"
                     iconOnly
                   >
                     <Trash2 className="w-4 h-4" />
