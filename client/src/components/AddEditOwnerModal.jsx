@@ -95,9 +95,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       return;
     }
 
-    // Find the selected owner using loose comparison
+    // Find the selected owner with safe string comparison to handle number/string IDs
     const selectedOwner = availableOwners.find(owner => {
-      return owner.id === ownerId;
+      return String(owner.id) === String(ownerId);
     });
 
     if (selectedOwner) {
@@ -341,6 +341,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       setSelectedTemplate(''); // Reset template selection
       fetchAvailableOwners();
       checkCurrentOwner();
+    } else if (!isOpen) {
+      // Ensure template selection is cleared when modal closes
+      setSelectedTemplate('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, editingOwner, gemstoneId]);
@@ -386,7 +389,6 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                     disabled={isLoadingTemplates}
                     placeholder={isLoadingTemplates ? 'Memuat data pemilik...' : 'Pilih pemilik untuk digunakan sebagai template...'}
                     options={[
-                      { value: '', label: isLoadingTemplates ? 'Memuat data pemilik...' : 'Pilih pemilik untuk digunakan sebagai template...' },
                       ...availableOwners.map((owner) => {
                         return {
                           value: owner.id,
@@ -414,7 +416,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                   <Users className="w-3 h-3" />
                   Template dipilih: Data akan mengisi form secara otomatis. Anda masih bisa mengubah data sebelum menyimpan.
                   {(() => {
-                    const selectedOwner = availableOwners.find(owner => owner.id === selectedTemplate);
+                    const selectedOwner = availableOwners.find(owner => String(owner.id) === String(selectedTemplate));
                     return selectedOwner ? ` (Dari: ${selectedOwner.gemstone_name || 'Unknown Gemstone'})` : '';
                   })()}
                 </p>
