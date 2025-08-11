@@ -1,9 +1,9 @@
 // ANCHOR: AddGemstoneForm Component - Complete gemstone creation form with file upload
-import { Gem, Save, AlertCircle, CheckCircle, Loader2, Camera, X, ArrowLeft, Trash2  } from 'lucide-react';
+import { Gem, Save, Loader2, Camera, ArrowLeft, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Input, Textarea, Card, Alert } from '../components/ui';
+import { Button, Input, Textarea, Card } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { createGemstone } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
@@ -158,6 +158,9 @@ const AddGemstone = () => {
 
       // Success notification
       showSuccess(`Batu mulia "${formData.name}" berhasil ditambahkan dengan ID: ${result.data.unique_id_number}`);
+
+      // Navigate to gemstone list after successful creation
+      navigate('/admin/gemstones');
 
       // Reset form
       setFormData({

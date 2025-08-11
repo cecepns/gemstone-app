@@ -531,7 +531,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
           </div>
 
           {/* Info box for current owner */}
-          {editingOwner && editingOwner.is_current_owner && (
+          {Boolean(editingOwner && editingOwner.is_current_owner) && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <p className="text-sm text-green-700 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
