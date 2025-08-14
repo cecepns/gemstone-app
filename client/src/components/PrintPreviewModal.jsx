@@ -34,6 +34,7 @@ const PrintPreviewModal = ({ isOpen, onClose, gemstone }) => {
    */
   const handlePrint = () => {
     window.print();
+    console.log('Printing...');
   };
 
   /**
