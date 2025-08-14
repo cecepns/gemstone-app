@@ -1,12 +1,12 @@
 // ANCHOR: HomePage Component - Landing page for Gemstone Verification App
-import { Search } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { Button, Input, Card } from '../components/ui';
+import { Button, Input, Card } from "../components/ui";
 
 const Home = () => {
-  const [gemstoneId, setGemstoneId] = useState('');
+  const [gemstoneId, setGemstoneId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const Home = () => {
     e.preventDefault();
 
     if (!gemstoneId.trim()) {
-      alert('Silakan masukkan ID Gemstone');
+      alert("Silakan masukkan ID Gemstone");
       return;
     }
 
@@ -45,10 +45,11 @@ const Home = () => {
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-4 sm:mb-6 leading-tight">
-            Verifikasi Batu Mulia
+            Verifikasi Gemstone
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 leading-relaxed">
-            Verifikasi keaslian batu mulia berharga Anda dengan sistem verifikasi canggih kami
+            Lihat kisah kehidupan gemstone Anda melalui sistem verifikasi resmi
+            kami
           </p>
         </div>
 
@@ -60,7 +61,7 @@ const Home = () => {
         >
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <Input
-              label="Masukkan ID Batu Mulia"
+              label="Masukkan ID gemstone"
               id="gemstoneId"
               name="gemstoneId"
               type="text"
@@ -84,7 +85,7 @@ const Home = () => {
                 className="shadow-lg h-12 sm:h-14 text-base sm:text-lg font-semibold"
               >
                 {isLoading ? (
-                  'Memverifikasi...'
+                  "Memverifikasi..."
                 ) : (
                   <>
                     <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
