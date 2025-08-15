@@ -121,18 +121,22 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
     const nextOwner = ownerIndex < existingOwners.length - 1 ? existingOwners[ownerIndex + 1] : null;
 
     let minStartDate = null;
-    const maxStartDate = null;
+    let maxStartDate = null;
     const minEndDate = null;
     let maxEndDate = null;
 
     // Constraints based on previous owner
     if (previousOwner) {
-      minStartDate = previousOwner.ownership_end_date || previousOwner.ownership_start_date;
+      minStartDate = previousOwner.ownership_start_date;
     }
 
     // Constraints based on next owner
     if (nextOwner) {
       maxEndDate = nextOwner.ownership_start_date;
+      // Tambahkan batasan maksimal tanggal mulai berdasarkan tanggal berakhir pemilik saat ini
+      if (owner.ownership_end_date) {
+        maxStartDate = owner.ownership_end_date;
+      }
     }
 
     // Special constraints for current owner
@@ -832,7 +836,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 value={formData.ownership_start_date}
                 onChange={handleInputChange}
                 min={dateConstraints.minStartDate ? formatDateForInput(dateConstraints.minStartDate) : undefined}
-                max={dateConstraints.maxStartDate ? formatDateForInput(dateConstraints.maxStartDate) : getCurrentDate()}
+                max={dateConstraints.maxStartDate ? formatDateForInput(dateConstraints.maxStartDate) : undefined}
                 className={errors.ownership_start_date ? 'border-red-500' : ''}
               />
               {errors.ownership_start_date && (
@@ -842,8 +846,6 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 </p>
               )}
             </div>
-
-            {console.log('activeOwner', currentOwner)}
 
             {/* Tanggal Berakhir Kepemilikan - Hidden for current owner, transfer mode, or first owner */}
             {!(editingOwner && editingOwner.is_current_owner) && !formData.is_transfer && hasCurrentOwner && (
@@ -857,7 +859,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                   value={formData.ownership_end_date || ''}
                   onChange={handleInputChange}
                   min={formData.ownership_start_date}
-                  max={dateConstraints.maxEndDate ? formatDateForInput(dateConstraints.maxEndDate) : null}
+                  max={dateConstraints.maxEndDate ? formatDateForInput(dateConstraints.maxEndDate) : undefined}
                   disabled={!formData.ownership_start_date}
                   required={(editingOwner && !editingOwner.is_current_owner) || (!editingOwner && !formData.is_transfer && hasCurrentOwner)}
                   className={`${errors.ownership_end_date ? 'border-red-500' : ''} ${!formData.ownership_start_date ? 'bg-gray-100' : ''}`}
