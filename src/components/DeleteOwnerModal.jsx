@@ -1,5 +1,5 @@
 // ANCHOR: DeleteOwnerModal Component - Modal for confirming owner deletion
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { deleteGemstoneOwner } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 import { 

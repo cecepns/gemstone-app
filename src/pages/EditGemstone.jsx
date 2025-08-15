@@ -1,7 +1,7 @@
 // ANCHOR: EditGemstoneForm Component - Edit existing gemstone with optional image update
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { getGemstoneDetail, updateGemstone } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 import { Gem, Save, Loader2, Camera, X, ArrowLeft, Trash2 } from 'lucide-react';

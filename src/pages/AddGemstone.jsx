@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, Input, Textarea, Card } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { createGemstone } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 

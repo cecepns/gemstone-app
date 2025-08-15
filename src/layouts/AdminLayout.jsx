@@ -4,7 +4,7 @@ import { LayoutDashboard, Package, Settings, LogOut, Shield, Menu, X } from 'luc
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 /**
  * AdminLayout component - Layout wrapper for admin pages

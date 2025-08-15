@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { addGemstoneOwner, updateGemstoneOwner, getGemstoneOwners, getAllOwners } from '../utils/api';
 import { formatDateForInput, formatDateForDisplay, getCurrentDate } from '../utils/dateUtils';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';

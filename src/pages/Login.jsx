@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 import { Button, Input, Card } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { loginAdmin } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 

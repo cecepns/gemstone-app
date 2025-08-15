@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { Button, Input, Card, Table } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { getGemstones, deleteGemstone } from '../utils/api';
 import { showSuccess } from '../utils/toast';
 

@@ -1,7 +1,7 @@
 import { Download, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { changeAdminPassword, downloadDatabaseBackup } from '../utils/api';
 import { showError, showSuccess } from '../utils/toast';
 

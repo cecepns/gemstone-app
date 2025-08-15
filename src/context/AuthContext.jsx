@@ -1,18 +1,9 @@
 // ANCHOR: AuthContext - Global authentication state management for admin login
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { verifyAdminToken } from '../utils/api';
 
-// Create the AuthContext
-const AuthContext = createContext();
-
-// Custom hook to use the AuthContext
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+import { AuthContext } from './AuthContext.js';
 
 // AuthProvider component to wrap the app and provide authentication state
 export const AuthProvider = ({ children }) => {
@@ -111,13 +102,15 @@ export const AuthProvider = ({ children }) => {
    * @returns {boolean} - true if token appears to be expired
    */
   const isTokenExpired = () => {
-    if (!token) return true;
+    if (!token) {
+      return true;
+    }
 
     try {
       // Decode JWT payload (basic check without verification)
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
-      
+
       return payload.exp < currentTime;
     } catch (error) {
       console.error('Error checking token expiration:', error);
@@ -135,7 +128,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return {
-      'Authorization': `Bearer ${token}`
+      'Authorization': `Bearer ${token}`,
     };
   };
 
@@ -143,12 +136,14 @@ export const AuthProvider = ({ children }) => {
    * Verify token with backend (optional method for token validation)
    * @returns {Promise<boolean>} - true if token is valid
    */
-  const verifyToken = async () => {
-    if (!token) return false;
+  const verifyToken = async() => {
+    if (!token) {
+      return false;
+    }
 
     try {
       const result = await verifyAdminToken(token);
-      
+
       // Update admin data if received from verification
       if (result.data && result.data.admin) {
         updateAdmin(result.data.admin);
@@ -169,14 +164,14 @@ export const AuthProvider = ({ children }) => {
     admin,
     isAuthenticated,
     isLoading,
-    
+
     // Methods
     login,
     logout,
     updateAdmin,
     isTokenExpired,
     getAuthHeader,
-    verifyToken
+    verifyToken,
   };
 
   return (
@@ -185,5 +180,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthContext;

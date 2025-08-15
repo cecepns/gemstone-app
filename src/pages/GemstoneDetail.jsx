@@ -31,7 +31,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import PrintPreviewModal from '../components/PrintPreviewModal';
 import { Button, Card, Badge, Modal, Alert, Table, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { getGemstoneDetail, deleteGemstone,
   getGemstoneOwners,
 } from '../utils/api';

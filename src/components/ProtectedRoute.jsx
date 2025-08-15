@@ -1,6 +1,6 @@
 // ANCHOR: ProtectedRoute Component - Wrapper for admin-only routes with authentication check
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 /**
  * ProtectedRoute component to protect admin-only routes
