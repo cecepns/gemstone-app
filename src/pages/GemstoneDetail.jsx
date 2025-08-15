@@ -137,6 +137,7 @@ const GemstoneDetail = () => {
       return '-';
     }
     return new Date(dateString).toLocaleDateString('id-ID', {
+      timeZone: 'Asia/Jakarta',
       year: 'numeric',
       month: 'long',
       day: 'numeric',

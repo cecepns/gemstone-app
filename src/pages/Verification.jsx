@@ -87,6 +87,7 @@ const Verification = () => {
    */
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
+      timeZone: 'Asia/Jakarta',
       year: 'numeric',
       month: 'long',
       day: 'numeric',

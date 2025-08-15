@@ -1,7 +1,8 @@
 // ANCHOR: API Utilities - Centralized API request functions with authentication and error handling
 
 // Base API configuration
-const API_BASE_URL = 'https://api-inventory.isavralabel.com/gemstone/api';
+// const API_BASE_URL = 'https://api-inventory.isavralabel.com/gemstone/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 /**
  * Get authentication headers for API requests
@@ -10,13 +11,13 @@ const API_BASE_URL = 'https://api-inventory.isavralabel.com/gemstone/api';
  */
 const getAuthHeaders = (token) => {
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   };
-  
+
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  
+
   return headers;
 };
 
@@ -29,7 +30,7 @@ const extractTokenFromHeader = (authHeader) => {
   if (!authHeader || !authHeader.Authorization) {
     return null;
   }
-  
+
   return authHeader.Authorization.replace('Bearer ', '');
 };
 
@@ -38,13 +39,13 @@ const extractTokenFromHeader = (authHeader) => {
  * @param {Response} response - Fetch response object
  * @returns {Promise<Object>} - Parsed response data
  */
-const handleResponse = async (response) => {
+const handleResponse = async(response) => {
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
   }
-  
+
   return data;
 };
 
@@ -55,11 +56,11 @@ const handleResponse = async (response) => {
  */
 const handleError = (error) => {
   console.error('API Error:', error);
-  
+
   if (error.name === 'TypeError' && error.message.includes('fetch')) {
     return 'Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.';
   }
-  
+
   return error.message || 'An unexpected error occurred.';
 };
 
@@ -71,7 +72,7 @@ const handleError = (error) => {
  * @param {Object} options.params - Query parameters
  * @returns {Promise<Object>} - API response data
  */
-export const apiGet = async (endpoint, { token = null, params = {} } = {}) => {
+export const apiGet = async(endpoint, { token = null, params = {} } = {}) => {
   try {
     // Build URL with query parameters
     const url = new URL(`${API_BASE_URL}${endpoint}`);
@@ -83,7 +84,7 @@ export const apiGet = async (endpoint, { token = null, params = {} } = {}) => {
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: getAuthHeaders(token)
+      headers: getAuthHeaders(token),
     });
 
     return await handleResponse(response);
@@ -101,11 +102,11 @@ export const apiGet = async (endpoint, { token = null, params = {} } = {}) => {
  * @param {boolean} options.isFormData - Whether to send as FormData
  * @returns {Promise<Object>} - API response data
  */
-export const apiPost = async (endpoint, { data = {}, token = null, isFormData = false } = {}) => {
+export const apiPost = async(endpoint, { data = {}, token = null, isFormData = false } = {}) => {
   try {
     let body;
-    let headers = getAuthHeaders(token);
-    
+    const headers = getAuthHeaders(token);
+
     if (isFormData) {
       // Remove Content-Type for FormData - browser will set it automatically
       delete headers['Content-Type'];
@@ -117,7 +118,7 @@ export const apiPost = async (endpoint, { data = {}, token = null, isFormData = 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers,
-      body
+      body,
     });
 
     return await handleResponse(response);
@@ -134,12 +135,12 @@ export const apiPost = async (endpoint, { data = {}, token = null, isFormData = 
  * @param {string} options.token - JWT token for authentication
  * @returns {Promise<Object>} - API response data
  */
-export const apiPut = async (endpoint, { data = {}, token = null } = {}) => {
+export const apiPut = async(endpoint, { data = {}, token = null } = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PUT',
       headers: getAuthHeaders(token),
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     return await handleResponse(response);
@@ -155,11 +156,11 @@ export const apiPut = async (endpoint, { data = {}, token = null } = {}) => {
  * @param {string} options.token - JWT token for authentication
  * @returns {Promise<Object>} - API response data
  */
-export const apiDelete = async (endpoint, { token = null } = {}) => {
+export const apiDelete = async(endpoint, { token = null } = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'DELETE',
-      headers: getAuthHeaders(token)
+      headers: getAuthHeaders(token),
     });
 
     return await handleResponse(response);
@@ -175,11 +176,11 @@ export const apiDelete = async (endpoint, { token = null } = {}) => {
  * @param {string} options.token - JWT token for authentication
  * @returns {Promise<{ blob: Blob, response: Response }>} - Blob and raw response
  */
-export const apiGetBlob = async (endpoint, { token = null } = {}) => {
+export const apiGetBlob = async(endpoint, { token = null } = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'GET',
-      headers: getAuthHeaders(token)
+      headers: getAuthHeaders(token),
     });
 
     if (!response.ok) {
@@ -207,7 +208,7 @@ export const apiGetBlob = async (endpoint, { token = null } = {}) => {
  * @param {string} options.token - JWT token for authentication
  * @returns {Promise<Object>} - API response data
  */
-export const apiUpload = async (endpoint, { formData, token = null } = {}) => {
+export const apiUpload = async(endpoint, { formData, token = null } = {}) => {
   try {
     const headers = {};
     if (token) {
@@ -218,7 +219,7 @@ export const apiUpload = async (endpoint, { formData, token = null } = {}) => {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers,
-      body: formData
+      body: formData,
     });
 
     return await handleResponse(response);
@@ -232,14 +233,16 @@ export const apiUpload = async (endpoint, { formData, token = null } = {}) => {
  * @param {string} endpoint
  * @param {{ formData: FormData, token?: string }} options
  */
-export const apiUploadPut = async (endpoint, { formData, token = null } = {}) => {
+export const apiUploadPut = async(endpoint, { formData, token = null } = {}) => {
   try {
     const headers = {};
-    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PUT',
       headers,
-      body: formData
+      body: formData,
     });
     return await handleResponse(response);
   } catch (error) {
@@ -255,9 +258,9 @@ export const apiUploadPut = async (endpoint, { formData, token = null } = {}) =>
  * @param {string} password - Admin password
  * @returns {Promise<Object>} - Login response with token and admin data
  */
-export const loginAdmin = async (username, password) => {
+export const loginAdmin = async(username, password) => {
   return await apiPost('/admin/login', {
-    data: { username, password }
+    data: { username, password },
   });
 };
 
@@ -266,7 +269,7 @@ export const loginAdmin = async (username, password) => {
  * @param {string} token - JWT token
  * @returns {Promise<Object>} - Token verification response
  */
-export const verifyAdminToken = async (token) => {
+export const verifyAdminToken = async(token) => {
   return await apiGet('/admin/verify', { token });
 };
 
@@ -274,7 +277,7 @@ export const verifyAdminToken = async (token) => {
  * Get basic admin dashboard stats
  * @param {Object} authHeader - Auth header from getAuthHeader()
  */
-export const getAdminStats = async (authHeader) => {
+export const getAdminStats = async(authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiGet('/admin/stats', { token });
 };
@@ -286,7 +289,7 @@ export const getAdminStats = async (authHeader) => {
  * @param {Object} options.params - Query parameters (page, limit, search, sortBy, sortOrder)
  * @returns {Promise<Object>} - Gemstones list response
  */
-export const getGemstones = async ({ authHeader, params = {} } = {}) => {
+export const getGemstones = async({ authHeader, params = {} } = {}) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiGet('/gemstones', { token, params });
 };
@@ -297,7 +300,7 @@ export const getGemstones = async ({ authHeader, params = {} } = {}) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Gemstone detail response
  */
-export const getGemstoneDetail = async (id, authHeader) => {
+export const getGemstoneDetail = async(id, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiGet(`/gemstones/${id}/detail`, { token });
 };
@@ -308,7 +311,7 @@ export const getGemstoneDetail = async (id, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Created gemstone response
  */
-export const createGemstone = async (formData, authHeader) => {
+export const createGemstone = async(formData, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiUpload('/gemstones', { formData, token });
 };
@@ -320,7 +323,7 @@ export const createGemstone = async (formData, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Updated gemstone response
  */
-export const updateGemstone = async (id, data, authHeader) => {
+export const updateGemstone = async(id, data, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   if (data instanceof FormData) {
     // Send as multipart for image update
@@ -335,7 +338,7 @@ export const updateGemstone = async (id, data, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Delete response
  */
-export const deleteGemstone = async (id, authHeader) => {
+export const deleteGemstone = async(id, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiDelete(`/gemstones/${id}`, { token });
 };
@@ -345,7 +348,7 @@ export const deleteGemstone = async (id, authHeader) => {
  * @param {string} uniqueId - Unique gemstone ID
  * @returns {Promise<Object>} - Verification response
  */
-export const verifyGemstone = async (uniqueId) => {
+export const verifyGemstone = async(uniqueId) => {
   return await apiGet(`/gemstones/${uniqueId}`);
 };
 
@@ -354,7 +357,7 @@ export const verifyGemstone = async (uniqueId) => {
  * @param {string} uniqueId - Unique gemstone ID
  * @returns {Promise<Object>} - Owners history response
  */
-export const getGemstoneOwnersPublic = async (uniqueId) => {
+export const getGemstoneOwnersPublic = async(uniqueId) => {
   return await apiGet(`/gemstones/${uniqueId}/owners/public`);
 };
 
@@ -368,7 +371,7 @@ export const getGemstoneOwnersPublic = async (uniqueId) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Owners history response
  */
-export const getGemstoneOwners = async (gemstoneId, authHeader) => {
+export const getGemstoneOwners = async(gemstoneId, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiGet(`/gemstones/${gemstoneId}/owners`, { token });
 };
@@ -380,7 +383,7 @@ export const getGemstoneOwners = async (gemstoneId, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Add owner response
  */
-export const addGemstoneOwner = async (gemstoneId, ownerData, authHeader) => {
+export const addGemstoneOwner = async(gemstoneId, ownerData, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiPost(`/gemstones/${gemstoneId}/owners`, { data: ownerData, token });
 };
@@ -393,7 +396,7 @@ export const addGemstoneOwner = async (gemstoneId, ownerData, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Update owner response
  */
-export const updateGemstoneOwner = async (gemstoneId, ownerId, ownerData, authHeader) => {
+export const updateGemstoneOwner = async(gemstoneId, ownerId, ownerData, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiPut(`/gemstones/${gemstoneId}/owners/${ownerId}`, { data: ownerData, token });
 };
@@ -405,7 +408,7 @@ export const updateGemstoneOwner = async (gemstoneId, ownerId, ownerData, authHe
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Delete owner response
  */
-export const deleteGemstoneOwner = async (gemstoneId, ownerId, authHeader) => {
+export const deleteGemstoneOwner = async(gemstoneId, ownerId, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiDelete(`/gemstones/${gemstoneId}/owners/${ownerId}`, { token });
 };
@@ -415,7 +418,7 @@ export const deleteGemstoneOwner = async (gemstoneId, ownerId, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - All owners response
  */
-export const getAllOwners = async (authHeader) => {
+export const getAllOwners = async(authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiGet('/owners/all', { token });
 };
@@ -430,7 +433,7 @@ export const getAllOwners = async (authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<Object>} - Response
  */
-export const changeAdminPassword = async (payload, authHeader) => {
+export const changeAdminPassword = async(payload, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiPost('/admin/change-password', { data: payload, token });
 };
@@ -440,7 +443,7 @@ export const changeAdminPassword = async (payload, authHeader) => {
  * @param {Object} authHeader - Auth header from getAuthHeader()
  * @returns {Promise<{ blob: Blob, filename: string }>} - Backup blob and filename
  */
-export const downloadDatabaseBackup = async (authHeader) => {
+export const downloadDatabaseBackup = async(authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   const { blob, response } = await apiGetBlob('/admin/backup', { token });
   const disposition = response.headers.get('Content-Disposition') || '';
@@ -449,4 +452,3 @@ export const downloadDatabaseBackup = async (authHeader) => {
   return { blob, filename };
 };
 
- 

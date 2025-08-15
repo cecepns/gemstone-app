@@ -166,14 +166,20 @@ const pool = mysql.createPool({
   database: 'gemstone_db',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  timezone: '+07:00', // Set timezone to Indonesia (UTC+7)
+  dateStrings: true // Return dates as strings to avoid timezone conversion issues
 });
 
-// Test database connection
+// Test database connection and set timezone
 async function testConnection() {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Database connected successfully');
+    
+    // Set timezone for this connection to Indonesia (UTC+7)
+    await connection.execute("SET time_zone = '+07:00'");
+    
+    console.log('✅ Database connected successfully with timezone set to UTC+7');
     connection.release();
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
@@ -182,6 +188,15 @@ async function testConnection() {
 
 // Initialize database connection test
 testConnection();
+
+// Set timezone for all new connections in the pool
+pool.on('connection', async (connection) => {
+  try {
+    await connection.execute("SET time_zone = '+07:00'");
+  } catch (error) {
+    console.error('Error setting timezone for connection:', error.message);
+  }
+});
 
 // ======================================
 // HELPER FUNCTIONS

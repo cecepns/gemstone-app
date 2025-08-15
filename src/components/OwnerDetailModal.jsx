@@ -31,6 +31,7 @@ const OwnerDetailModal = ({ isOpen, onClose, owner, gemstoneName }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('id-ID', {
+      timeZone: 'Asia/Jakarta',
       year: 'numeric',
       month: 'long',
       day: 'numeric'

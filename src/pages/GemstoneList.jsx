@@ -91,6 +91,7 @@ const GemstoneList = () => {
    */
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('id-ID', {
+      timeZone: 'Asia/Jakarta',
       year: 'numeric',
       month: 'short',
       day: 'numeric',

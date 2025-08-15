@@ -11,6 +11,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { useAuth } from '../context/AuthContext';
 import { addGemstoneOwner, updateGemstoneOwner, getGemstoneOwners, getAllOwners } from '../utils/api';
+import { formatDateForInput, formatDateForDisplay, getCurrentDate } from '../utils/dateUtils';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
 
 import { Button, Input, Textarea, Modal, Checkbox, Select } from './ui';
@@ -567,62 +568,6 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   };
 
   /**
-   * Get current date in YYYY-MM-DD format for date input
-   * @returns {string} - Current date in YYYY-MM-DD format
-   */
-  const getCurrentDate = () => {
-    return new Date().toISOString().split('T')[0];
-  };
-
-  /**
-   * Format date from database to YYYY-MM-DD format for date input
-   * @param {string} dateString - Date string from database
-   * @returns {string} - Formatted date in YYYY-MM-DD format
-   */
-  const formatDateForInput = (dateString) => {
-    if (!dateString) {
-      return '';
-    }
-
-    // Extract YYYY-MM-DD directly if present to avoid timezone shift
-    const match = String(dateString).match(/^(\d{4}-\d{2}-\d{2})/);
-    if (match && match[1]) {
-      return match[1];
-    }
-
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return '';
-    }
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  /**
-   * Format date for display in validation messages
-   * @param {string} dateString - Date string to format
-   * @returns {string} - Formatted date for display
-   */
-  const formatDateForDisplay = (dateString) => {
-    if (!dateString) {
-      return '';
-    }
-
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return dateString;
-    }
-
-    return date.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
-
-  /**
    * Auto-adjust dates of related owners when editing
    * @param {Object} editedOwner - The owner that was edited
    * @param {string} newStartDate - New start date
@@ -666,7 +611,7 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
 
     if (nextOwner && (newEndDate || editedOwner.is_current_owner)) {
       // For current owner, use current date as reference
-      const referenceDate = editedOwner.is_current_owner ? new Date().toISOString().split('T')[0] : newEndDate;
+      const referenceDate = editedOwner.is_current_owner ? getCurrentDate() : newEndDate;
 
       // Adjust next owner's start date to match current owner's end date
       const adjustedStartDate = formatDateForInput(referenceDate);
@@ -737,15 +682,6 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   }, [isOpen, editingOwner, gemstoneId]);
 
   // NOTE: removed duplicate later declaration to avoid TDZ
-
-  // For transfer mode, compute the active owner's start date as min constraint (robust to loading order)
-  const requiredMinStartForTransfer = useMemo(() => {
-    const activeOwner = currentOwner || existingOwners.find(owner => owner.is_current_owner) || null;
-    if (!activeOwner || !activeOwner.ownership_start_date) {
-      return '';
-    }
-    return formatDateForInput(activeOwner.ownership_start_date);
-  }, [currentOwner, existingOwners]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
@@ -895,15 +831,8 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 type="date"
                 value={formData.ownership_start_date}
                 onChange={handleInputChange}
-                min={(() => {
-                  // When adding as transfer, enforce active owner's start date strictly
-                  if (!editingOwner && formData.is_transfer) {
-                    return requiredMinStartForTransfer || undefined;
-                  }
-                  return dateConstraints.minStartDate ? formatDateForInput(dateConstraints.minStartDate) : undefined;
-                })()}
+                min={dateConstraints.minStartDate ? formatDateForInput(dateConstraints.minStartDate) : undefined}
                 max={dateConstraints.maxStartDate ? formatDateForInput(dateConstraints.maxStartDate) : getCurrentDate()}
-                disabled={!editingOwner && formData.is_transfer && !requiredMinStartForTransfer}
                 className={errors.ownership_start_date ? 'border-red-500' : ''}
               />
               {errors.ownership_start_date && (
@@ -913,6 +842,8 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 </p>
               )}
             </div>
+
+            {console.log('activeOwner', currentOwner)}
 
             {/* Tanggal Berakhir Kepemilikan - Hidden for current owner, transfer mode, or first owner */}
             {!(editingOwner && editingOwner.is_current_owner) && !formData.is_transfer && hasCurrentOwner && (

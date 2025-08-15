@@ -182,7 +182,9 @@ const TableDemo = () => {
       key: 'date',
       header: 'Tanggal',
       sortable: true,
-      render: (value) => new Date(value).toLocaleDateString('id-ID'),
+      render: (value) => new Date(value).toLocaleDateString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+      }),
     },
     {
       key: 'actions',
