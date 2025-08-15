@@ -7,7 +7,7 @@ import {
   Copy,
   Users,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { useAuth } from '../context/AuthContext';
 import { addGemstoneOwner, updateGemstoneOwner, getGemstoneOwners, getAllOwners } from '../utils/api';
@@ -57,6 +57,112 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const [hasCurrentOwner, setHasCurrentOwner] = useState(false);
 
+  // Existing owners data for validation
+  const [existingOwners, setExistingOwners] = useState([]);
+  const [currentOwner, setCurrentOwner] = useState(null);
+
+  // Constraints are computed via useMemo to avoid stale state
+
+  /**
+   * Get valid date range for adding new owner
+   * @param {boolean} isTransfer - Whether this is a transfer mode
+   * @returns {Object} - Object with minDate and maxDate
+   */
+  const getValidDateRangeForAdd = useCallback((isTransfer) => {
+    // Ensure we have the active owner source of truth
+    const activeOwner = currentOwner || existingOwners.find(owner => owner.is_current_owner) || null;
+
+    if (isTransfer && activeOwner && activeOwner.ownership_start_date) {
+      // Transfer mode: tgl mulai tidak boleh kurang dari tgl mulai pemilik aktif saat ini
+      return {
+        minStartDate: activeOwner.ownership_start_date,
+        maxStartDate: null,
+        minEndDate: null,
+        maxEndDate: null,
+      };
+    } else if (!isTransfer && existingOwners.length > 0) {
+      // Add historical owner: tgl berakhir dan tgl mulai tidak boleh lebih dari tgl mulai pemilik pertama
+      const firstOwner = existingOwners[0];
+      return {
+        minStartDate: null,
+        maxStartDate: firstOwner.ownership_start_date,
+        minEndDate: null,
+        maxEndDate: firstOwner.ownership_start_date,
+      };
+    }
+
+    return {
+      minStartDate: null,
+      maxStartDate: null,
+      minEndDate: null,
+      maxEndDate: null,
+    };
+  }, [currentOwner, existingOwners]);
+
+  /**
+   * Get valid date range for editing existing owner
+   * @param {Object} owner - Owner being edited
+   * @returns {Object} - Object with minDate and maxDate
+   */
+  const getValidDateRangeForEdit = useCallback((owner) => {
+    if (!owner || !existingOwners.length) {
+      return {
+        minStartDate: null,
+        maxStartDate: null,
+        minEndDate: null,
+        maxEndDate: null,
+      };
+    }
+
+    // Find owner's position in the sorted list
+    const ownerIndex = existingOwners.findIndex(o => o.id === owner.id);
+    const previousOwner = ownerIndex > 0 ? existingOwners[ownerIndex - 1] : null;
+    const nextOwner = ownerIndex < existingOwners.length - 1 ? existingOwners[ownerIndex + 1] : null;
+
+    let minStartDate = null;
+    const maxStartDate = null;
+    const minEndDate = null;
+    let maxEndDate = null;
+
+    // Constraints based on previous owner
+    if (previousOwner) {
+      minStartDate = previousOwner.ownership_end_date || previousOwner.ownership_start_date;
+    }
+
+    // Constraints based on next owner
+    if (nextOwner) {
+      maxEndDate = nextOwner.ownership_start_date;
+    }
+
+    // Special constraints for current owner
+    if (owner.is_current_owner) {
+      // Current owner: tgl mulai tidak boleh kurang dari tgl berakhir pemilik sebelumnya
+      if (previousOwner) {
+        // Debug removed to satisfy linter and avoid noisy logs
+        minStartDate = previousOwner.ownership_end_date || previousOwner.ownership_start_date;
+      }
+    } else {
+      // Former owner: tgl berakhir tidak boleh lebih dari hari ini
+      const today = new Date().toISOString().split('T')[0];
+      maxEndDate = maxEndDate ? (maxEndDate < today ? maxEndDate : today) : today;
+    }
+
+    return {
+      minStartDate,
+      maxStartDate,
+      minEndDate,
+      maxEndDate,
+    };
+  }, [existingOwners]);
+
+  // Compute fresh constraints based on latest state (placed before validators to avoid TDZ)
+  const dateConstraints = useMemo(() => {
+    if (editingOwner) {
+      return getValidDateRangeForEdit(editingOwner);
+    }
+    return getValidDateRangeForAdd(formData.is_transfer);
+  }, [editingOwner, formData.is_transfer, getValidDateRangeForAdd, getValidDateRangeForEdit]);
+
   /**
    * Fetch available owners for template selection
    */
@@ -73,15 +179,27 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
   };
 
   /**
-   * Check if current gemstone has an active owner
+   * Check if current gemstone has an active owner and fetch existing owners data
    */
   const checkCurrentOwner = async() => {
     try {
       const result = await getGemstoneOwners(gemstoneId, getAuthHeader());
-      const hasOwner = result.data && result.data.some(owner => owner.is_current_owner);
-      setHasCurrentOwner(hasOwner);
+      const owners = result.data || [];
+
+      // Sort owners by ownership_start_date (oldest first)
+      const sortedOwners = owners.sort((a, b) => {
+        return new Date(a.ownership_start_date) - new Date(b.ownership_start_date);
+      });
+
+      setExistingOwners(sortedOwners);
+
+      const currentOwnerData = owners.find(owner => owner.is_current_owner);
+      setCurrentOwner(currentOwnerData);
+      setHasCurrentOwner(!!currentOwnerData);
     } catch {
       setHasCurrentOwner(false);
+      setExistingOwners([]);
+      setCurrentOwner(null);
     }
   };
 
@@ -171,8 +289,9 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         [name]: fieldValue,
       };
 
-      // Clear ownership_end_date when transfer mode is enabled
-      if (name === 'is_transfer' && fieldValue === true) {
+      // Reset date fields when transfer mode changes
+      if (name === 'is_transfer') {
+        newData.ownership_start_date = '';
         newData.ownership_end_date = '';
       }
 
@@ -186,7 +305,85 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         [name]: '',
       }));
     }
+
+    // Handle transfer mode change - clear date validation errors and re-validate
+    if (name === 'is_transfer') {
+      setErrors(prev => ({
+        ...prev,
+        ownership_start_date: '',
+        ownership_end_date: '',
+      }));
+
+      // Since dates are reset, just clear any existing date errors (constraints recompute via useMemo)
+    }
+
+    // Live-validate date fields on change using fresh constraints
+    if (name === 'ownership_start_date' || name === 'ownership_end_date') {
+      const nextFormData = {
+        ...formData,
+        [name]: fieldValue,
+      };
+      validateDateOnChange(nextFormData);
+    }
   };
+
+  /**
+   * Live validate date fields on change (start/end) using computed constraints
+   */
+  const validateDateOnChange = useCallback((currentFormData) => {
+    const newErrors = {};
+
+    const startStr = currentFormData.ownership_start_date;
+    const endStr = currentFormData.ownership_end_date;
+
+    // Validate start date against min/max constraints
+    if (startStr) {
+      const startDate = new Date(startStr);
+
+      if (dateConstraints.minStartDate) {
+        const minDate = new Date(dateConstraints.minStartDate);
+        if (startDate < minDate) {
+          newErrors.ownership_start_date = `Tanggal mulai tidak boleh kurang dari ${formatDateForDisplay(dateConstraints.minStartDate)}`;
+        }
+      }
+
+      if (dateConstraints.maxStartDate) {
+        const maxDate = new Date(dateConstraints.maxStartDate);
+        if (startDate > maxDate) {
+          newErrors.ownership_start_date = `Tanggal mulai tidak boleh lebih dari ${formatDateForDisplay(dateConstraints.maxStartDate)}`;
+        }
+      }
+    }
+
+    // Validate end date dependencies and constraints
+    if (endStr) {
+      if (!startStr) {
+        newErrors.ownership_start_date = 'Tanggal mulai harus dipilih terlebih dahulu sebelum mengisi tanggal berakhir';
+      } else {
+        const startDate = new Date(startStr);
+        const endDate = new Date(endStr);
+        if (endDate <= startDate) {
+          newErrors.ownership_end_date = 'Tanggal berakhir harus setelah tanggal mulai';
+        }
+      }
+
+      if (dateConstraints.maxEndDate) {
+        const maxEnd = new Date(dateConstraints.maxEndDate);
+        const endDate = new Date(endStr);
+        if (endDate > maxEnd) {
+          newErrors.ownership_end_date = `Tanggal berakhir tidak boleh lebih dari ${formatDateForDisplay(dateConstraints.maxEndDate)}`;
+        }
+      }
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      ownership_start_date: newErrors.ownership_start_date || '',
+      ownership_end_date: newErrors.ownership_end_date || '',
+    }));
+  }, [dateConstraints]);
+
+  // Removed: updateDateConstraints - constraints are computed on the fly
 
   /**
    * Validate form data
@@ -222,14 +419,96 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       newErrors.ownership_end_date = 'Tanggal berakhir kepemilikan wajib diisi untuk menambah riwayat pemilik';
     }
 
-    // Validate date range if end date is provided and not editing current owner and not in transfer mode
-    if (formData.ownership_end_date && formData.ownership_start_date &&
-        !(editingOwner && editingOwner.is_current_owner) && !formData.is_transfer && hasCurrentOwner) {
+    // Basic date range validation: end date must be after start date
+    if (formData.ownership_end_date && formData.ownership_start_date) {
       const startDate = new Date(formData.ownership_start_date);
       const endDate = new Date(formData.ownership_end_date);
 
       if (endDate <= startDate) {
         newErrors.ownership_end_date = 'Tanggal berakhir harus setelah tanggal mulai';
+      }
+    }
+
+    // Prevent input of end date if start date is not selected
+    if (formData.ownership_end_date && !formData.ownership_start_date) {
+      newErrors.ownership_start_date = 'Tanggal mulai harus dipilih terlebih dahulu sebelum mengisi tanggal berakhir';
+    }
+
+    // Advanced date validation based on scenarios
+    if (formData.ownership_start_date) {
+      let dateRange;
+
+      if (editingOwner) {
+        // Edit scenario
+        dateRange = getValidDateRangeForEdit(editingOwner);
+
+        // Validate start date constraints
+        if (dateRange.minStartDate) {
+          const minDate = new Date(dateRange.minStartDate);
+          const inputDate = new Date(formData.ownership_start_date);
+          if (inputDate < minDate) {
+            newErrors.ownership_start_date = `Tanggal mulai tidak boleh kurang dari ${formatDateForDisplay(dateRange.minStartDate)}`;
+          }
+        }
+
+        if (dateRange.maxStartDate) {
+          const maxDate = new Date(dateRange.maxStartDate);
+          const inputDate = new Date(formData.ownership_start_date);
+          if (inputDate > maxDate) {
+            newErrors.ownership_start_date = `Tanggal mulai tidak boleh lebih dari ${formatDateForDisplay(dateRange.maxStartDate)}`;
+          }
+        }
+
+        // Validate end date constraints
+        if (formData.ownership_end_date) {
+          if (dateRange.minEndDate) {
+            const minDate = new Date(dateRange.minEndDate);
+            const inputDate = new Date(formData.ownership_end_date);
+            if (inputDate < minDate) {
+              newErrors.ownership_end_date = `Tanggal berakhir tidak boleh kurang dari ${formatDateForDisplay(dateRange.minEndDate)}`;
+            }
+          }
+
+          if (dateRange.maxEndDate) {
+            const maxDate = new Date(dateRange.maxEndDate);
+            const inputDate = new Date(formData.ownership_end_date);
+            if (inputDate > maxDate) {
+              newErrors.ownership_end_date = `Tanggal berakhir tidak boleh lebih dari ${formatDateForDisplay(dateRange.maxEndDate)}`;
+            }
+          }
+        }
+      } else {
+        // Add scenario
+        dateRange = getValidDateRangeForAdd(formData.is_transfer);
+
+        // Validate start date constraints for add
+        if (dateRange.minStartDate) {
+          const minDate = new Date(dateRange.minStartDate);
+          const inputDate = new Date(formData.ownership_start_date);
+          if (inputDate < minDate) {
+            newErrors.ownership_start_date = `Tanggal mulai tidak boleh kurang dari ${formatDateForDisplay(dateRange.minStartDate)} ` +
+              '(tanggal mulai pemilik aktif saat ini)';
+          }
+        }
+
+        if (dateRange.maxStartDate) {
+          const maxDate = new Date(dateRange.maxStartDate);
+          const inputDate = new Date(formData.ownership_start_date);
+          if (inputDate > maxDate) {
+            newErrors.ownership_start_date = `Tanggal mulai tidak boleh lebih dari ${formatDateForDisplay(dateRange.maxStartDate)} (tanggal mulai pemilik pertama)`;
+          }
+        }
+
+        // Validate end date constraints for add
+        if (formData.ownership_end_date) {
+          if (dateRange.maxEndDate) {
+            const maxDate = new Date(dateRange.maxEndDate);
+            const inputDate = new Date(formData.ownership_end_date);
+            if (inputDate > maxDate) {
+              newErrors.ownership_end_date = `Tanggal berakhir tidak boleh lebih dari ${formatDateForDisplay(dateRange.maxEndDate)} (tanggal mulai pemilik pertama)`;
+            }
+          }
+        }
       }
     }
 
@@ -260,6 +539,10 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
 
         // Update existing owner
         await updateGemstoneOwner(gemstoneId, editingOwner.id, updateData, getAuthHeader());
+
+        // Auto-adjust related owners dates
+        await autoAdjustRelatedOwners(editingOwner, updateData.ownership_start_date, updateData.ownership_end_date);
+
         dismissToast();
         showSuccess('Data pemilik berhasil diperbarui');
       } else {
@@ -301,16 +584,117 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       return '';
     }
 
-    // Handle both ISO strings and date-only strings
-    const date = new Date(dateString);
+    // Extract YYYY-MM-DD directly if present to avoid timezone shift
+    const match = String(dateString).match(/^(\d{4}-\d{2}-\d{2})/);
+    if (match && match[1]) {
+      return match[1];
+    }
 
-    // Check if date is valid
+    const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       return '';
     }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-    // Format to YYYY-MM-DD
-    return date.toISOString().split('T')[0];
+  /**
+   * Format date for display in validation messages
+   * @param {string} dateString - Date string to format
+   * @returns {string} - Formatted date for display
+   */
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) {
+      return '';
+    }
+
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
+  /**
+   * Auto-adjust dates of related owners when editing
+   * @param {Object} editedOwner - The owner that was edited
+   * @param {string} newStartDate - New start date
+   * @param {string} newEndDate - New end date
+   */
+  const autoAdjustRelatedOwners = async(editedOwner, newStartDate, newEndDate) => {
+    if (!existingOwners.length || !editedOwner) {
+      return;
+    }
+
+    const ownerIndex = existingOwners.findIndex(o => o.id === editedOwner.id);
+    if (ownerIndex === -1) {
+      return;
+    }
+
+    const updates = [];
+
+    // Find previous and next owners
+    const previousOwner = ownerIndex > 0 ? existingOwners[ownerIndex - 1] : null;
+    const nextOwner = ownerIndex < existingOwners.length - 1 ? existingOwners[ownerIndex + 1] : null;
+
+    // Auto-adjust based on edited owner position
+    if (previousOwner && newStartDate) {
+      // Adjust previous owner's end date to match current owner's start date
+      const adjustedEndDate = formatDateForInput(newStartDate);
+      if (previousOwner.ownership_end_date !== adjustedEndDate) {
+        updates.push({
+          owner: previousOwner,
+          data: {
+            owner_name: previousOwner.owner_name,
+            owner_phone: previousOwner.owner_phone,
+            owner_email: previousOwner.owner_email || '',
+            owner_address: previousOwner.owner_address || '',
+            ownership_start_date: previousOwner.ownership_start_date,
+            ownership_end_date: adjustedEndDate,
+            notes: previousOwner.notes || '',
+          },
+        });
+      }
+    }
+
+    if (nextOwner && (newEndDate || editedOwner.is_current_owner)) {
+      // For current owner, use current date as reference
+      const referenceDate = editedOwner.is_current_owner ? new Date().toISOString().split('T')[0] : newEndDate;
+
+      // Adjust next owner's start date to match current owner's end date
+      const adjustedStartDate = formatDateForInput(referenceDate);
+      if (nextOwner.ownership_start_date !== adjustedStartDate) {
+        updates.push({
+          owner: nextOwner,
+          data: {
+            owner_name: nextOwner.owner_name,
+            owner_phone: nextOwner.owner_phone,
+            owner_email: nextOwner.owner_email || '',
+            owner_address: nextOwner.owner_address || '',
+            ownership_start_date: adjustedStartDate,
+            ownership_end_date: nextOwner.is_current_owner ? null : nextOwner.ownership_end_date,
+            notes: nextOwner.notes || '',
+          },
+        });
+      }
+    }
+
+    // Execute updates
+    for (const update of updates) {
+      try {
+        await updateGemstoneOwner(gemstoneId, update.owner.id, update.data, getAuthHeader());
+      } catch (_error) {
+        // Silent fail - continue with other updates even if one fails
+        // This prevents blocking the main operation if auto-adjust fails
+      }
+    }
   };
 
   /**
@@ -336,6 +720,8 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
         notes: editingOwner.notes || '',
         is_transfer: false, // Reset transfer mode when editing
       });
+      // Also fetch existing owners data for validation when editing
+      checkCurrentOwner();
     } else if (isOpen && !editingOwner) {
       resetForm();
       setSelectedTemplate(''); // Reset template selection
@@ -345,8 +731,21 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
       // Ensure template selection is cleared when modal closes
       setSelectedTemplate('');
     }
+
+    // Constraints are computed via useMemo; no imperative updates needed here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, editingOwner, gemstoneId]);
+
+  // NOTE: removed duplicate later declaration to avoid TDZ
+
+  // For transfer mode, compute the active owner's start date as min constraint (robust to loading order)
+  const requiredMinStartForTransfer = useMemo(() => {
+    const activeOwner = currentOwner || existingOwners.find(owner => owner.is_current_owner) || null;
+    if (!activeOwner || !activeOwner.ownership_start_date) {
+      return '';
+    }
+    return formatDateForInput(activeOwner.ownership_start_date);
+  }, [currentOwner, existingOwners]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="xl">
@@ -496,7 +895,15 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                 type="date"
                 value={formData.ownership_start_date}
                 onChange={handleInputChange}
-                max={getCurrentDate()}
+                min={(() => {
+                  // When adding as transfer, enforce active owner's start date strictly
+                  if (!editingOwner && formData.is_transfer) {
+                    return requiredMinStartForTransfer || undefined;
+                  }
+                  return dateConstraints.minStartDate ? formatDateForInput(dateConstraints.minStartDate) : undefined;
+                })()}
+                max={dateConstraints.maxStartDate ? formatDateForInput(dateConstraints.maxStartDate) : getCurrentDate()}
+                disabled={!editingOwner && formData.is_transfer && !requiredMinStartForTransfer}
                 className={errors.ownership_start_date ? 'border-red-500' : ''}
               />
               {errors.ownership_start_date && (
@@ -519,9 +926,17 @@ const AddEditOwnerModal = ({ isOpen, onClose, onSuccess, gemstoneId, gemstoneNam
                   value={formData.ownership_end_date || ''}
                   onChange={handleInputChange}
                   min={formData.ownership_start_date}
+                  max={dateConstraints.maxEndDate ? formatDateForInput(dateConstraints.maxEndDate) : null}
+                  disabled={!formData.ownership_start_date}
                   required={(editingOwner && !editingOwner.is_current_owner) || (!editingOwner && !formData.is_transfer && hasCurrentOwner)}
-                  className={errors.ownership_end_date ? 'border-red-500' : ''}
+                  className={`${errors.ownership_end_date ? 'border-red-500' : ''} ${!formData.ownership_start_date ? 'bg-gray-100' : ''}`}
                 />
+                {!formData.ownership_start_date && (
+                  <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Pilih tanggal mulai terlebih dahulu
+                  </p>
+                )}
                 {errors.ownership_end_date && (
                   <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
