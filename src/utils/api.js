@@ -1,8 +1,8 @@
 // ANCHOR: API Utilities - Centralized API request functions with authentication and error handling
 
 // Base API configuration
-const API_BASE_URL = 'https://api-inventory.isavralabel.com/gemstone/api';
-// const API_BASE_URL = 'http://localhost:5000/api';
+// const API_BASE_URL = 'https://api-inventory.isavralabel.com/gemstone/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 /**
  * Get authentication headers for API requests
@@ -411,6 +411,58 @@ export const updateGemstoneOwner = async(gemstoneId, ownerId, ownerData, authHea
 export const deleteGemstoneOwner = async(gemstoneId, ownerId, authHeader) => {
   const token = authHeader ? extractTokenFromHeader(authHeader) : null;
   return await apiDelete(`/gemstones/${gemstoneId}/owners/${ownerId}`, { token });
+};
+
+// ======================================
+// GEMSTONE GALLERY API FUNCTIONS
+// ======================================
+
+/**
+ * Get gemstone photos
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Photos response
+ */
+export const getGemstonePhotos = async(gemstoneId, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiGet(`/gemstones/${gemstoneId}/photos`, { token });
+};
+
+/**
+ * Upload photo to gemstone
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {FormData} formData - FormData containing photo and caption
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Upload response
+ */
+export const uploadGemstonePhoto = async(gemstoneId, formData, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPost(`/gemstones/${gemstoneId}/photos`, { data: formData, isFormData: true, token });
+};
+
+/**
+ * Update photo caption
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {string} photoId - Photo ID
+ * @param {Object} photoData - Updated photo data
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Update response
+ */
+export const updateGemstonePhoto = async(gemstoneId, photoId, photoData, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPut(`/gemstones/${gemstoneId}/photos/${photoId}`, { data: photoData, token });
+};
+
+/**
+ * Delete photo from gemstone
+ * @param {string} gemstoneId - Gemstone ID
+ * @param {string} photoId - Photo ID
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Delete response
+ */
+export const deleteGemstonePhoto = async(gemstoneId, photoId, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiDelete(`/gemstones/${gemstoneId}/photos/${photoId}`, { token });
 };
 
 /**

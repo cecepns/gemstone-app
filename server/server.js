@@ -1687,6 +1687,239 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
     res.status(500).json({ error: 'Internal Server Error', message: 'Gagal memperbarui batu mulia: ' + error.message });
   }
 });
+
+// ======================================
+// GEMSTONE GALLERY PHOTOS API
+// ======================================
+
+// GET /api/gemstones/:id/photos - Get all photos for a gemstone
+app.get('/api/gemstones/:id/photos', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [rows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.gemstone_id = ?
+      ORDER BY gp.created_at DESC
+    `, [id]);
+
+    const photos = rows.map(photo => ({
+      ...photo,
+      photo_url: photo.photo_url ? `${SERVER_BASE_URL}${photo.photo_url}` : null
+    }));
+
+    res.json({
+      success: true,
+      data: photos
+    });
+  } catch (error) {
+    console.error('Error fetching gemstone photos:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Gagal mengambil foto gemstone: ' + error.message 
+    });
+  }
+});
+
+// POST /api/gemstones/:id/photos - Upload new photo
+app.post('/api/gemstones/:id/photos', verifyToken, upload.single('photo'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { caption } = req.body;
+    const uploadedBy = req.admin.id;
+
+    // Validate gemstone exists
+    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE id = ?', [id]);
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({ 
+        error: 'Not Found', 
+        message: 'Batu mulia tidak ditemukan' 
+      });
+    }
+
+    // Validate file upload
+    if (!req.file) {
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'Foto harus diupload' 
+      });
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      // Delete uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'Format file tidak didukung. Gunakan JPG, PNG, atau WebP' 
+      });
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      // Delete uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        error: 'Bad Request', 
+        message: 'Ukuran file terlalu besar. Maksimal 5MB' 
+      });
+    }
+
+    const photoUrl = `/uploads/${req.file.filename}`;
+
+    // Insert photo record
+    const [result] = await pool.execute(`
+      INSERT INTO gemstone_process_photos (gemstone_id, photo_url, caption, uploaded_by)
+      VALUES (?, ?, ?, ?)
+    `, [id, photoUrl, caption || null, uploadedBy]);
+
+    // Get the inserted photo
+    const [photoRows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.id = ?
+    `, [result.insertId]);
+
+    const photo = {
+      ...photoRows[0],
+      photo_url: photoRows[0].photo_url ? `${SERVER_BASE_URL}${photoRows[0].photo_url}` : null
+    };
+
+    res.status(201).json({
+      success: true,
+      message: 'Foto berhasil diupload',
+      data: photo
+    });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    // Cleanup uploaded file if database operation failed
+    if (req.file) {
+      try { fs.unlinkSync(req.file.path); } catch {}
+    }
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Gagal upload foto: ' + error.message 
+    });
+  }
+});
+
+// PUT /api/gemstones/:id/photos/:photoId - Update photo caption
+app.put('/api/gemstones/:id/photos/:photoId', verifyToken, async (req, res) => {
+  try {
+    const { id, photoId } = req.params;
+    const { caption } = req.body;
+
+    // Validate photo exists and belongs to gemstone
+    const [photoRows] = await pool.execute(`
+      SELECT id FROM gemstone_process_photos 
+      WHERE id = ? AND gemstone_id = ?
+    `, [photoId, id]);
+
+    if (photoRows.length === 0) {
+      return res.status(404).json({ 
+        error: 'Not Found', 
+        message: 'Foto tidak ditemukan' 
+      });
+    }
+
+    // Update caption
+    await pool.execute(`
+      UPDATE gemstone_process_photos 
+      SET caption = ? 
+      WHERE id = ?
+    `, [caption || null, photoId]);
+
+    // Get updated photo
+    const [updatedRows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.id = ?
+    `, [photoId]);
+
+    const photo = {
+      ...updatedRows[0],
+      photo_url: updatedRows[0].photo_url ? `${SERVER_BASE_URL}${updatedRows[0].photo_url}` : null
+    };
+
+    res.json({
+      success: true,
+      message: 'Caption foto berhasil diperbarui',
+      data: photo
+    });
+  } catch (error) {
+    console.error('Error updating photo caption:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Gagal memperbarui caption foto: ' + error.message 
+    });
+  }
+});
+
+// DELETE /api/gemstones/:id/photos/:photoId - Delete photo
+app.delete('/api/gemstones/:id/photos/:photoId', verifyToken, async (req, res) => {
+  try {
+    const { id, photoId } = req.params;
+
+    // Get photo details before deletion
+    const [photoRows] = await pool.execute(`
+      SELECT photo_url FROM gemstone_process_photos 
+      WHERE id = ? AND gemstone_id = ?
+    `, [photoId, id]);
+
+    if (photoRows.length === 0) {
+      return res.status(404).json({ 
+        error: 'Not Found', 
+        message: 'Foto tidak ditemukan' 
+      });
+    }
+
+    const photoUrl = photoRows[0].photo_url;
+
+    // Delete from database
+    await pool.execute(`
+      DELETE FROM gemstone_process_photos 
+      WHERE id = ?
+    `, [photoId]);
+
+    // Delete file from filesystem
+    if (photoUrl) {
+      deleteUploadedFileByUrl(photoUrl);
+    }
+
+    res.json({
+      success: true,
+      message: 'Foto berhasil dihapus'
+    });
+  } catch (error) {
+    console.error('Error deleting photo:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: 'Gagal menghapus foto: ' + error.message 
+    });
+  }
+});
+
 // app.post('/api/admin/logout', verifyToken, logoutAdmin);
 // app.get('/api/admin/dashboard', verifyToken, getDashboardStats);
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button, Input, Card } from "../components/ui";
+import { showError } from "../utils/toast";
 
 const Home = () => {
   const [gemstoneId, setGemstoneId] = useState("");
@@ -19,7 +20,7 @@ const Home = () => {
     e.preventDefault();
 
     if (!gemstoneId.trim()) {
-      alert("Silakan masukkan ID Gemstone");
+      showError("Silakan masukkan ID Gemstone");
       return;
     }
 

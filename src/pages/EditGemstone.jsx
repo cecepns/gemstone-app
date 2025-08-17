@@ -1,11 +1,12 @@
 // ANCHOR: EditGemstoneForm Component - Edit existing gemstone with optional image update
+import { Gem, Save, Loader2, Camera, X, ArrowLeft, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+
+import { Button, Input, Textarea, Card } from '../components/ui';
 import { useAuth } from '../context/useAuth';
 import { getGemstoneDetail, updateGemstone } from '../utils/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../utils/toast';
-import { Gem, Save, Loader2, Camera, X, ArrowLeft, Trash2 } from 'lucide-react';
-import { Button, Input, Textarea, Card } from '../components/ui';
 
 const EditGemstone = () => {
   // Auth and routing
@@ -22,7 +23,7 @@ const EditGemstone = () => {
     dimensions_mm: '',
     color: '',
     treatment: '',
-    origin: ''
+    origin: '',
   });
   const [existingPhotoUrl, setExistingPhotoUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -33,7 +34,7 @@ const EditGemstone = () => {
   /**
    * Fetch gemstone data by id and prefill form
    */
-  const fetchDetail = async () => {
+  const fetchDetail = async() => {
     try {
       setIsLoading(true);
       const result = await getGemstoneDetail(id, getAuthHeader());
@@ -45,7 +46,7 @@ const EditGemstone = () => {
         dimensions_mm: g.dimensions_mm || '',
         color: g.color || '',
         treatment: g.treatment || '',
-        origin: g.origin || ''
+        origin: g.origin || '',
       });
       setExistingPhotoUrl(g.photo_url || null);
     } catch (error) {
@@ -56,7 +57,9 @@ const EditGemstone = () => {
   };
 
   useEffect(() => {
-    if (id) fetchDetail();
+    if (id) {
+      fetchDetail();
+    }
   }, [id]);
 
   /**
@@ -72,7 +75,9 @@ const EditGemstone = () => {
    */
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     if (!file.type.startsWith('image/')) {
       showError('Hanya file gambar yang diperbolehkan (JPG, PNG, GIF)');
       return;
@@ -90,7 +95,9 @@ const EditGemstone = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
     const fileInput = document.getElementById('gemstoneImageEdit');
-    if (fileInput) fileInput.value = '';
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   /**
@@ -127,16 +134,20 @@ const EditGemstone = () => {
   /**
    * Submit updates
    */
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     setSaving(true);
     const loadingToast = showLoading('Menyimpan perubahan...');
     try {
       const fd = new FormData();
       Object.entries(formData).forEach(([k, v]) => fd.append(k, v ?? ''));
-      if (selectedFile) fd.append('gemstoneImage', selectedFile);
+      if (selectedFile) {
+        fd.append('gemstoneImage', selectedFile);
+      }
 
       const result = await updateGemstone(id, fd, getAuthHeader());
       dismissToast(loadingToast);
@@ -195,75 +206,74 @@ const EditGemstone = () => {
           </h3>
         </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <Input label="Nama Batu Mulia" name="name" type="text" value={formData.name} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <Input label="Nama Batu Mulia" name="name" type="text" value={formData.name} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
 
-        <Textarea label="Deskripsi" name="description" value={formData.description} onChange={handleInputChange} rows={4} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+          <Textarea label="Deskripsi" name="description" value={formData.description} onChange={handleInputChange} rows={4} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Input label="Berat" name="weight_carat" type="number" step="0.01" value={formData.weight_carat} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
-          <Input label="Dimensi (mm)" name="dimensions_mm" type="text" value={formData.dimensions_mm} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
-        </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Input label="Berat" name="weight_carat" type="number" step="0.01" value={formData.weight_carat} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+            <Input label="Dimensi (mm)" name="dimensions_mm" type="text" value={formData.dimensions_mm} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+          </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Input label="Warna" name="color" type="text" value={formData.color} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
-          <Input label="Asal" name="origin" type="text" value={formData.origin} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
-        </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Input label="Warna" name="color" type="text" value={formData.color} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+            <Input label="Asal" name="origin" type="text" value={formData.origin} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+          </div>
 
-        <Input label="Perawatan" name="treatment" type="text" value={formData.treatment} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
+          <Input label="Perawatan" name="treatment" type="text" value={formData.treatment} onChange={handleInputChange} disabled={saving} required size="lg" className="bg-white/50 backdrop-blur-sm" />
 
-        <div>
-          <label htmlFor="gemstoneImageEdit" className="block text-sm font-medium text-gray-700 mb-3">Foto Batu Mulia</label>
-          <div className="flex items-center space-x-4">
-            <input id="gemstoneImageEdit" name="gemstoneImage" type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={saving} />
-            <Button variant="outline" size="lg" onClick={() => document.getElementById('gemstoneImageEdit').click()} disabled={saving} className="bg-white/50 hover:bg-white hover:border-purple-300">
-              <Camera className="w-4 h-4 mr-2" />
-              Pilih Gambar
+          <div>
+            <label htmlFor="gemstoneImageEdit" className="block text-sm font-medium text-gray-700 mb-3">Foto Batu Mulia</label>
+            <div className="flex items-center space-x-4">
+              <input id="gemstoneImageEdit" name="gemstoneImage" type="file" accept="image/*" onChange={handleFileChange} className="hidden" disabled={saving} />
+              <Button variant="outline" size="lg" onClick={() => document.getElementById('gemstoneImageEdit').click()} disabled={saving} className="bg-white/50 hover:bg-white hover:border-purple-300">
+                <Camera className="w-4 h-4 mr-2" />
+                Pilih Gambar
+              </Button>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {(existingPhotoUrl && !previewUrl) && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-3">Gambar saat ini:</p>
+                  <img src={existingPhotoUrl} alt="Existing" className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm" />
+                </div>
+              )}
+              {previewUrl && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-3">Pratinjau baru:</p>
+                  <div className="relative inline-block">
+                    <img src={previewUrl} alt="Preview" className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm" />
+                    <Button variant="danger" size="sm" iconOnly onClick={clearFile} disabled={saving} className="absolute -top-2 -right-2 w-7 h-7 p-0 rounded-full">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-gray-200">
+            <Button type="submit" variant="primary" size="lg" disabled={saving || !formData.name.trim()} loading={saving} fullWidth className="py-4">
+              {saving ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Menyimpan Perubahan...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Simpan Perubahan
+                </>
+              )}
             </Button>
           </div>
-
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(existingPhotoUrl && !previewUrl) && (
-              <div>
-                <p className="text-sm text-gray-600 mb-3">Gambar saat ini:</p>
-                <img src={existingPhotoUrl} alt="Existing" className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm" />
-              </div>
-            )}
-            {previewUrl && (
-              <div>
-                <p className="text-sm text-gray-600 mb-3">Pratinjau baru:</p>
-                <div className="relative inline-block">
-                  <img src={previewUrl} alt="Preview" className="w-40 h-40 object-cover rounded-xl border border-gray-200 shadow-sm" />
-                  <Button variant="danger" size="sm" iconOnly onClick={clearFile} disabled={saving} className="absolute -top-2 -right-2 w-7 h-7 p-0 rounded-full">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="pt-6 border-t border-gray-200">
-          <Button type="submit" variant="primary" size="lg" disabled={saving || !formData.name.trim()} loading={saving} fullWidth className="py-4">
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Menyimpan Perubahan...
-              </>
-            ) : (
-              <>
-                <Save className="w-5 h-5 mr-2" />
-                Simpan Perubahan
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
-    </Card>
+        </form>
+      </Card>
     </>
   );
 };
 
 export default EditGemstone;
-
 

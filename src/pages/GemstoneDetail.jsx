@@ -28,7 +28,9 @@ import {
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import AddPhotoModal from '../components/AddPhotoModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import GemstoneGallerySection from '../components/GemstoneGallerySection';
 import PrintPreviewModal from '../components/PrintPreviewModal';
 import { Button, Card, Badge, Modal, Alert, Table, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import { useAuth } from '../context/useAuth';
@@ -66,6 +68,9 @@ const GemstoneDetail = () => {
 
   // Print card state
   const [showPrintPreview, setShowPrintPreview] = useState(false);
+
+  // Gallery state
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Copy state
   const [isCopied, setIsCopied] = useState(false);
@@ -667,6 +672,49 @@ const GemstoneDetail = () => {
               />
             )}
           </div>
+        </Card.Body>
+      </Card>
+
+      {/* Gallery Section */}
+      <Card variant="elevated" padding="lg">
+        <Card.Header>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <div>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                  Galeri Foto Batu Mulia
+                </h2>
+                <p className="text-sm text-gray-600">{gemstone.name}</p>
+              </div>
+            </div>
+            <Button
+              variant="primary"
+              onClick={() => setShowUploadModal(true)}
+              className="w-full sm:w-auto"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Tambah Gambar
+            </Button>
+          </div>
+        </Card.Header>
+
+        <Card.Body>
+          {/* Gallery Content */}
+          <GemstoneGallerySection
+            gemstoneId={id}
+            showUploadModal={showUploadModal}
+            onCloseUploadModal={() => setShowUploadModal(false)}
+            onOpenUploadModal={() => setShowUploadModal(true)}
+            onRefresh={() => {
+              // Force re-render of gallery section
+              setShowUploadModal(false);
+            }}
+          />
         </Card.Body>
       </Card>
 

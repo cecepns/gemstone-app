@@ -1,9 +1,9 @@
 // ANCHOR: AuthContext - Global authentication state management for admin login
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { verifyAdminToken } from '../utils/api';
 
-import { AuthContext } from './AuthContext.js';
+import { AuthContext } from './AuthContext';
 
 // AuthProvider component to wrap the app and provide authentication state
 export const AuthProvider = ({ children }) => {
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
    * @param {string} authToken - JWT token from login response
    * @param {Object} adminData - Admin user data from login response
    */
-  const login = (authToken, adminData = null) => {
+  const login = useCallback((authToken, adminData = null) => {
     try {
       // Set state
       setToken(authToken);
@@ -63,12 +63,12 @@ export const AuthProvider = ({ children }) => {
       console.error('Error during login:', error);
       throw new Error('Failed to save login data');
     }
-  };
+  }, []);
 
   /**
    * Logout function - clear token and admin data
    */
-  const logout = () => {
+  const logout = useCallback(() => {
     try {
       // Clear state
       setToken(null);
@@ -82,26 +82,26 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error during logout:', error);
     }
-  };
+  }, []);
 
   /**
    * Update admin data without affecting token
    * @param {Object} newAdminData - Updated admin data
    */
-  const updateAdmin = (newAdminData) => {
+  const updateAdmin = useCallback((newAdminData) => {
     try {
       setAdmin(newAdminData);
       localStorage.setItem('adminData', JSON.stringify(newAdminData));
     } catch (error) {
       console.error('Error updating admin data:', error);
     }
-  };
+  }, []);
 
   /**
    * Check if token is expired (basic check)
    * @returns {boolean} - true if token appears to be expired
    */
-  const isTokenExpired = () => {
+  const isTokenExpired = useCallback(() => {
     if (!token) {
       return true;
     }
@@ -116,13 +116,13 @@ export const AuthProvider = ({ children }) => {
       console.error('Error checking token expiration:', error);
       return true;
     }
-  };
+  }, [token]);
 
   /**
    * Get authorization header for API requests
    * @returns {Object} - Authorization header object
    */
-  const getAuthHeader = () => {
+  const getAuthHeader = useCallback(() => {
     if (!token) {
       return {};
     }
@@ -130,13 +130,13 @@ export const AuthProvider = ({ children }) => {
     return {
       'Authorization': `Bearer ${token}`,
     };
-  };
+  }, [token]);
 
   /**
    * Verify token with backend (optional method for token validation)
    * @returns {Promise<boolean>} - true if token is valid
    */
-  const verifyToken = async() => {
+  const verifyToken = useCallback(async() => {
     if (!token) {
       return false;
     }
@@ -155,10 +155,10 @@ export const AuthProvider = ({ children }) => {
       logout();
       return false;
     }
-  };
+  }, [token, logout, updateAdmin]);
 
   // Context value object
-  const value = {
+  const value = useMemo(() => ({
     // State
     token,
     admin,
@@ -172,7 +172,18 @@ export const AuthProvider = ({ children }) => {
     isTokenExpired,
     getAuthHeader,
     verifyToken,
-  };
+  }), [
+    token,
+    admin,
+    isAuthenticated,
+    isLoading,
+    login,
+    logout,
+    updateAdmin,
+    isTokenExpired,
+    getAuthHeader,
+    verifyToken,
+  ]);
 
   return (
     <AuthContext.Provider value={value}>

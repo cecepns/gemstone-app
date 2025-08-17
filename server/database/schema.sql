@@ -85,6 +85,24 @@ CREATE TABLE IF NOT EXISTS gemstone_owners (
     INDEX idx_current_owner_key (current_owner_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Create gemstone process photos table for gallery
+CREATE TABLE IF NOT EXISTS gemstone_process_photos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    gemstone_id INT NOT NULL,
+    photo_url VARCHAR(500) NOT NULL,
+    caption VARCHAR(255) NULL,
+    uploaded_by INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Foreign key constraints
+    FOREIGN KEY (gemstone_id) REFERENCES gemstones(id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES admins(id) ON DELETE RESTRICT,
+    
+    -- Add indexes for performance
+    INDEX idx_gemstone_id (gemstone_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Optional: Insert sample data for testing
 -- INSERT INTO gemstones (
 --     unique_id_number, 
@@ -120,3 +138,4 @@ CREATE TABLE IF NOT EXISTS gemstone_owners (
 -- Show table structure
 DESCRIBE gemstones;
 DESCRIBE gemstone_owners;
+DESCRIBE gemstone_process_photos;
