@@ -1,7 +1,7 @@
+import { ArrowLeft, ChevronLeft, ChevronRight, Download, Calendar, User } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 
-import { ArrowLeft, ChevronLeft, ChevronRight, Download, Calendar, User } from 'lucide-react';
 import { Button, Card } from '../components/ui';
 import { getGemstonePhotosPublic } from '../utils/api';
 
@@ -9,7 +9,7 @@ const GalleryDetail = () => {
   const { uniqueId, photoIndex } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [photos, setPhotos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -75,15 +75,15 @@ const GalleryDetail = () => {
 
   const handleKeyDown = (e) => {
     switch (e.key) {
-      case 'ArrowLeft':
-        goToPrevious();
-        break;
-      case 'ArrowRight':
-        goToNext();
-        break;
-      case 'Escape':
-        navigate(`/verify/${uniqueId}`);
-        break;
+    case 'ArrowLeft':
+      goToPrevious();
+      break;
+    case 'ArrowRight':
+      goToNext();
+      break;
+    case 'Escape':
+      navigate(`/verify/${uniqueId}`);
+      break;
     }
   };
 
@@ -97,8 +97,10 @@ const GalleryDetail = () => {
   };
 
   const downloadImage = async() => {
-    if (!photos[currentIndex]) return;
-    
+    if (!photos[currentIndex]) {
+      return;
+    }
+
     try {
       const response = await fetch(photos[currentIndex].photo_url);
       const blob = await response.blob();
@@ -158,20 +160,6 @@ const GalleryDetail = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Kembali ke Verifikasi
             </Button>
-            
-            <div className="text-center">
-              <h1 className="text-lg font-semibold text-gray-800">
-                Foto Proses Batu Mulia
-              </h1>
-              <p className="text-sm text-gray-600">
-                {currentIndex + 1} dari {photos.length}
-              </p>
-            </div>
-
-            <Button variant="secondary" onClick={downloadImage}>
-              <Download className="w-4 h-4 mr-2" />
-              Download
-            </Button>
           </div>
         </div>
       </div>
@@ -217,7 +205,7 @@ const GalleryDetail = () => {
               {/* Left Column - Photo Details */}
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold text-gray-800">Detail Foto</h2>
-                
+
                 {currentPhoto.caption && (
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 mb-2">Caption</h3>
@@ -241,7 +229,7 @@ const GalleryDetail = () => {
               {/* Right Column - Navigation */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800">Navigasi</h3>
-                
+
                 <div className="flex gap-2">
                   <Button
                     variant="secondary"
@@ -252,7 +240,7 @@ const GalleryDetail = () => {
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Sebelumnya
                   </Button>
-                  
+
                   <Button
                     variant="secondary"
                     onClick={goToNext}
