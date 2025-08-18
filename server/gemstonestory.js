@@ -1630,6 +1630,58 @@ app.get('/api/gemstones/:id/photos', verifyToken, async(req, res) => {
   }
 });
 
+// GET /api/gemstones/:id/photos/public - Get all photos for a gemstone (public access)
+app.get('/api/gemstones/:id/photos/public', async(req, res) => {
+  try {
+    const { id } = req.params;
+
+    // First, verify the gemstone exists by unique_id_number
+    const [gemstoneRows] = await pool.execute(
+      'SELECT id FROM gemstones WHERE unique_id_number = ?',
+      [id],
+    );
+
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Batu mulia tidak ditemukan',
+      });
+    }
+
+    const gemstoneId = gemstoneRows[0].id;
+
+    // Get photos for the gemstone
+    const [rows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.gemstone_id = ?
+      ORDER BY gp.created_at DESC
+    `, [gemstoneId]);
+
+    const photos = rows.map(photo => ({
+      ...photo,
+      photo_url: photo.photo_url ? `${SERVER_BASE_URL}${photo.photo_url}` : null,
+    }));
+
+    res.json({
+      success: true,
+      data: photos,
+    });
+  } catch (error) {
+    console.error('Error fetching gemstone photos (public):', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal mengambil foto gemstone: ${error.message}`,
+    });
+  }
+});
+
 // POST /api/gemstones/:id/photos - Upload new photo
 app.post('/api/gemstones/:id/photos', verifyToken, upload.single('photo'), async(req, res) => {
   try {
