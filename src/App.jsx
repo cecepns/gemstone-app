@@ -16,6 +16,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Verification from './pages/Verification';
 import VerificationManagement from './pages/VerificationManagement';
+import GalleryDetail from './pages/GalleryDetail';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<PublicLayout />}>
             <Route index element={<Home />} />
             <Route path="verify/:id" element={<Verification />} />
+            <Route path="verify/:uniqueId/gallery/:photoIndex" element={<GalleryDetail />} />
             <Route path="login" element={<Login />} />
           </Route>
 

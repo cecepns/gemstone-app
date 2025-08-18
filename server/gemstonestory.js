@@ -1,31 +1,25 @@
+/* eslint-disable radix */
+/* eslint-disable no-empty */
+/* eslint-disable no-undef */
 // ANCHOR: Express Server Setup for Gemstone Verification App
-const express = require('express');
-const mysql = require('mysql2/promise');
-const mysqlLib = require('mysql2');
-const cors = require('cors');
-const path = require('path');
-const multer = require('multer');
-const QRCode = require('qrcode');
 const fs = require('fs');
+const path = require('path');
+
 const bcrypt = require('bcryptjs');
+const express = require('express');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const mysqlLib = require('mysql2');
+const mysql = require('mysql2/promise');
+const QRCode = require('qrcode');
 
 // Create Express application
-const app = express();
+const app = express.Router();
 
 // ANCHOR: Uploads Directory Constants
 // Centralized absolute paths for uploaded gemstone images (new and legacy)
 const UPLOADS_DIR = path.join(__dirname, 'upload-gemstonestory');
 const LEGACY_UPLOADS_DIR = path.join(__dirname, 'public/uploads');
-
-// Enable CORS for all routes
-app.use(cors());
-
-// Parse JSON bodies
-app.use(express.json());
-
-// Parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true }));
 
 // ======================================
 // STATIC FILE SERVING MIDDLEWARE
@@ -40,9 +34,9 @@ app.use('/uploads', express.static(UPLOADS_DIR, {
   setHeaders: (res, path) => {
     if (path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.png') || path.endsWith('.gif')) {
       res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hours cache
-      res.setHeader('Content-Type', 'image/' + path.split('.').pop());
+      res.setHeader('Content-Type', `image/${path.split('.').pop()}`);
     }
-  }
+  },
 }));
 
 // Fallback static route to serve legacy files that still reside in the old directory
@@ -50,9 +44,9 @@ app.use('/uploads', express.static(LEGACY_UPLOADS_DIR, {
   setHeaders: (res, path) => {
     if (path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.png') || path.endsWith('.gif')) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
-      res.setHeader('Content-Type', 'image/' + path.split('.').pop());
+      res.setHeader('Content-Type', `image/${path.split('.').pop()}`);
     }
-  }
+  },
 }));
 
 // ======================================
@@ -61,7 +55,7 @@ app.use('/uploads', express.static(LEGACY_UPLOADS_DIR, {
 
 // Configure multer for file upload
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination(req, file, cb) {
     const uploadPath = UPLOADS_DIR;
     // Ensure directory exists
     if (!fs.existsSync(uploadPath)) {
@@ -69,25 +63,29 @@ const storage = multer.diskStorage({
     }
     cb(null, uploadPath);
   },
-  filename: function (req, file, cb) {
+  filename(req, file, cb) {
     // Generate unique filename: timestamp-originalname
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
     const fileExtension = path.extname(file.originalname);
-    const fileName = file.fieldname + '-' + uniqueSuffix + fileExtension;
+    const fileName = `${file.fieldname}-${uniqueSuffix}${fileExtension}`;
     cb(null, fileName);
-  }
+  },
 });
 
 // ANCHOR: Helper - Delete uploaded file by URL (supports new and legacy dirs)
 function deleteUploadedFileByUrl(urlOrPath) {
   try {
-    if (!urlOrPath) return;
+    if (!urlOrPath) {
+      return;
+    }
     const fileName = path.basename(String(urlOrPath));
-    if (!fileName || fileName === '/' || fileName === '.' || fileName.includes('..')) return;
+    if (!fileName || fileName === '/' || fileName === '.' || fileName.includes('..')) {
+      return;
+    }
 
     const candidates = [
       path.join(UPLOADS_DIR, fileName),
-      path.join(LEGACY_UPLOADS_DIR, fileName)
+      path.join(LEGACY_UPLOADS_DIR, fileName),
     ];
 
     for (const candidate of candidates) {
@@ -117,9 +115,9 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Multer instance
-const upload = multer({ 
-  storage: storage,
-  fileFilter: fileFilter,
+const upload = multer({
+  storage,
+  fileFilter,
 });
 
 // Error handling middleware for multer
@@ -128,17 +126,17 @@ const handleMulterError = (error, req, res, next) => {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         error: 'Error Upload File',
-        message: 'Ukuran file terlalu besar. Maksimal 5MB.'
+        message: 'Ukuran file terlalu besar. Maksimal 5MB.',
       });
     }
     return res.status(400).json({
       error: 'Error Upload File',
-      message: error.message
+      message: error.message,
     });
   } else if (error) {
     return res.status(400).json({
       error: 'Error Upload File',
-      message: error.message
+      message: error.message,
     });
   }
   next();
@@ -154,49 +152,48 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
 // ANCHOR: API Base URL
 // Global base URL for API responses and QR code links
-const SERVER_BASE_URL = process.env.SERVER_BASE_URL || 'http://localhost:5000';
-const API_BASE_URL = process.env.API_BASE_URL || `${SERVER_BASE_URL}/api`;
-const CLIENT_BASE_URL = process.env.CLIENT_BASE_URL || 'http://localhost:5173';
+const SERVER_BASE_URL = 'https://api-inventory.isavralabel.com/gemstone';
+const API_BASE_URL = `${SERVER_BASE_URL}/api`;
+const CLIENT_BASE_URL = 'http://gemstonestory.id/';
 
 // Create MySQL connection pool
 const pool = mysql.createPool({
   host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'gemstone_db',
+  user: 'isad8273_gemstonestory',
+  password: 'isad8273_gemstonestory',
+  database: 'isad8273_gemstonestory',
   waitForConnections: true,
+  timezone: '+07:00', // Set timezone to Indonesia (UTC+7)
   connectionLimit: 10,
   queueLimit: 0,
-  timezone: '+07:00', // Set timezone to Indonesia (UTC+7)
-  dateStrings: true // Return dates as strings to avoid timezone conversion issues
 });
 
 // Test database connection and set timezone
-async function testConnection() {
-  try {
-    const connection = await pool.getConnection();
-    
-    // Set timezone for this connection to Indonesia (UTC+7)
-    await connection.execute("SET time_zone = '+07:00'");
-    
-    console.log('✅ Database connected successfully with timezone set to UTC+7');
-    connection.release();
-  } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
-  }
-}
+// async function testConnection() {
+//   try {
+//     const connection = await pool.getConnection();
+
+//     // Set timezone for this connection to Indonesia (UTC+7)
+//     await connection.execute("SET time_zone = '+07:00'");
+
+//     console.log('✅ Database connected successfully with timezone set to UTC+7');
+//     connection.release();
+//   } catch (error) {
+//     console.error('❌ Database connection failed:', error.message);
+//   }
+// }
 
 // Initialize database connection test
-testConnection();
+// testConnection();
 
 // Set timezone for all new connections in the pool
-pool.on('connection', async (connection) => {
-  try {
-    await connection.execute("SET time_zone = '+07:00'");
-  } catch (error) {
-    console.error('Error setting timezone for connection:', error.message);
-  }
-});
+// pool.on('connection', async (connection) => {
+//   try {
+//     await connection.execute("SET time_zone = '+07:00'");
+//   } catch (error) {
+//     console.error('Error setting timezone for connection:', error.message);
+//   }
+// });
 
 // ======================================
 // HELPER FUNCTIONS
@@ -212,10 +209,10 @@ async function generateIdentifiers() {
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
     const unique_id_number = `GEM-${timestamp}-${randomString}`;
-    
+
     // Create verification URL that will be encoded in QR code
     const verificationUrl = `${CLIENT_BASE_URL}/verify/${unique_id_number}`;
-    
+
     // Generate QR code as data URL
     const qr_code_data_url = await QRCode.toDataURL(verificationUrl, {
       errorCorrectionLevel: 'M',
@@ -224,16 +221,16 @@ async function generateIdentifiers() {
       margin: 1,
       color: {
         dark: '#000000',
-        light: '#FFFFFF'
-      }
+        light: '#FFFFFF',
+      },
     });
-    
+
     return {
       unique_id_number,
-      qr_code_data_url
+      qr_code_data_url,
     };
   } catch (error) {
-    throw new Error('Gagal menghasilkan identifier: ' + error.message);
+    throw new Error(`Gagal menghasilkan identifier: ${error.message}`);
   }
 }
 
@@ -251,71 +248,71 @@ const verifyToken = (req, res, next) => {
   try {
     // Get Authorization header
     const authHeader = req.headers.authorization;
-    
+
     // Check if Authorization header exists
     if (!authHeader) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'Header Authorization tidak ditemukan'
+        message: 'Header Authorization tidak ditemukan',
       });
     }
-    
+
     // Check if header format is correct (Bearer [token])
     if (!authHeader.startsWith('Bearer ')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'Format token tidak valid. Gunakan: Bearer [token]'
+        message: 'Format token tidak valid. Gunakan: Bearer [token]',
       });
     }
-    
+
     // Extract token from header
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    
+
     // Check if token exists
     if (!token) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: 'Token tidak ditemukan'
+        message: 'Token tidak ditemukan',
       });
     }
-    
+
     // Verify token using jsonwebtoken
     const decoded = jwt.verify(token, JWT_SECRET);
-    
+
     // Add decoded payload to req.admin for use in subsequent routes
     req.admin = {
       id: decoded.id,
       username: decoded.username,
       type: decoded.type,
       iat: decoded.iat,
-      exp: decoded.exp
+      exp: decoded.exp,
     };
-    
+
     // Call next() to continue to the next middleware/route
     next();
-    
+
   } catch (error) {
     // Handle JWT verification errors
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         error: 'Unauthorized',
-        message: 'Token tidak valid'
+        message: 'Token tidak valid',
       });
     } else if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         error: 'Unauthorized',
-        message: 'Token sudah kadaluarsa'
+        message: 'Token sudah kadaluarsa',
       });
     } else if (error.name === 'NotBeforeError') {
       return res.status(401).json({
         error: 'Unauthorized',
-        message: 'Token belum aktif'
+        message: 'Token belum aktif',
       });
     } else {
       console.error('Token verification error:', error);
       return res.status(401).json({
         error: 'Unauthorized',
-        message: 'Gagal memverifikasi token'
+        message: 'Gagal memverifikasi token',
       });
     }
   }
@@ -327,10 +324,10 @@ const verifyToken = (req, res, next) => {
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
+  res.json({
+    status: 'OK',
     message: 'Gemstone verification server is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -342,7 +339,7 @@ app.get('/api/health', (req, res) => {
  * POST /api/gemstones - Create new gemstone (Admin only)
  * Handles file upload and stores gemstone data
  */
-app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMulterError, async (req, res) => {
+app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMulterError, async(req, res) => {
   try {
     // Extract data from request body
     const {
@@ -352,27 +349,27 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       dimensions_mm,
       color,
       treatment,
-      origin
+      origin,
     } = req.body;
-    
+
     // Validate required fields
     if (!name) {
       return res.status(400).json({
         error: 'Validation Error',
-        message: 'Nama batu mulia harus diisi'
+        message: 'Nama batu mulia harus diisi',
       });
     }
-    
+
     // Generate unique identifiers
     const identifiers = await generateIdentifiers();
-    
+
     // Handle uploaded file
     let photo_url = null;
     if (req.file) {
       // Create public URL for the uploaded file
       photo_url = `/uploads/${req.file.filename}`;
     }
-    
+
     // Prepare data for database insertion
     const gemstoneData = {
       unique_id_number: identifiers.unique_id_number,
@@ -383,10 +380,10 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color: color || null,
       treatment: treatment || null,
       origin: origin || null,
-      photo_url: photo_url,
-      qr_code_data_url: identifiers.qr_code_data_url
+      photo_url,
+      qr_code_data_url: identifiers.qr_code_data_url,
     };
-    
+
     // Insert into database
     const insertQuery = `
       INSERT INTO gemstones (
@@ -395,7 +392,7 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
         photo_url, qr_code_data_url
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
+
     const values = [
       gemstoneData.unique_id_number,
       gemstoneData.name,
@@ -406,32 +403,32 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       gemstoneData.treatment,
       gemstoneData.origin,
       gemstoneData.photo_url,
-      gemstoneData.qr_code_data_url
+      gemstoneData.qr_code_data_url,
     ];
-    
+
     const [result] = await pool.execute(insertQuery, values);
-    
+
     // Fetch the created gemstone
     const [rows] = await pool.execute(
       'SELECT * FROM gemstones WHERE id = ?',
-      [result.insertId]
+      [result.insertId],
     );
-    
+
     const createdGemstone = rows[0];
-    
+
     // Return success response
     res.status(201).json({
       success: true,
       message: 'Batu mulia berhasil dibuat',
       data: {
         ...createdGemstone,
-        photo_url: createdGemstone.photo_url ? `${SERVER_BASE_URL}${createdGemstone.photo_url}` : null
-      }
+        photo_url: createdGemstone.photo_url ? `${SERVER_BASE_URL}${createdGemstone.photo_url}` : null,
+      },
     });
-    
+
   } catch (error) {
     console.error('Error creating gemstone:', error);
-    
+
     // Clean up uploaded file if database insertion fails
     if (req.file) {
       try {
@@ -440,10 +437,10 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
         console.error('Error deleting uploaded file:', unlinkError);
       }
     }
-    
+
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal membuat batu mulia: ' + error.message
+      message: `Gagal membuat batu mulia: ${error.message}`,
     });
   }
 });
@@ -452,58 +449,58 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
  * GET /api/gemstones/:id - Verify gemstone by unique ID (Public access)
  * Used for QR code verification and public certificate lookup
  */
-app.get('/api/gemstones/:id', async (req, res) => {
+app.get('/api/gemstones/:id', async(req, res) => {
   try {
     // Extract unique ID from URL parameter
     const { id } = req.params;
-    
+
     // Validate ID parameter
     if (!id) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Parameter ID diperlukan'
+        message: 'Parameter ID diperlukan',
       });
     }
-    
+
     // Query database for gemstone by unique_id_number
     const [rows] = await pool.execute(
       'SELECT * FROM gemstones WHERE unique_id_number = ?',
-      [id]
+      [id],
     );
-    
+
     // Check if gemstone was found
     if (rows.length === 0) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Sertifikat tidak ditemukan'
+        message: 'Sertifikat tidak ditemukan',
       });
     }
-    
+
     // Get the gemstone data
     const gemstone = rows[0];
-    
+
     // Format response with full photo URL
     const responseData = {
       ...gemstone,
       photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null,
       // Add verification status
       verified: true,
-      verification_timestamp: new Date().toISOString()
+      verification_timestamp: new Date().toISOString(),
     };
-    
+
     // Return gemstone data
     res.status(200).json({
       success: true,
       message: 'Sertifikat ditemukan',
-      data: responseData
+      data: responseData,
     });
-    
+
   } catch (error) {
     console.error('Error verifying gemstone:', error);
-    
+
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal memverifikasi sertifikat: ' + error.message
+      message: `Gagal memverifikasi sertifikat: ${error.message}`,
     });
   }
 });
@@ -516,86 +513,86 @@ app.get('/api/gemstones/:id', async (req, res) => {
  * POST /api/admin/login - Admin login authentication
  * Handles username/password authentication and returns JWT token
  */
-app.post('/api/admin/login', async (req, res) => {
+app.post('/api/admin/login', async(req, res) => {
   try {
     // Extract username and password from request body
     const { username, password } = req.body;
-    
+
     // Validate required fields
     if (!username || !password) {
       return res.status(400).json({
         error: 'Validation Error',
-        message: 'Username dan password harus diisi'
+        message: 'Username dan password harus diisi',
       });
     }
-    
+
     // Search for admin in database by username
     const [rows] = await pool.execute(
       'SELECT * FROM admins WHERE username = ?',
-      [username]
+      [username],
     );
-    
+
     // Check if admin was found
     if (rows.length === 0) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Admin tidak ditemukan'
+        message: 'Admin tidak ditemukan',
       });
     }
-    
+
     const admin = rows[0];
 
     const isPasswordValid = await bcrypt.compare(password, admin.password);
-    
+
     if (!isPasswordValid) {
       return res.status(401).json({
         error: 'Unauthorized',
-        message: 'Password salah'
+        message: 'Password salah',
       });
     }
-    
+
     // Create JWT token with admin information
     const token = jwt.sign(
-      { 
-        id: admin.id, 
+      {
+        id: admin.id,
         username: admin.username,
-        type: 'admin'
+        type: 'admin',
       },
       JWT_SECRET,
-      { 
+      {
         expiresIn: JWT_EXPIRES_IN,
         issuer: 'gemstone-verification-system',
-        audience: 'admin-panel'
-      }
+        audience: 'admin-panel',
+      },
     );
-    
+
     // Update last login timestamp (optional)
     await pool.execute(
       'UPDATE admins SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [admin.id]
+      [admin.id],
     );
-    
+
     // Return success response with token
     res.status(200).json({
       success: true,
       message: 'Login berhasil',
       data: {
-        token: token,
+        token,
         admin: {
           id: admin.id,
           username: admin.username,
-          created_at: admin.created_at
+          created_at: admin.created_at,
         },
-        expires_in: JWT_EXPIRES_IN
-      }
+        expires_in: JWT_EXPIRES_IN,
+      },
     });
-    
+
   } catch (error) {
     console.error('Login error:', error);
-    
+
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Terjadi kesalahan saat login'
+      message: 'Terjadi kesalahan saat login',
     });
   }
 });
@@ -613,14 +610,14 @@ app.get('/api/admin/verify', verifyToken, (req, res) => {
       data: {
         admin: req.admin,
         authenticated: true,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     });
   } catch (error) {
     console.error('Verify token error:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal memverifikasi token'
+      message: 'Gagal memverifikasi token',
     });
   }
 });
@@ -629,21 +626,21 @@ app.get('/api/admin/verify', verifyToken, (req, res) => {
  * ANCHOR: Change Admin Password Endpoint
  * POST /api/admin/change-password - Change password for authenticated admin
  */
-app.post('/api/admin/change-password', verifyToken, async (req, res) => {
+app.post('/api/admin/change-password', verifyToken, async(req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
 
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         error: 'Validation Error',
-        message: 'Sandi saat ini dan sandi baru harus diisi'
+        message: 'Sandi saat ini dan sandi baru harus diisi',
       });
     }
 
     if (String(newPassword).length < 6) {
       return res.status(400).json({
         error: 'Validation Error',
-        message: 'Sandi baru minimal 6 karakter'
+        message: 'Sandi baru minimal 6 karakter',
       });
     }
 
@@ -667,7 +664,7 @@ app.post('/api/admin/change-password', verifyToken, async (req, res) => {
     res.status(200).json({ success: true, message: 'Kata sandi berhasil diubah' });
   } catch (error) {
     console.error('Error changing password:', error);
-    res.status(500).json({ error: 'Internal Server Error', message: 'Gagal mengubah kata sandi: ' + error.message });
+    res.status(500).json({ error: 'Internal Server Error', message: `Gagal mengubah kata sandi: ${error.message}` });
   }
 });
 
@@ -716,7 +713,7 @@ async function generateSqlDump() {
  * ANCHOR: Database Backup Endpoint
  * GET /api/admin/backup - Generates and downloads a SQL backup
  */
-app.get('/api/admin/backup', verifyToken, async (req, res) => {
+app.get('/api/admin/backup', verifyToken, async(req, res) => {
   try {
     const sqlDump = await generateSqlDump();
 
@@ -732,7 +729,7 @@ app.get('/api/admin/backup', verifyToken, async (req, res) => {
     res.status(200).send(sqlDump);
   } catch (error) {
     console.error('Error generating backup:', error);
-    res.status(500).json({ error: 'Internal Server Error', message: 'Gagal membuat backup: ' + error.message });
+    res.status(500).json({ error: 'Internal Server Error', message: `Gagal membuat backup: ${error.message}` });
   }
 });
 
@@ -740,7 +737,7 @@ app.get('/api/admin/backup', verifyToken, async (req, res) => {
  * ANCHOR: Basic Admin Dashboard Stats Endpoint
  * GET /api/admin/stats - Returns basic counts and simple distributions for dashboard
  */
-app.get('/api/admin/stats', verifyToken, async (req, res) => {
+app.get('/api/admin/stats', verifyToken, async(req, res) => {
   try {
     // Totals
     const [totalGemstonesRows] = await pool.execute('SELECT COUNT(*) AS total FROM gemstones');
@@ -813,24 +810,24 @@ app.get('/api/admin/stats', verifyToken, async (req, res) => {
           gemstonesWithCurrentOwner,
           gemstonesWithoutOwner,
           totalOwnersRecords,
-          totalCurrentOwners
+          totalCurrentOwners,
         },
         distributions: {
           byColor: colorRows,
           byOrigin: originRows,
-          byTreatment: treatmentRows
+          byTreatment: treatmentRows,
         },
         recent: {
           gemstones: recentGemstones,
-          ownerships: recentOwnerships
-        }
-      }
+          ownerships: recentOwnerships,
+        },
+      },
     });
   } catch (error) {
     console.error('Error fetching admin stats:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mengambil statistik: ' + error.message
+      message: `Gagal mengambil statistik: ${error.message}`,
     });
   }
 });
@@ -839,7 +836,7 @@ app.get('/api/admin/stats', verifyToken, async (req, res) => {
  * GET /api/gemstones - Get all gemstones (Admin only)
  * Returns paginated list of all gemstones with optional filtering
  */
-app.get('/api/gemstones', verifyToken, async (req, res) => {
+app.get('/api/gemstones', verifyToken, async(req, res) => {
   try {
     // Extract query parameters for pagination and filtering
     const page = parseInt(req.query.page) || 1;
@@ -847,14 +844,14 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
     const search = req.query.search || '';
     const sortBy = req.query.sortBy || 'created_at';
     const sortOrder = req.query.sortOrder || 'desc';
-    
+
     // Calculate offset for pagination
     const offset = (page - 1) * limit;
-    
+
     // Build WHERE clause for search
     let whereClause = '';
     let whereParams = [];
-    
+
     if (search) {
       whereClause = `
         WHERE g.name LIKE ? OR 
@@ -867,12 +864,12 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
       const searchPattern = `%${search}%`;
       whereParams = [searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern];
     }
-    
+
     // Validate sortBy to prevent SQL injection
     const allowedSortFields = ['id', 'name', 'weight_carat', 'color', 'origin', 'created_at'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
     const validSortOrder = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    
+
     // Build the main query with current owner information
     const query = `
       SELECT 
@@ -897,11 +894,11 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
       ORDER BY ${validSortBy} ${validSortOrder}
       LIMIT ? OFFSET ?
     `;
-    
+
     // Execute query with parameters
     const queryParams = [...whereParams, limit, offset];
     const [rows] = await pool.execute(query, queryParams);
-    
+
     // Get total count for pagination
     const countQuery = `
       SELECT COUNT(*) as total 
@@ -910,19 +907,19 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
       ${whereClause}
     `;
     const [countResult] = await pool.execute(countQuery, whereParams);
-    const total = countResult[0].total;
-    
+    const { total } = countResult[0];
+
     // Calculate pagination info
     const totalPages = Math.ceil(total / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
-    
+
     // Format response data with full photo URLs
     const formattedData = rows.map(gemstone => ({
       ...gemstone,
-      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null
+      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null,
     }));
-    
+
     // Return success response
     res.status(200).json({
       success: true,
@@ -934,21 +931,21 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
         total,
         totalPages,
         hasNextPage,
-        hasPrevPage
+        hasPrevPage,
       },
       filters: {
         search,
         sortBy: validSortBy,
-        sortOrder: validSortOrder
-      }
+        sortOrder: validSortOrder,
+      },
     });
-    
+
   } catch (error) {
     console.error('Error fetching gemstones:', error);
-    
+
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mengambil batu mulia: ' + error.message
+      message: `Gagal mengambil batu mulia: ${error.message}`,
     });
   }
 });
@@ -957,55 +954,55 @@ app.get('/api/gemstones', verifyToken, async (req, res) => {
  * GET /api/gemstones/:id/detail - Get single gemstone by ID (Admin only)
  * Returns detailed gemstone information for admin panel
  */
-app.get('/api/gemstones/:id/detail', verifyToken, async (req, res) => {
+app.get('/api/gemstones/:id/detail', verifyToken, async(req, res) => {
   try {
     // Extract ID from URL parameter
     const { id } = req.params;
-    
+
     // Validate ID parameter
     if (!id) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'ID parameter is required'
+        message: 'ID parameter is required',
       });
     }
-    
+
     // Query database for gemstone by ID
     const [rows] = await pool.execute(
       'SELECT * FROM gemstones WHERE id = ?',
-      [id]
+      [id],
     );
-    
+
     // Check if gemstone was found
     if (rows.length === 0) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Gemstone not found'
+        message: 'Gemstone not found',
       });
     }
-    
+
     // Get the gemstone data
     const gemstone = rows[0];
-    
+
     // Format response with full photo URL
     const responseData = {
       ...gemstone,
-      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null
+      photo_url: gemstone.photo_url ? `${SERVER_BASE_URL}${gemstone.photo_url}` : null,
     };
-    
+
     // Return gemstone data
     res.status(200).json({
       success: true,
       message: 'Detail batu mulia berhasil diambil',
-      data: responseData
+      data: responseData,
     });
-    
+
   } catch (error) {
     console.error('Error fetching gemstone detail:', error);
-    
+
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mengambil detail batu mulia: ' + error.message
+      message: `Gagal mengambil detail batu mulia: ${error.message}`,
     });
   }
 });
@@ -1014,64 +1011,64 @@ app.get('/api/gemstones/:id/detail', verifyToken, async (req, res) => {
  * DELETE /api/gemstones/:id - Delete gemstone by ID (Admin only)
  * Permanently removes gemstone from database
  */
-app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
+app.delete('/api/gemstones/:id', verifyToken, async(req, res) => {
   try {
     // Extract ID from URL parameter
     const { id } = req.params;
-    
+
     // Validate ID parameter
     if (!id) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'ID parameter is required'
+        message: 'ID parameter is required',
       });
     }
-    
+
     // First, get the gemstone to check if it exists and get photo URL
     const [existingRows] = await pool.execute(
       'SELECT photo_url FROM gemstones WHERE id = ?',
-      [id]
+      [id],
     );
-    
+
     // Check if gemstone was found
     if (existingRows.length === 0) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Gemstone not found'
+        message: 'Gemstone not found',
       });
     }
-    
+
     const gemstone = existingRows[0];
-    
+
     // Delete from database
     const [result] = await pool.execute(
       'DELETE FROM gemstones WHERE id = ?',
-      [id]
+      [id],
     );
-    
+
     // Check if deletion was successful
     if (result.affectedRows === 0) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Gemstone not found'
+        message: 'Gemstone not found',
       });
     }
-    
+
     // Delete associated photo file if it exists (supports new and legacy dirs)
     deleteUploadedFileByUrl(gemstone.photo_url);
-    
+
     // Return success response
     res.status(200).json({
       success: true,
-      message: 'Batu mulia berhasil dihapus'
+      message: 'Batu mulia berhasil dihapus',
     });
-    
+
   } catch (error) {
     console.error('Error deleting gemstone:', error);
-    
+
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal menghapus batu mulia: ' + error.message
+      message: `Gagal menghapus batu mulia: ${error.message}`,
     });
   }
 });
@@ -1083,7 +1080,7 @@ app.delete('/api/gemstones/:id', verifyToken, async (req, res) => {
 /**
  * GET /api/gemstones/:uniqueId/owners/public - Get gemstone owners history (public)
  */
-app.get('/api/gemstones/:uniqueId/owners/public', async (req, res) => {
+app.get('/api/gemstones/:uniqueId/owners/public', async(req, res) => {
   try {
     const { uniqueId } = req.params;
 
@@ -1118,14 +1115,14 @@ app.get('/api/gemstones/:uniqueId/owners/public', async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: rows
+      data: rows,
     });
 
   } catch (error) {
     console.error('Error fetching gemstone owners (public):', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mengambil riwayat pemilik: ' + error.message
+      message: `Gagal mengambil riwayat pemilik: ${error.message}`,
     });
   }
 });
@@ -1133,7 +1130,7 @@ app.get('/api/gemstones/:uniqueId/owners/public', async (req, res) => {
 /**
  * GET /api/gemstones/:id/owners - Get gemstone owners history
  */
-app.get('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
+app.get('/api/gemstones/:id/owners', verifyToken, async(req, res) => {
   try {
     const { id } = req.params;
 
@@ -1160,14 +1157,14 @@ app.get('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: rows
+      data: rows,
     });
 
   } catch (error) {
     console.error('Error fetching gemstone owners:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mengambil riwayat pemilik: ' + error.message
+      message: `Gagal mengambil riwayat pemilik: ${error.message}`,
     });
   }
 });
@@ -1175,18 +1172,18 @@ app.get('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
 /**
  * POST /api/gemstones/:id/owners - Add new owner to gemstone
  */
-app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
+app.post('/api/gemstones/:id/owners', verifyToken, async(req, res) => {
   try {
     const { id } = req.params;
-    const { 
-      owner_name, 
-      owner_phone, 
-      owner_email, 
-      owner_address, 
-      ownership_start_date, 
+    const {
+      owner_name,
+      owner_phone,
+      owner_email,
+      owner_address,
+      ownership_start_date,
       ownership_end_date,
       notes,
-      is_transfer = false 
+      is_transfer = false,
     } = req.body;
 
     if (!id) {
@@ -1195,9 +1192,9 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
 
     // Validate required fields
     if (!owner_name || !owner_phone || !ownership_start_date) {
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Nama pemilik, nomor telepon, dan tanggal mulai kepemilikan harus diisi' 
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Nama pemilik, nomor telepon, dan tanggal mulai kepemilikan harus diisi',
       });
     }
 
@@ -1228,7 +1225,6 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
 
     try {
 
-
       // Handle regular new owner scenario
       if (hasCurrentOwner) {
         if (is_transfer) {
@@ -1248,7 +1244,7 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `, [
             id, owner_name, owner_phone, owner_email, owner_address,
-            ownership_start_date, ownership_end_date || null, false, notes, adminId
+            ownership_start_date, ownership_end_date || null, false, notes, adminId,
           ]);
 
           // Get the created owner record
@@ -1266,7 +1262,7 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
           res.status(201).json({
             success: true,
             message: 'Pemilik baru berhasil ditambahkan sebagai mantan pemilik',
-            data: newOwnerRows[0]
+            data: newOwnerRows[0],
           });
           return;
         }
@@ -1280,7 +1276,7 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         id, owner_name, owner_phone, owner_email, owner_address,
-        ownership_start_date, ownership_end_date || null, true, notes, adminId
+        ownership_start_date, ownership_end_date || null, true, notes, adminId,
       ]);
 
       // Commit transaction
@@ -1299,7 +1295,7 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
       res.status(201).json({
         success: true,
         message: is_transfer ? 'Kepemilikan berhasil ditransfer' : 'Pemilik baru berhasil ditambahkan',
-        data: newOwnerRows[0]
+        data: newOwnerRows[0],
       });
 
     } catch (error) {
@@ -1311,7 +1307,7 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
     console.error('Error adding gemstone owner:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal menambahkan pemilik: ' + error.message
+      message: `Gagal menambahkan pemilik: ${error.message}`,
     });
   }
 });
@@ -1319,15 +1315,15 @@ app.post('/api/gemstones/:id/owners', verifyToken, async (req, res) => {
 /**
  * POST /api/gemstones/:id/transfer - Transfer ownership
  */
-app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
+app.post('/api/gemstones/:id/transfer', verifyToken, async(req, res) => {
   try {
     const { id } = req.params;
-    const { 
-      fromOwnerId, 
-      toOwnerId, 
+    const {
+      fromOwnerId,
+      toOwnerId,
       ownership_start_date,
       ownership_end_date,
-      notes 
+      notes,
     } = req.body;
 
     if (!id) {
@@ -1336,9 +1332,9 @@ app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
 
     // Validate required fields
     if (!fromOwnerId || !toOwnerId || !ownership_start_date) {
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'ID pemilik asal, ID pemilik tujuan, dan tanggal mulai kepemilikan harus diisi' 
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'ID pemilik asal, ID pemilik tujuan, dan tanggal mulai kepemilikan harus diisi',
       });
     }
 
@@ -1346,11 +1342,11 @@ app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
     if (ownership_end_date && ownership_start_date) {
       const startDate = new Date(ownership_start_date);
       const endDate = new Date(ownership_end_date);
-      
+
       if (endDate <= startDate) {
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'Tanggal berakhir harus setelah tanggal mulai'
+          message: 'Tanggal berakhir harus setelah tanggal mulai',
         });
       }
     }
@@ -1382,7 +1378,7 @@ app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
     }
 
     // Get admin ID from token
-    const adminId = req.admin.id;
+    // const adminId = req.admin.id;
 
     // Start transaction
     await pool.query('START TRANSACTION');
@@ -1417,7 +1413,7 @@ app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
       res.status(200).json({
         success: true,
         message: 'Kepemilikan berhasil ditransfer',
-        data: updatedRows[0]
+        data: updatedRows[0],
       });
 
     } catch (error) {
@@ -1429,7 +1425,7 @@ app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
     console.error('Error transferring ownership:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mentransfer kepemilikan: ' + error.message
+      message: `Gagal mentransfer kepemilikan: ${error.message}`,
     });
   }
 });
@@ -1437,17 +1433,17 @@ app.post('/api/gemstones/:id/transfer', verifyToken, async (req, res) => {
 /**
  * PUT /api/gemstones/:id/owners/:ownerId - Update owner information
  */
-app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
+app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async(req, res) => {
   try {
     const { id, ownerId } = req.params;
-    const { 
-      owner_name, 
-      owner_phone, 
-      owner_email, 
-      owner_address, 
-      ownership_start_date, 
+    const {
+      owner_name,
+      owner_phone,
+      owner_email,
+      owner_address,
+      ownership_start_date,
       ownership_end_date,
-      notes 
+      notes,
     } = req.body;
 
     if (!id || !ownerId) {
@@ -1456,9 +1452,9 @@ app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
 
     // Validate required fields
     if (!owner_name || !owner_phone || !ownership_start_date) {
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Nama pemilik, nomor telepon, dan tanggal mulai kepemilikan harus diisi' 
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Nama pemilik, nomor telepon, dan tanggal mulai kepemilikan harus diisi',
       });
     }
 
@@ -1485,7 +1481,7 @@ app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
       WHERE id = ?
     `, [
       owner_name, owner_phone, owner_email, owner_address,
-      ownership_start_date, ownership_end_date, notes, ownerId
+      ownership_start_date, ownership_end_date, notes, ownerId,
     ]);
 
     // Get updated record
@@ -1501,14 +1497,14 @@ app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Data pemilik berhasil diperbarui',
-      data: updatedRows[0]
+      data: updatedRows[0],
     });
 
   } catch (error) {
     console.error('Error updating gemstone owner:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal memperbarui data pemilik: ' + error.message
+      message: `Gagal memperbarui data pemilik: ${error.message}`,
     });
   }
 });
@@ -1516,7 +1512,7 @@ app.put('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
 /**
  * DELETE /api/gemstones/:id/owners/:ownerId - Delete owner record
  */
-app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) => {
+app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async(req, res) => {
   try {
     const { id, ownerId } = req.params;
 
@@ -1538,9 +1534,9 @@ app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) =
 
     // Prevent deletion of current owner
     if (owner.is_current_owner) {
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Tidak dapat menghapus pemilik aktif. Transfer kepemilikan terlebih dahulu.' 
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Tidak dapat menghapus pemilik aktif. Transfer kepemilikan terlebih dahulu.',
       });
     }
 
@@ -1549,14 +1545,14 @@ app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) =
 
     res.status(200).json({
       success: true,
-      message: 'Data pemilik berhasil dihapus'
+      message: 'Data pemilik berhasil dihapus',
     });
 
   } catch (error) {
     console.error('Error deleting gemstone owner:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal menghapus data pemilik: ' + error.message
+      message: `Gagal menghapus data pemilik: ${error.message}`,
     });
   }
 });
@@ -1564,7 +1560,7 @@ app.delete('/api/gemstones/:id/owners/:ownerId', verifyToken, async (req, res) =
 /**
  * GET /api/owners/all - Get all owners from all gemstones (for template selection)
  */
-app.get('/api/owners/all', verifyToken, async (req, res) => {
+app.get('/api/owners/all', verifyToken, async(req, res) => {
   try {
     // Get all owners with gemstone information for context
     const [ownerRows] = await pool.execute(`
@@ -1582,14 +1578,248 @@ app.get('/api/owners/all', verifyToken, async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Data semua pemilik berhasil diambil',
-      data: ownerRows
+      data: ownerRows,
     });
 
   } catch (error) {
     console.error('Error fetching all owners:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Gagal mengambil data pemilik: ' + error.message
+      message: `Gagal mengambil data pemilik: ${error.message}`,
+    });
+  }
+});
+
+// ======================================
+// GEMSTONE GALLERY PHOTOS API
+// ======================================
+
+// GET /api/gemstones/:id/photos - Get all photos for a gemstone
+app.get('/api/gemstones/:id/photos', verifyToken, async(req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.gemstone_id = ?
+      ORDER BY gp.created_at DESC
+    `, [id]);
+
+    const photos = rows.map(photo => ({
+      ...photo,
+      photo_url: photo.photo_url ? `${SERVER_BASE_URL}${photo.photo_url}` : null,
+    }));
+
+    res.json({
+      success: true,
+      data: photos,
+    });
+  } catch (error) {
+    console.error('Error fetching gemstone photos:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal mengambil foto gemstone: ${error.message}`,
+    });
+  }
+});
+
+// POST /api/gemstones/:id/photos - Upload new photo
+app.post('/api/gemstones/:id/photos', verifyToken, upload.single('photo'), async(req, res) => {
+  try {
+    const { id } = req.params;
+    const { caption } = req.body;
+    const uploadedBy = req.admin.id;
+
+    // Validate gemstone exists
+    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE id = ?', [id]);
+    if (gemstoneRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Batu mulia tidak ditemukan',
+      });
+    }
+
+    // Validate file upload
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Foto harus diupload',
+      });
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      // Delete uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Format file tidak didukung. Gunakan JPG, PNG, atau WebP',
+      });
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (req.file.size > maxSize) {
+      // Delete uploaded file
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Ukuran file terlalu besar. Maksimal 5MB',
+      });
+    }
+
+    const photoUrl = `/uploads/${req.file.filename}`;
+
+    // Insert photo record
+    const [result] = await pool.execute(`
+      INSERT INTO gemstone_process_photos (gemstone_id, photo_url, caption, uploaded_by)
+      VALUES (?, ?, ?, ?)
+    `, [id, photoUrl, caption || null, uploadedBy]);
+
+    // Get the inserted photo
+    const [photoRows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.id = ?
+    `, [result.insertId]);
+
+    const photo = {
+      ...photoRows[0],
+      photo_url: photoRows[0].photo_url ? `${SERVER_BASE_URL}${photoRows[0].photo_url}` : null,
+    };
+
+    res.status(201).json({
+      success: true,
+      message: 'Foto berhasil diupload',
+      data: photo,
+    });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    // Cleanup uploaded file if database operation failed
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch {}
+    }
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal upload foto: ${error.message}`,
+    });
+  }
+});
+
+// PUT /api/gemstones/:id/photos/:photoId - Update photo caption
+app.put('/api/gemstones/:id/photos/:photoId', verifyToken, async(req, res) => {
+  try {
+    const { id, photoId } = req.params;
+    const { caption } = req.body;
+
+    // Validate photo exists and belongs to gemstone
+    const [photoRows] = await pool.execute(`
+      SELECT id FROM gemstone_process_photos 
+      WHERE id = ? AND gemstone_id = ?
+    `, [photoId, id]);
+
+    if (photoRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Foto tidak ditemukan',
+      });
+    }
+
+    // Update caption
+    await pool.execute(`
+      UPDATE gemstone_process_photos 
+      SET caption = ? 
+      WHERE id = ?
+    `, [caption || null, photoId]);
+
+    // Get updated photo
+    const [updatedRows] = await pool.execute(`
+      SELECT 
+        gp.id,
+        gp.photo_url,
+        gp.caption,
+        gp.created_at,
+        a.username as uploaded_by
+      FROM gemstone_process_photos gp
+      LEFT JOIN admins a ON gp.uploaded_by = a.id
+      WHERE gp.id = ?
+    `, [photoId]);
+
+    const photo = {
+      ...updatedRows[0],
+      photo_url: updatedRows[0].photo_url ? `${SERVER_BASE_URL}${updatedRows[0].photo_url}` : null,
+    };
+
+    res.json({
+      success: true,
+      message: 'Caption foto berhasil diperbarui',
+      data: photo,
+    });
+  } catch (error) {
+    console.error('Error updating photo caption:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal memperbarui caption foto: ${error.message}`,
+    });
+  }
+});
+
+// DELETE /api/gemstones/:id/photos/:photoId - Delete photo
+app.delete('/api/gemstones/:id/photos/:photoId', verifyToken, async(req, res) => {
+  try {
+    const { id, photoId } = req.params;
+
+    // Get photo details before deletion
+    const [photoRows] = await pool.execute(`
+      SELECT photo_url FROM gemstone_process_photos 
+      WHERE id = ? AND gemstone_id = ?
+    `, [photoId, id]);
+
+    if (photoRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Foto tidak ditemukan',
+      });
+    }
+
+    const photoUrl = photoRows[0].photo_url;
+
+    // Delete from database
+    await pool.execute(`
+      DELETE FROM gemstone_process_photos 
+      WHERE id = ?
+    `, [photoId]);
+
+    // Delete file from filesystem
+    if (photoUrl) {
+      deleteUploadedFileByUrl(photoUrl);
+    }
+
+    res.json({
+      success: true,
+      message: 'Foto berhasil dihapus',
+    });
+  } catch (error) {
+    console.error('Error deleting photo:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal menghapus foto: ${error.message}`,
     });
   }
 });
@@ -1602,7 +1832,7 @@ app.get('/api/owners/all', verifyToken, async (req, res) => {
  * PUT /api/gemstones/:id - Update gemstone by ID (Admin only)
  * Allows updating text fields and optionally replacing the photo
  */
-app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handleMulterError, async (req, res) => {
+app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handleMulterError, async(req, res) => {
   try {
     const { id } = req.params;
     const { name, description, weight_carat, dimensions_mm, color, treatment, origin } = req.body;
@@ -1627,7 +1857,7 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       color: color ?? existing.color,
       treatment: treatment ?? existing.treatment,
       origin: origin ?? existing.origin,
-      photo_url: existing.photo_url
+      photo_url: existing.photo_url,
     };
 
     // If new file uploaded, set new photo_url and delete old file
@@ -1662,7 +1892,7 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       fields.treatment,
       fields.origin,
       fields.photo_url,
-      id
+      id,
     ];
 
     await pool.execute(updateQuery, values);
@@ -1675,336 +1905,19 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       message: 'Batu mulia berhasil diperbarui',
       data: {
         ...updated,
-        photo_url: updated.photo_url ? `${SERVER_BASE_URL}${updated.photo_url}` : null
-      }
+        photo_url: updated.photo_url ? `${SERVER_BASE_URL}${updated.photo_url}` : null,
+      },
     });
   } catch (error) {
     console.error('Error updating gemstone:', error);
     // If upload succeeded but update failed, cleanup new file
     if (req.file) {
-      try { fs.unlinkSync(req.file.path); } catch {}
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch {}
     }
-    res.status(500).json({ error: 'Internal Server Error', message: 'Gagal memperbarui batu mulia: ' + error.message });
+    res.status(500).json({ error: 'Internal Server Error', message: `Gagal memperbarui batu mulia: ${error.message}` });
   }
-});
-
-// ======================================
-// GEMSTONE GALLERY PHOTOS API
-// ======================================
-
-// GET /api/gemstones/:id/photos - Get all photos for a gemstone
-app.get('/api/gemstones/:id/photos', verifyToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const [rows] = await pool.execute(`
-      SELECT 
-        gp.id,
-        gp.photo_url,
-        gp.caption,
-        gp.created_at,
-        a.username as uploaded_by
-      FROM gemstone_process_photos gp
-      LEFT JOIN admins a ON gp.uploaded_by = a.id
-      WHERE gp.gemstone_id = ?
-      ORDER BY gp.created_at DESC
-    `, [id]);
-
-    const photos = rows.map(photo => ({
-      ...photo,
-      photo_url: photo.photo_url ? `${SERVER_BASE_URL}${photo.photo_url}` : null
-    }));
-
-    res.json({
-      success: true,
-      data: photos
-    });
-  } catch (error) {
-    console.error('Error fetching gemstone photos:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Gagal mengambil foto gemstone: ' + error.message 
-    });
-  }
-});
-
-// POST /api/gemstones/:id/photos - Upload new photo
-app.post('/api/gemstones/:id/photos', verifyToken, upload.single('photo'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { caption } = req.body;
-    const uploadedBy = req.admin.id;
-
-    // Validate gemstone exists
-    const [gemstoneRows] = await pool.execute('SELECT id FROM gemstones WHERE id = ?', [id]);
-    if (gemstoneRows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Not Found', 
-        message: 'Batu mulia tidak ditemukan' 
-      });
-    }
-
-    // Validate file upload
-    if (!req.file) {
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Foto harus diupload' 
-      });
-    }
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(req.file.mimetype)) {
-      // Delete uploaded file
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Format file tidak didukung. Gunakan JPG, PNG, atau WebP' 
-      });
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (req.file.size > maxSize) {
-      // Delete uploaded file
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Ukuran file terlalu besar. Maksimal 5MB' 
-      });
-    }
-
-    const photoUrl = `/uploads/${req.file.filename}`;
-
-    // Insert photo record
-    const [result] = await pool.execute(`
-      INSERT INTO gemstone_process_photos (gemstone_id, photo_url, caption, uploaded_by)
-      VALUES (?, ?, ?, ?)
-    `, [id, photoUrl, caption || null, uploadedBy]);
-
-    // Get the inserted photo
-    const [photoRows] = await pool.execute(`
-      SELECT 
-        gp.id,
-        gp.photo_url,
-        gp.caption,
-        gp.created_at,
-        a.username as uploaded_by
-      FROM gemstone_process_photos gp
-      LEFT JOIN admins a ON gp.uploaded_by = a.id
-      WHERE gp.id = ?
-    `, [result.insertId]);
-
-    const photo = {
-      ...photoRows[0],
-      photo_url: photoRows[0].photo_url ? `${SERVER_BASE_URL}${photoRows[0].photo_url}` : null
-    };
-
-    res.status(201).json({
-      success: true,
-      message: 'Foto berhasil diupload',
-      data: photo
-    });
-  } catch (error) {
-    console.error('Error uploading photo:', error);
-    // Cleanup uploaded file if database operation failed
-    if (req.file) {
-      try { fs.unlinkSync(req.file.path); } catch {}
-    }
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Gagal upload foto: ' + error.message 
-    });
-  }
-});
-
-// PUT /api/gemstones/:id/photos/:photoId - Update photo caption
-app.put('/api/gemstones/:id/photos/:photoId', verifyToken, async (req, res) => {
-  try {
-    const { id, photoId } = req.params;
-    const { caption } = req.body;
-
-    // Validate photo exists and belongs to gemstone
-    const [photoRows] = await pool.execute(`
-      SELECT id FROM gemstone_process_photos 
-      WHERE id = ? AND gemstone_id = ?
-    `, [photoId, id]);
-
-    if (photoRows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Not Found', 
-        message: 'Foto tidak ditemukan' 
-      });
-    }
-
-    // Update caption
-    await pool.execute(`
-      UPDATE gemstone_process_photos 
-      SET caption = ? 
-      WHERE id = ?
-    `, [caption || null, photoId]);
-
-    // Get updated photo
-    const [updatedRows] = await pool.execute(`
-      SELECT 
-        gp.id,
-        gp.photo_url,
-        gp.caption,
-        gp.created_at,
-        a.username as uploaded_by
-      FROM gemstone_process_photos gp
-      LEFT JOIN admins a ON gp.uploaded_by = a.id
-      WHERE gp.id = ?
-    `, [photoId]);
-
-    const photo = {
-      ...updatedRows[0],
-      photo_url: updatedRows[0].photo_url ? `${SERVER_BASE_URL}${updatedRows[0].photo_url}` : null
-    };
-
-    res.json({
-      success: true,
-      message: 'Caption foto berhasil diperbarui',
-      data: photo
-    });
-  } catch (error) {
-    console.error('Error updating photo caption:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Gagal memperbarui caption foto: ' + error.message 
-    });
-  }
-});
-
-// DELETE /api/gemstones/:id/photos/:photoId - Delete photo
-app.delete('/api/gemstones/:id/photos/:photoId', verifyToken, async (req, res) => {
-  try {
-    const { id, photoId } = req.params;
-
-    // Get photo details before deletion
-    const [photoRows] = await pool.execute(`
-      SELECT photo_url FROM gemstone_process_photos 
-      WHERE id = ? AND gemstone_id = ?
-    `, [photoId, id]);
-
-    if (photoRows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Not Found', 
-        message: 'Foto tidak ditemukan' 
-      });
-    }
-
-    const photoUrl = photoRows[0].photo_url;
-
-    // Delete from database
-    await pool.execute(`
-      DELETE FROM gemstone_process_photos 
-      WHERE id = ?
-    `, [photoId]);
-
-    // Delete file from filesystem
-    if (photoUrl) {
-      deleteUploadedFileByUrl(photoUrl);
-    }
-
-    res.json({
-      success: true,
-      message: 'Foto berhasil dihapus'
-    });
-  } catch (error) {
-    console.error('Error deleting photo:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Gagal menghapus foto: ' + error.message 
-    });
-  }
-});
-
-// GET /api/gemstones/:id/photos/public - Get all photos for a gemstone (public access)
-app.get('/api/gemstones/:id/photos/public', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // First, verify the gemstone exists by unique_id_number
-    const [gemstoneRows] = await pool.execute(
-      'SELECT id FROM gemstones WHERE unique_id_number = ?',
-      [id]
-    );
-    
-    if (gemstoneRows.length === 0) {
-      return res.status(404).json({
-        error: 'Not Found',
-        message: 'Batu mulia tidak ditemukan'
-      });
-    }
-    
-    const gemstoneId = gemstoneRows[0].id;
-    
-    // Get photos for the gemstone
-    const [rows] = await pool.execute(`
-      SELECT 
-        gp.id,
-        gp.photo_url,
-        gp.caption,
-        gp.created_at,
-        a.username as uploaded_by
-      FROM gemstone_process_photos gp
-      LEFT JOIN admins a ON gp.uploaded_by = a.id
-      WHERE gp.gemstone_id = ?
-      ORDER BY gp.created_at DESC
-    `, [gemstoneId]);
-
-    const photos = rows.map(photo => ({
-      ...photo,
-      photo_url: photo.photo_url ? `${SERVER_BASE_URL}${photo.photo_url}` : null
-    }));
-
-    res.json({
-      success: true,
-      data: photos
-    });
-  } catch (error) {
-    console.error('Error fetching gemstone photos (public):', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Gagal mengambil foto gemstone: ' + error.message 
-    });
-  }
-});
-
-// app.post('/api/admin/logout', verifyToken, logoutAdmin);
-// app.get('/api/admin/dashboard', verifyToken, getDashboardStats);
-
-// ======================================
-// ERROR HANDLING MIDDLEWARE
-// ======================================
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Route not found',
-    message: `Rute ${req.originalUrl} tidak ada di server ini`
-  });
-});
-
-// Global error handler
-app.use((error, req, res, next) => {
-  console.error('Server Error:', error);
-  res.status(error.status || 500).json({
-    error: 'Internal Server Error',
-    message: error.message || 'Terjadi kesalahan!'
-  });
-});
-
-// ======================================
-// START SERVER
-// ======================================
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📍 Health check: ${API_BASE_URL}/health`);
 });
 
 // Export app for testing purposes

@@ -1,12 +1,12 @@
 -- ANCHOR: Database Schema for Gemstone Verification System
 
 -- Create database if not exists
-CREATE DATABASE IF NOT EXISTS gemstone_db 
+CREATE DATABASE IF NOT EXISTS isad8273_gemstonestory 
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
 -- Use the database
-USE gemstone_db;
+USE isad8273_gemstonestory;
 
 -- Create admins table for authentication
 CREATE TABLE IF NOT EXISTS admins (
