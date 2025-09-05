@@ -21,6 +21,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Card, Badge, Table } from '../components/ui';
 import { verifyGemstone, getGemstoneOwnersPublic } from '../utils/api';
 import PublicGemstoneGallery from '../components/PublicGemstoneGallery';
+import GemstoneLevelCard from '../components/GemstoneLevelCard';
 
 const Verification = () => {
   const { id } = useParams();
@@ -363,6 +364,12 @@ const Verification = () => {
             </div>
           </div>
         </Card>
+
+        {/* Level Batu Mulia Section */}
+        <GemstoneLevelCard 
+          gemstone={gemstone} 
+          className="bg-white/80 backdrop-blur-sm border-gray-100 mt-4 sm:mt-6"
+        />
 
         {/* Owner History Section */}
         <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100 mt-4 sm:mt-6 p-4 sm:p-6 lg:p-8">

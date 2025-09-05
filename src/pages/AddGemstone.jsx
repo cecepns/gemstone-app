@@ -22,6 +22,11 @@ const AddGemstone = () => {
     color: '',
     treatment: '',
     origin: '',
+    level_1_rough_seller: '',
+    level_2_cutter: '',
+    level_3_polisher: '',
+    level_4_first_seller: '',
+    level_5_gemologist_lab: '',
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
@@ -380,6 +385,75 @@ const AddGemstone = () => {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Level Fields */}
+          <div className="space-y-6">
+            <h4 className="text-lg font-semibold text-gray-700 mb-4">
+              Level Batu Mulia
+            </h4>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <Input
+                label="Level 1 - Penjual Rough"
+                name="level_1_rough_seller"
+                type="text"
+                value={formData.level_1_rough_seller}
+                onChange={handleInputChange}
+                placeholder="Data penjual rough (level 1)"
+                disabled={isLoading}
+                size="md"
+                className="bg-white/50 backdrop-blur-sm"
+              />
+              <Input
+                label="Level 2 - Tukang Potong"
+                name="level_2_cutter"
+                type="text"
+                value={formData.level_2_cutter}
+                onChange={handleInputChange}
+                placeholder="Data tukang potong (level 2)"
+                disabled={isLoading}
+                size="md"
+                className="bg-white/50 backdrop-blur-sm"
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <Input
+                label="Level 3 - Tukang Poles"
+                name="level_3_polisher"
+                type="text"
+                value={formData.level_3_polisher}
+                onChange={handleInputChange}
+                placeholder="Data tukang poles (level 3)"
+                disabled={isLoading}
+                size="md"
+                className="bg-white/50 backdrop-blur-sm"
+              />
+              <Input
+                label="Level 4 - Seller Pertama"
+                name="level_4_first_seller"
+                type="text"
+                value={formData.level_4_first_seller}
+                onChange={handleInputChange}
+                placeholder="Data seller pertama (level 4)"
+                disabled={isLoading}
+                size="md"
+                className="bg-white/50 backdrop-blur-sm"
+              />
+            </div>
+
+            <Input
+              label="Level 5 - Lab Gemologist Resmi"
+              name="level_5_gemologist_lab"
+              type="text"
+              value={formData.level_5_gemologist_lab}
+              onChange={handleInputChange}
+              placeholder="Data lab resmi gemologist (level 5)"
+              disabled={isLoading}
+              size="md"
+              className="bg-white/50 backdrop-blur-sm"
+            />
           </div>
 
           {/* Submit Button */}

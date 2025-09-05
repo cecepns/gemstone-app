@@ -31,6 +31,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import AddPhotoModal from '../components/AddPhotoModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import GemstoneGallerySection from '../components/GemstoneGallerySection';
+import GemstoneLevelCard from '../components/GemstoneLevelCard';
 import PrintPreviewModal from '../components/PrintPreviewModal';
 import { Button, Card, Badge, Modal, Alert, Table, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import { useAuth } from '../context/useAuth';
@@ -609,6 +610,9 @@ const GemstoneDetail = () => {
           </div>
         </div>
       </Card>
+
+      {/* Level Batu Mulia Section */}
+      <GemstoneLevelCard gemstone={gemstone} />
 
       {/* Owner History Section */}
       <Card variant="elevated" padding="lg">
