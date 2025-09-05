@@ -392,7 +392,7 @@ const AddGemstone = () => {
             <h4 className="text-lg font-semibold text-gray-700 mb-4">
               Level Batu Mulia
             </h4>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <Input
                 label="Level 1 - Penjual Rough"
