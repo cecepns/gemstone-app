@@ -16,7 +16,6 @@ import GemstoneList from './pages/GemstoneList';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Verification from './pages/Verification';
-import VerificationManagement from './pages/VerificationManagement';
 
 function App() {
   return (
@@ -43,7 +42,6 @@ function App() {
             <Route path="gemstones/:id" element={<GemstoneDetail />} />
             <Route path="gemstones/:id/edit" element={<EditGemstone />} />
             <Route path="gemstones/add" element={<AddGemstone />} />
-            <Route path="verifications" element={<VerificationManagement />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
 
