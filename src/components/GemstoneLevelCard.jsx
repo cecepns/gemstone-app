@@ -8,6 +8,9 @@ import {
   Store,
   Building2,
 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
+import { getPublicSettings } from '../utils/api';
 
 import { Card, Badge } from './ui';
 
@@ -46,6 +49,28 @@ const GemstoneLevelCard = ({
   subtitle = 'Tingkat supply chain batu mulia',
   className = '',
 }) => {
+  // State untuk menyimpan pengaturan warna level
+  const [levelColors, setLevelColors] = useState({});
+
+  // Fungsi untuk memuat pengaturan warna level dari server
+  const loadLevelColors = async() => {
+    try {
+      const response = await getPublicSettings();
+      const settingsData = response.data;
+
+      setLevelColors({
+        level_1_color: settingsData.level_1_color,
+        level_2_color: settingsData.level_2_color,
+        level_3_color: settingsData.level_3_color,
+        level_4_color: settingsData.level_4_color,
+        level_5_color: settingsData.level_5_color,
+      });
+    } catch (_error) {
+      // console.error('Error loading level colors:', _error);
+      // Keep default values if loading fails
+    }
+  };
+
   // Level configuration data
   const levels = [
     {
@@ -94,6 +119,11 @@ const GemstoneLevelCard = ({
     }
   };
 
+  // Load level colors on component mount
+  useEffect(() => {
+    loadLevelColors();
+  }, []);
+
   return (
     <Card variant="elevated" padding="lg" className={className}>
       <Card.Header>
@@ -119,6 +149,8 @@ const GemstoneLevelCard = ({
               const IconComponent = level.icon;
               const hasData = gemstone[level.key];
               const isLast = index === levels.length - 1;
+              const levelNumber = index + 1;
+              const levelColor = levelColors[`level_${levelNumber}_color`];
 
               return (
                 <div
@@ -128,9 +160,13 @@ const GemstoneLevelCard = ({
                   <div
                     className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center border-2 ${
                       hasData
-                        ? 'bg-green-100 border-green-500 text-green-600'
+                        ? 'text-white'
                         : 'bg-gray-100 border-gray-300 text-gray-400'
                     }`}
+                    style={hasData ? {
+                      backgroundColor: levelColor,
+                      borderColor: levelColor,
+                    } : {}}
                   >
                     {hasData ? (
                       <CheckCircle className="w-6 h-6" />
@@ -143,21 +179,30 @@ const GemstoneLevelCard = ({
                       <h3 className="text-base font-semibold text-gray-900">
                         {level.title}
                       </h3>
-                      {hasData && (
-                        <Badge variant="success" size="sm">
-                          Selesai
-                        </Badge>
-                      )}
                     </div>
                     <p className="text-sm text-gray-600 mb-2">
                       {level.description}
                     </p>
                     {hasData ? (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <p className="text-sm text-green-800 font-medium">
+                      <div
+                        className="rounded-lg p-3"
+                        style={{
+                          backgroundColor: `${levelColor}15`,
+                          borderColor: `${levelColor}40`,
+                          borderWidth: '1px',
+                          borderStyle: 'solid',
+                        }}
+                      >
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: levelColor }}
+                        >
                           Data tersedia
                         </p>
-                        <p className="text-xs text-green-600 mt-1 break-words">
+                        <p
+                          className="text-xs mt-1 break-words"
+                          style={{ color: `${levelColor}CC` }}
+                        >
                           {gemstone[level.key]}
                         </p>
                       </div>
