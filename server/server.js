@@ -360,11 +360,6 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color,
       treatment,
       origin,
-      level_1_rough_seller,
-      level_2_cutter,
-      level_3_polisher,
-      level_4_first_seller,
-      level_5_gemologist_lab,
     } = req.body;
 
     // Validate required fields
@@ -395,11 +390,6 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color: color || null,
       treatment: treatment || null,
       origin: origin || null,
-      level_1_rough_seller: level_1_rough_seller || null,
-      level_2_cutter: level_2_cutter || null,
-      level_3_polisher: level_3_polisher || null,
-      level_4_first_seller: level_4_first_seller || null,
-      level_5_gemologist_lab: level_5_gemologist_lab || null,
       photo_url,
       qr_code_data_url: identifiers.qr_code_data_url,
     };
@@ -409,10 +399,8 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       INSERT INTO gemstones (
         unique_id_number, name, description, weight_carat, 
         dimensions_mm, color, treatment, origin, 
-        level_1_rough_seller, level_2_cutter, level_3_polisher, 
-        level_4_first_seller, level_5_gemologist_lab,
         photo_url, qr_code_data_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -424,11 +412,6 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       gemstoneData.color,
       gemstoneData.treatment,
       gemstoneData.origin,
-      gemstoneData.level_1_rough_seller,
-      gemstoneData.level_2_cutter,
-      gemstoneData.level_3_polisher,
-      gemstoneData.level_4_first_seller,
-      gemstoneData.level_5_gemologist_lab,
       gemstoneData.photo_url,
       gemstoneData.qr_code_data_url,
     ];
@@ -1625,7 +1608,7 @@ app.get('/api/owners/all', verifyToken, async(req, res) => {
 app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handleMulterError, async(req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, weight_carat, dimensions_mm, color, treatment, origin, level_1_rough_seller, level_2_cutter, level_3_polisher, level_4_first_seller, level_5_gemologist_lab } = req.body;
+    const { name, description, weight_carat, dimensions_mm, color, treatment, origin } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
@@ -1647,11 +1630,6 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       color: color ?? existing.color,
       treatment: treatment ?? existing.treatment,
       origin: origin ?? existing.origin,
-      level_1_rough_seller: level_1_rough_seller ?? existing.level_1_rough_seller,
-      level_2_cutter: level_2_cutter ?? existing.level_2_cutter,
-      level_3_polisher: level_3_polisher ?? existing.level_3_polisher,
-      level_4_first_seller: level_4_first_seller ?? existing.level_4_first_seller,
-      level_5_gemologist_lab: level_5_gemologist_lab ?? existing.level_5_gemologist_lab,
       photo_url: existing.photo_url,
     };
 
@@ -1674,11 +1652,6 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
         color = ?,
         treatment = ?,
         origin = ?,
-        level_1_rough_seller = ?,
-        level_2_cutter = ?,
-        level_3_polisher = ?,
-        level_4_first_seller = ?,
-        level_5_gemologist_lab = ?,
         photo_url = ?
       WHERE id = ?
     `;
@@ -1691,11 +1664,6 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       fields.color,
       fields.treatment,
       fields.origin,
-      fields.level_1_rough_seller,
-      fields.level_2_cutter,
-      fields.level_3_polisher,
-      fields.level_4_first_seller,
-      fields.level_5_gemologist_lab,
       fields.photo_url,
       id,
     ];
@@ -2011,6 +1979,282 @@ app.get('/api/gemstones/:id/photos/public', async(req, res) => {
     res.status(500).json({
       error: 'Internal Server Error',
       message: `Gagal mengambil foto gemstone: ${error.message}`,
+    });
+  }
+});
+
+// ======================================
+// SETTINGS API ENDPOINTS
+// ======================================
+
+/**
+ * GET /api/settings - Get all settings (Admin only)
+ * Returns all settings
+ */
+app.get('/api/settings', verifyToken, async(req, res) => {
+  try {
+    // Query settings
+    const query = `
+      SELECT 
+        id,
+        setting_key,
+        setting_value,
+        created_at,
+        updated_at
+      FROM settings
+      ORDER BY setting_key
+    `;
+
+    const [rows] = await pool.execute(query);
+
+    res.status(200).json({
+      success: true,
+      message: 'Settings berhasil diambil',
+      data: rows,
+    });
+
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal mengambil settings: ${error.message}`,
+    });
+  }
+});
+
+/**
+ * GET /api/settings/public - Get public settings (No authentication required)
+ * Returns all settings for frontend display
+ */
+app.get('/api/settings/public', async(req, res) => {
+  try {
+    // Query all settings
+    const query = `
+      SELECT 
+        setting_key,
+        setting_value
+      FROM settings
+      ORDER BY setting_key
+    `;
+
+    const [rows] = await pool.execute(query);
+
+    // Convert to key-value object for easier frontend consumption
+    const settingsObject = {};
+    rows.forEach(setting => {
+      settingsObject[setting.setting_key] = setting.setting_value;
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Settings berhasil diambil',
+      data: settingsObject,
+    });
+
+  } catch (error) {
+    console.error('Error fetching public settings:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal mengambil settings: ${error.message}`,
+    });
+  }
+});
+
+/**
+ * GET /api/settings/:key - Get specific setting by key (Admin only)
+ */
+app.get('/api/settings/:key', verifyToken, async(req, res) => {
+  try {
+    const { key } = req.params;
+
+    if (!key) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Setting key parameter is required',
+      });
+    }
+
+    const [rows] = await pool.execute(
+      'SELECT * FROM settings WHERE setting_key = ?',
+      [key],
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Setting tidak ditemukan',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Setting berhasil diambil',
+      data: rows[0],
+    });
+
+  } catch (error) {
+    console.error('Error fetching setting:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal mengambil setting: ${error.message}`,
+    });
+  }
+});
+
+/**
+ * POST /api/settings - Create new setting (Admin only)
+ */
+app.post('/api/settings', verifyToken, async(req, res) => {
+  try {
+    const {
+      setting_key,
+      setting_value,
+    } = req.body;
+
+    // Validate required fields
+    if (!setting_key) {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Setting key harus diisi',
+      });
+    }
+
+    // Check if setting key already exists
+    const [existingRows] = await pool.execute(
+      'SELECT id FROM settings WHERE setting_key = ?',
+      [setting_key],
+    );
+
+    if (existingRows.length > 0) {
+      return res.status(409).json({
+        error: 'Conflict',
+        message: 'Setting key sudah ada',
+      });
+    }
+
+    // Insert new setting
+    const [result] = await pool.execute(`
+      INSERT INTO settings (setting_key, setting_value)
+      VALUES (?, ?)
+    `, [setting_key, setting_value || null]);
+
+    // Get the created setting
+    const [rows] = await pool.execute(
+      'SELECT * FROM settings WHERE id = ?',
+      [result.insertId],
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Setting berhasil dibuat',
+      data: rows[0],
+    });
+
+  } catch (error) {
+    console.error('Error creating setting:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal membuat setting: ${error.message}`,
+    });
+  }
+});
+
+/**
+ * PUT /api/settings/:key - Update setting by key (Admin only)
+ */
+app.put('/api/settings/:key', verifyToken, async(req, res) => {
+  try {
+    const { key } = req.params;
+    const { setting_value } = req.body;
+
+    if (!key) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Setting key parameter is required',
+      });
+    }
+
+    // Check if setting exists
+    const [existingRows] = await pool.execute(
+      'SELECT id FROM settings WHERE setting_key = ?',
+      [key],
+    );
+
+    if (existingRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Setting tidak ditemukan',
+      });
+    }
+
+    // Update setting value
+    await pool.execute(`
+      UPDATE settings 
+      SET setting_value = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE setting_key = ?
+    `, [setting_value, key]);
+
+    // Get updated setting
+    const [rows] = await pool.execute(
+      'SELECT * FROM settings WHERE setting_key = ?',
+      [key],
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Setting berhasil diperbarui',
+      data: rows[0],
+    });
+
+  } catch (error) {
+    console.error('Error updating setting:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal memperbarui setting: ${error.message}`,
+    });
+  }
+});
+
+/**
+ * DELETE /api/settings/:key - Delete setting by key (Admin only)
+ */
+app.delete('/api/settings/:key', verifyToken, async(req, res) => {
+  try {
+    const { key } = req.params;
+
+    if (!key) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Setting key parameter is required',
+      });
+    }
+
+    // Check if setting exists
+    const [existingRows] = await pool.execute(
+      'SELECT id FROM settings WHERE setting_key = ?',
+      [key],
+    );
+
+    if (existingRows.length === 0) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Setting tidak ditemukan',
+      });
+    }
+
+    // Delete setting
+    await pool.execute('DELETE FROM settings WHERE setting_key = ?', [key]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Setting berhasil dihapus',
+    });
+
+  } catch (error) {
+    console.error('Error deleting setting:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: `Gagal menghapus setting: ${error.message}`,
     });
   }
 });
