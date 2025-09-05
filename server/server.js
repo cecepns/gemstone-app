@@ -360,6 +360,11 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color,
       treatment,
       origin,
+      level_1_rough_seller,
+      level_2_cutter,
+      level_3_polisher,
+      level_4_first_seller,
+      level_5_gemologist_lab,
     } = req.body;
 
     // Validate required fields
@@ -390,6 +395,11 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color: color || null,
       treatment: treatment || null,
       origin: origin || null,
+      level_1_rough_seller: level_1_rough_seller || null,
+      level_2_cutter: level_2_cutter || null,
+      level_3_polisher: level_3_polisher || null,
+      level_4_first_seller: level_4_first_seller || null,
+      level_5_gemologist_lab: level_5_gemologist_lab || null,
       photo_url,
       qr_code_data_url: identifiers.qr_code_data_url,
     };
@@ -399,8 +409,10 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       INSERT INTO gemstones (
         unique_id_number, name, description, weight_carat, 
         dimensions_mm, color, treatment, origin, 
+        level_1_rough_seller, level_2_cutter, level_3_polisher, 
+        level_4_first_seller, level_5_gemologist_lab,
         photo_url, qr_code_data_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -412,6 +424,11 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       gemstoneData.color,
       gemstoneData.treatment,
       gemstoneData.origin,
+      gemstoneData.level_1_rough_seller,
+      gemstoneData.level_2_cutter,
+      gemstoneData.level_3_polisher,
+      gemstoneData.level_4_first_seller,
+      gemstoneData.level_5_gemologist_lab,
       gemstoneData.photo_url,
       gemstoneData.qr_code_data_url,
     ];
@@ -1608,7 +1625,20 @@ app.get('/api/owners/all', verifyToken, async(req, res) => {
 app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handleMulterError, async(req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, weight_carat, dimensions_mm, color, treatment, origin } = req.body;
+    const {
+      name,
+      description,
+      weight_carat,
+      dimensions_mm,
+      color,
+      treatment,
+      origin,
+      level_1_rough_seller,
+      level_2_cutter,
+      level_3_polisher,
+      level_4_first_seller,
+      level_5_gemologist_lab,
+    } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: 'Bad Request', message: 'ID parameter is required' });
@@ -1630,6 +1660,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       color: color ?? existing.color,
       treatment: treatment ?? existing.treatment,
       origin: origin ?? existing.origin,
+      level_1_rough_seller: level_1_rough_seller ?? existing.level_1_rough_seller,
+      level_2_cutter: level_2_cutter ?? existing.level_2_cutter,
+      level_3_polisher: level_3_polisher ?? existing.level_3_polisher,
+      level_4_first_seller: level_4_first_seller ?? existing.level_4_first_seller,
+      level_5_gemologist_lab: level_5_gemologist_lab ?? existing.level_5_gemologist_lab,
       photo_url: existing.photo_url,
     };
 
@@ -1652,6 +1687,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
         color = ?,
         treatment = ?,
         origin = ?,
+        level_1_rough_seller = ?,
+        level_2_cutter = ?,
+        level_3_polisher = ?,
+        level_4_first_seller = ?,
+        level_5_gemologist_lab = ?,
         photo_url = ?
       WHERE id = ?
     `;
@@ -1664,6 +1704,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       fields.color,
       fields.treatment,
       fields.origin,
+      fields.level_1_rough_seller,
+      fields.level_2_cutter,
+      fields.level_3_polisher,
+      fields.level_4_first_seller,
+      fields.level_5_gemologist_lab,
       fields.photo_url,
       id,
     ];
