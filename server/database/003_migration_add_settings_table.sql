@@ -17,11 +17,16 @@ CREATE TABLE IF NOT EXISTS settings (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert email, phone, and instagram settings
+-- Insert email, phone, instagram, and level color settings
 INSERT INTO settings (setting_key, setting_value) VALUES 
 ('email', ''),
 ('phone', ''),
-('instagram', '@gemstonestory')
+('instagram', '@gemstonestory'),
+('level_1_color', '#3B82F6'),
+('level_2_color', '#10B981'),
+('level_3_color', '#F59E0B'),
+('level_4_color', '#EF4444'),
+('level_5_color', '#8B5CF6')
 ON DUPLICATE KEY UPDATE 
     setting_value = VALUES(setting_value),
     updated_at = CURRENT_TIMESTAMP;

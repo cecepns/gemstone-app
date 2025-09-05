@@ -1,6 +1,6 @@
 // ANCHOR: GemstonePrintCard Component - Print-friendly gemstone card/memo
 import { Gem } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { getPublicSettings } from '../utils/api';
 
@@ -17,14 +17,31 @@ const GemstonePrintCard = ({ gemstone }) => {
     email: '',
     phone: '',
     instagram: '@gemstonestory',
+    level_1_color: '#3B82F6',
+    level_2_color: '#10B981',
+    level_3_color: '#F59E0B',
+    level_4_color: '#EF4444',
+    level_5_color: '#8B5CF6',
   });
 
   const websiteUrl = window.location.origin;
 
-  // Load settings on component mount
-  useEffect(() => {
-    loadSettings();
-  }, []);
+  const currentLevel = useMemo(() => {
+    return (
+      gemstone.level_5_gemologist_lab ? 5 :
+        gemstone.level_4_first_seller ? 4 :
+          gemstone.level_3_polisher ? 3 :
+            gemstone.level_2_cutter ? 2 :
+              gemstone.level_1_rough_seller ? 1 : 0
+    );
+  }, [gemstone]);
+
+  const currentLevelColor = useMemo(() => {
+    return settings[`level_${currentLevel}_color`] || '#818283';
+  }, [currentLevel, settings]);
+
+  console.log('Current Level:', currentLevel);
+  console.log('Current Level Color:', currentLevelColor);
 
   const loadSettings = async() => {
     try {
@@ -35,6 +52,11 @@ const GemstonePrintCard = ({ gemstone }) => {
         email: settingsData.email || '',
         phone: settingsData.phone || '',
         instagram: settingsData.instagram || '@gemstonestory',
+        level_1_color: settingsData.level_1_color || '#3B82F6',
+        level_2_color: settingsData.level_2_color || '#10B981',
+        level_3_color: settingsData.level_3_color || '#F59E0B',
+        level_4_color: settingsData.level_4_color || '#EF4444',
+        level_5_color: settingsData.level_5_color || '#8B5CF6',
       });
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -59,6 +81,13 @@ const GemstonePrintCard = ({ gemstone }) => {
     });
   };
 
+  console.log('Gemstone:', gemstone);
+
+  // Load settings on component mount
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
   if (!gemstone) {
     return (
       <div className="print-card">
@@ -73,7 +102,7 @@ const GemstonePrintCard = ({ gemstone }) => {
     <div className="print-card-container">
 
       <div className="print-card">
-        <div className="print-top-header">
+        <div className="print-top-header" style={{ backgroundColor: currentLevelColor }}>
           <div className="print-report-title">MEMO</div>
           <div className="print-lab-logo">
             <div className="print-lab-name">Sistem Verifikasi Batu Mulia</div>
@@ -83,7 +112,7 @@ const GemstonePrintCard = ({ gemstone }) => {
         <div className="print-card-content">
           {/* Left side - Image and Barcode */}
           <div className="print-left-side">
-            <div className="print-report-number">
+            <div className="print-report-number" style={{ color: currentLevelColor }}>
               No: {gemstone.unique_id_number}
             </div>
 
@@ -121,34 +150,34 @@ const GemstonePrintCard = ({ gemstone }) => {
           <div className="print-right-side">
             <div className="print-details">
               <div className="print-detail-item">
-                <span className="print-detail-label">Date:</span>
+                <span className="print-detail-label" style={{ color: currentLevelColor }}>Date:</span>
                 <span className="print-detail-value">{formatDate(gemstone.created_at)}</span>
               </div>
 
               <div className="print-detail-item">
-                <span className="print-detail-label">Identification:</span>
+                <span className="print-detail-label" style={{ color: currentLevelColor }}>Identification:</span>
                 <span className="print-detail-value">{gemstone.name || 'Natural Gemstone'}</span>
               </div>
 
               <div className="print-detail-item">
-                <span className="print-detail-label">Color:</span>
+                <span className="print-detail-label" style={{ color: currentLevelColor }}>Color:</span>
                 <span className="print-detail-value">{gemstone.color || 'Tidak tersedia'}</span>
               </div>
 
               <div className="print-detail-item">
-                <span className="print-detail-label">Weight:</span>
+                <span className="print-detail-label" style={{ color: currentLevelColor }}>Weight:</span>
                 <span className="print-detail-value">
                   {gemstone.weight_carat ? `${gemstone.weight_carat} ct` : 'Tidak tersedia'}
                 </span>
               </div>
 
               <div className="print-detail-item">
-                <span className="print-detail-label">Dimensions:</span>
+                <span className="print-detail-label" style={{ color: currentLevelColor }}>Dimensions:</span>
                 <span className="print-detail-value">{gemstone.dimensions_mm || 'Tidak tersedia'}</span>
               </div>
 
               <div className="print-detail-item">
-                <span className="print-detail-label">Origin:</span>
+                <span className="print-detail-label" style={{ color: currentLevelColor }}>Origin:</span>
                 <span className="print-detail-value">{gemstone.origin || 'Tidak tersedia'}</span>
               </div>
             </div>
@@ -156,7 +185,7 @@ const GemstonePrintCard = ({ gemstone }) => {
         </div>
 
         {/* Bottom Footer */}
-        <div className="print-bottom-footer">
+        <div className="print-bottom-footer" style={{ backgroundColor: currentLevelColor }}>
           <div className="print-social-media">
             <span>{settings.instagram}</span>
           </div>
@@ -167,7 +196,7 @@ const GemstonePrintCard = ({ gemstone }) => {
       {/* Back Card */}
       <div className="print-card print-card-back">
         {/* Back Header */}
-        <div className="print-top-header">
+        <div className="print-top-header" style={{ backgroundColor: currentLevelColor }}>
           <div className="print-report-title">INFORMASI TAMBAHAN</div>
           <div className="print-lab-logo">
             <div className="print-lab-name">Sistem Verifikasi Batu Mulia</div>
@@ -176,8 +205,8 @@ const GemstonePrintCard = ({ gemstone }) => {
 
         {/* Back Content */}
         <div className="print-back-content">
-          <div className="print-back-section">
-            <h3 className="print-back-section-title">Keamanan & Verifikasi</h3>
+          <div className="print-back-section" style={{ borderLeftColor: currentLevelColor }}>
+            <h3 className="print-back-section-title" style={{ color: currentLevelColor }}>Keamanan & Verifikasi</h3>
             <div className="print-back-info">
               <p>• QR Code unik untuk verifikasi</p>
               <p>• Nomor ID: {gemstone.unique_id_number}</p>
@@ -185,8 +214,8 @@ const GemstonePrintCard = ({ gemstone }) => {
             </div>
           </div>
 
-          <div className="print-back-section">
-            <h3 className="print-back-section-title">Kontak</h3>
+          <div className="print-back-section" style={{ borderLeftColor: currentLevelColor }}>
+            <h3 className="print-back-section-title" style={{ color: currentLevelColor }}>Kontak</h3>
             <div className="print-back-info">
               {settings.email && <p>Email: {settings.email}</p>}
               {settings.phone && <p>WA: {settings.phone} | IG: {settings.instagram}</p>}
@@ -196,8 +225,8 @@ const GemstonePrintCard = ({ gemstone }) => {
             </div>
           </div>
 
-          <div className="print-back-section">
-            <h3 className="print-back-section-title">Disclaimer</h3>
+          <div className="print-back-section" style={{ borderLeftColor: currentLevelColor }}>
+            <h3 className="print-back-section-title" style={{ color: currentLevelColor }}>Disclaimer</h3>
             <div className="print-back-info">
               <p>
                 Kartu ini diverifikasi laboratorium terakreditasi dan berlaku sebagai sertifikat keaslian batu mulia.
@@ -207,7 +236,7 @@ const GemstonePrintCard = ({ gemstone }) => {
         </div>
 
         {/* Back Footer */}
-        <div className="print-bottom-footer">
+        <div className="print-bottom-footer" style={{ backgroundColor: currentLevelColor }}>
           <div className="print-social-media">
             <span>{settings.instagram}</span>
           </div>

@@ -8,20 +8,21 @@ import {
   Store,
   Building2,
 } from 'lucide-react';
+
 import { Card, Badge } from './ui';
 
 /**
  * GemstoneLevelCard component - Displays gemstone supply chain levels
  * Shows step-by-step indicators for each level of the gemstone supply chain
- * 
+ *
  * @example
  * // Basic usage
  * <GemstoneLevelCard gemstone={gemstoneData} />
- * 
+ *
  * @example
  * // With custom title and styling
- * <GemstoneLevelCard 
- *   gemstone={gemstoneData} 
+ * <GemstoneLevelCard
+ *   gemstone={gemstoneData}
  *   title="Supply Chain Traceability"
  *   subtitle="Track gemstone journey from rough to certified"
  *   className="custom-styling"
@@ -52,35 +53,30 @@ const GemstoneLevelCard = ({
       title: 'Level 1: Penjual Rough',
       description: 'Data penjual batu mulia dalam bentuk rough (mentah)',
       icon: Package,
-      iconColor: 'text-orange-600',
     },
     {
       key: 'level_2_cutter',
       title: 'Level 2: Tukang Potong',
       description: 'Data tukang potong yang memotong batu mulia',
       icon: Scissors,
-      iconColor: 'text-blue-600',
     },
     {
       key: 'level_3_polisher',
       title: 'Level 3: Tukang Poles',
       description: 'Data tukang poles yang memoles batu mulia',
       icon: Sparkles,
-      iconColor: 'text-purple-600',
     },
     {
       key: 'level_4_first_seller',
       title: 'Level 4: Seller Pertama',
       description: 'Data seller pertama yang menjual batu mulia',
       icon: Store,
-      iconColor: 'text-green-600',
     },
     {
       key: 'level_5_gemologist_lab',
       title: 'Level 5: Lab Gemologist',
       description: 'Data lab resmi gemologist yang memverifikasi batu mulia',
       icon: Building2,
-      iconColor: 'text-indigo-600',
     },
   ];
 
