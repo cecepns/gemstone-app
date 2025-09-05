@@ -1,5 +1,5 @@
 // ANCHOR: GemstonePrintCard Component - Print-friendly gemstone card/memo
-import { Gem } from 'lucide-react';
+import { Gem, Star } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
 import { getPublicSettings } from '../utils/api';
@@ -40,8 +40,27 @@ const GemstonePrintCard = ({ gemstone }) => {
     return settings[`level_${currentLevel}_color`] || '#818283';
   }, [currentLevel, settings]);
 
-  console.log('Current Level:', currentLevel);
-  console.log('Current Level Color:', currentLevelColor);
+  /**
+   * Render star icons based on current level
+   * @returns {React.ReactElement} - Star icons component
+   */
+  const renderLevelStars = () => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Star
+          key={i}
+          size={16}
+          className={`print-level-star ${i <= currentLevel ? 'filled' : 'empty'}`}
+          style={{
+            color: '#FFD700',
+            fill: i <= currentLevel ? '#FFD700' : 'none',
+          }}
+        />,
+      );
+    }
+    return <div className="print-level-stars">{stars}</div>;
+  };
 
   const loadSettings = async() => {
     try {
@@ -147,7 +166,7 @@ const GemstonePrintCard = ({ gemstone }) => {
           </div>
 
           {/* Right side - Gemstone Details */}
-          <div className="print-right-side">
+          <div className="print-right-side space-y-4">
             <div className="print-details">
               <div className="print-detail-item">
                 <span className="print-detail-label" style={{ color: currentLevelColor }}>Date:</span>
@@ -181,6 +200,9 @@ const GemstonePrintCard = ({ gemstone }) => {
                 <span className="print-detail-value">{gemstone.origin || 'Tidak tersedia'}</span>
               </div>
             </div>
+
+            {renderLevelStars()}
+
           </div>
         </div>
 
