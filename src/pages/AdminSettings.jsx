@@ -131,7 +131,7 @@ const AdminSettings = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Pengaturan Admin</h1>
-            <p className="text-gray-600 mt-1">Kelola pengaturan keamanan dan backup sistem</p>
+            <p className="text-gray-600 mt-1">Kelola informasi kontak, kata sandi dan backup sistem</p>
           </div>
         </div>
       </div>
@@ -291,7 +291,7 @@ const AdminSettings = () => {
               <Mail className="w-5 h-5 text-purple-600 mr-3" />
               <h3 className="text-lg font-medium text-gray-900">Pengaturan Kontak</h3>
             </div>
-            <p className="text-sm text-gray-500 mt-1">Kelola informasi kontak untuk sertifikat</p>
+            <p className="text-sm text-gray-500 mt-1">Kelola informasi kontak</p>
           </div>
           <div className="p-6">
             <form onSubmit={handleContactSettingsSave} className="space-y-4">
