@@ -10,13 +10,13 @@ import AddGemstone from './pages/AddGemstone';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminSettings from './pages/AdminSettings';
 import EditGemstone from './pages/EditGemstone';
+import GalleryDetail from './pages/GalleryDetail';
 import GemstoneDetail from './pages/GemstoneDetail';
 import GemstoneList from './pages/GemstoneList';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Verification from './pages/Verification';
 import VerificationManagement from './pages/VerificationManagement';
-import GalleryDetail from './pages/GalleryDetail';
 
 function App() {
   return (

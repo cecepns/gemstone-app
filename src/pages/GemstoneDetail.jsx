@@ -5,35 +5,21 @@ import {
   Printer,
   Edit,
   Trash2,
-  AlertCircle,
-  FileText,
-  Calendar,
-  Weight,
-  Palette,
-  MapPin,
-  Settings,
-  Ruler,
-  IdCard,
   Users,
   Plus,
-  UserCheck,
-  UserX,
-  Phone,
-  Mail,
   Loader2,
-  UserPlus,
-  Copy,
-  Check,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-import AddPhotoModal from '../components/AddPhotoModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import GemstoneGallerySection from '../components/GemstoneGallerySection';
 import GemstoneLevelCard from '../components/GemstoneLevelCard';
 import PrintPreviewModal from '../components/PrintPreviewModal';
-import { Button, Card, Badge, Modal, Alert, Table, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
+import GemstoneImageSection from '../components/shared/GemstoneImageSection';
+import GemstoneSpecifications from '../components/shared/GemstoneSpecifications';
+import OwnerHistoryTable from '../components/shared/OwnerHistoryTable';
+import { Button, Card, Alert, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
 import { useAuth } from '../context/useAuth';
 import { getGemstoneDetail, deleteGemstone,
   getGemstoneOwners,
@@ -84,8 +70,8 @@ const GemstoneDetail = () => {
       await navigator.clipboard.writeText(gemstone.unique_id_number);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
+    } catch (_error) {
+      // Failed to copy - silently ignore
     }
   };
 
@@ -132,23 +118,6 @@ const GemstoneDetail = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  /**
-   * Format date for display
-   * @param {string} dateString - ISO date string
-   * @returns {string} - Formatted date
-   */
-  const formatDate = (dateString) => {
-    if (!dateString) {
-      return '-';
-    }
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      timeZone: 'Asia/Jakarta',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   /**
    * Open add owner modal
@@ -229,99 +198,6 @@ const GemstoneDetail = () => {
   const handleBack = () => {
     navigate('/admin/gemstones');
   };
-
-  // ANCHOR: Table columns configuration for owners
-  const ownerColumns = [
-    {
-      key: 'owner_name',
-      header: 'Nama Pemilik',
-      render: (value) => (
-        <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">{value}</div>
-      ),
-    },
-    {
-      key: 'is_current_owner',
-      header: 'Status',
-      align: 'center',
-      render: (value) => (
-        value ? (
-          <Badge variant="success" className="flex items-center gap-1 w-fit text-xs">
-            <UserCheck className="w-3 h-3" />
-            <span className="hidden sm:inline">Pemilik Aktif</span>
-            <span className="sm:hidden">Aktif</span>
-          </Badge>
-        ) : (
-          <Badge variant="secondary" className="flex items-center gap-1 w-fit text-xs">
-            <UserX className="w-3 h-3" />
-            <span className="hidden sm:inline">Mantan Pemilik</span>
-            <span className="sm:hidden">Mantan</span>
-          </Badge>
-        )
-      ),
-    },
-    {
-      key: 'ownership_period',
-      header: 'Periode Kepemilikan',
-      render: (value, row) => (
-        <div className="flex items-center gap-2 text-gray-600">
-          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-          <span className="text-xs sm:text-sm">
-            {formatDate(row.ownership_start_date)}
-            {row.ownership_end_date ? (
-              <span> - {formatDate(row.ownership_end_date)}</span>
-            ) : (
-              <span> - Sekarang</span>
-            )}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: 'actions',
-      header: 'Aksi',
-      align: 'center',
-      nowrap: true,
-      render: (value, row) => (
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => openDetailModal(row)}
-            disabled={isLoadingOwners}
-            title="Detail pemilik"
-            className="text-xs px-2 py-1 w-full sm:w-auto"
-          >
-            <FileText className="w-3 h-3" />
-            <span className="hidden sm:inline ml-1">Detail</span>
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => openEditModal(row)}
-            disabled={isLoadingOwners}
-            title="Edit pemilik"
-            className="text-xs px-2 py-1 w-full sm:w-auto"
-          >
-            <Edit className="w-3 h-3" />
-            <span className="hidden sm:inline ml-1">Ubah</span>
-          </Button>
-          {!row.is_current_owner && (
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => setShowDeleteConfirm(row)}
-              disabled={isLoadingOwners}
-              title="Hapus pemilik"
-              className="text-xs px-2 py-1 w-full sm:w-auto"
-            >
-              <Trash2 className="w-3 h-3" />
-              <span className="hidden sm:inline ml-1">Hapus</span>
-            </Button>
-          )}
-        </div>
-      ),
-    },
-  ];
 
   /**
    * Loading state
@@ -440,51 +316,7 @@ const GemstoneDetail = () => {
       <Card variant="elevated" padding="lg">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-8">
           {/* Left column - Gemstone image and QR code */}
-          <div className="space-y-6">
-            {/* Gemstone image */}
-            <div>
-              {gemstone.photo_url ? (
-                <div className="relative">
-                  <img
-                    src={gemstone.photo_url}
-                    alt={gemstone.name || 'Batu Mulia'}
-                    className="w-full aspect-square object-cover rounded-xl border border-gray-200 shadow-lg"
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-64 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
-                  <div className="text-center">
-                    <Gem className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Tidak ada gambar tersedia</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* QR Code */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FileText className="w-5 h-5 text-purple-600" />
-                Kode QR
-              </h3>
-              {gemstone.qr_code_data_url ? (
-                <div className="flex justify-center p-6 sm:p-12">
-                  <img
-                    src={gemstone.qr_code_data_url}
-                    alt="Kode QR"
-                    className="w-32 h-32 sm:w-48 sm:h-48 border border-gray-200 rounded-xl shadow-lg"
-                  />
-                </div>
-              ) : (
-                <div className="w-32 h-32 sm:w-48 sm:h-48 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center mx-auto">
-                  <div className="text-center">
-                    <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 text-xs sm:text-sm">Tidak ada kode QR</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <GemstoneImageSection gemstone={gemstone} />
 
           {/* Right column - Gemstone details */}
           <div className="space-y-6">
@@ -492,121 +324,13 @@ const GemstoneDetail = () => {
               {gemstone.name || 'Batu Mulia Tanpa Nama'}
             </h3>
 
-            {/* Unique ID */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                <IdCard className="w-4 h-4" />
-                Nomor ID Unik
-              </label>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <p className="text-sm sm:text-lg text-purple-600 font-mono bg-purple-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-purple-200 flex-1 break-all">
-                  {gemstone.unique_id_number}
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyId}
-                  title="Salin ID"
-                  className="text-purple-600 border-purple-200 hover:bg-purple-50 w-full sm:w-auto"
-                >
-                  {isCopied ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {/* Description */}
-            {gemstone.description && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Deskripsi
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {gemstone.description}
-                </p>
-              </div>
-            )}
-
-            {/* Specifications grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Weight */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <Weight className="w-4 h-4" />
-                  Berat
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {gemstone.weight_carat ? (
-                    <span className="inline-flex items-center">
-                      <span className="font-semibold">{gemstone.weight_carat}</span>
-                    </span>
-                  ) : (
-                    'Tidak tersedia'
-                  )}
-                </p>
-              </div>
-
-              {/* Dimensions */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <Ruler className="w-4 h-4" />
-                  Dimensi
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {gemstone.dimensions_mm || 'Tidak tersedia'}
-                </p>
-              </div>
-
-              {/* Color */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <Palette className="w-4 h-4" />
-                  Warna
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {gemstone.color || 'Tidak tersedia'}
-                </p>
-              </div>
-
-              {/* Origin */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  Asal
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {gemstone.origin || 'Tidak tersedia'}
-                </p>
-              </div>
-            </div>
-
-            {/* Treatment */}
-            {gemstone.treatment && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Perawatan
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {gemstone.treatment}
-                </p>
-              </div>
-            )}
-
-            {/* Created date */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Tanggal Ditambahkan
-              </label>
-              <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                {formatDate(gemstone.created_at)}
-              </p>
-            </div>
+            <GemstoneSpecifications
+              gemstone={gemstone}
+              options={{
+                onCopyId: handleCopyId,
+                isCopied,
+              }}
+            />
           </div>
         </div>
       </Card>
@@ -663,16 +387,17 @@ const GemstoneDetail = () => {
                 </Button>
               </div>
             ) : (
-              /* Owners Table using atomic Table component */
-              <Table
-                data={owners}
-                columns={ownerColumns}
+              /* Owners Table using shared component */
+              <OwnerHistoryTable
+                owners={owners}
                 loading={isLoadingOwners}
                 error={ownersError}
-                emptyMessage="Belum ada data pemilik"
-                size="md"
-                hoverable
-                striped
+                options={{
+                  showActions: true,
+                  onViewDetail: openDetailModal,
+                  onEdit: openEditModal,
+                  onDelete: setShowDeleteConfirm,
+                }}
               />
             )}
           </div>

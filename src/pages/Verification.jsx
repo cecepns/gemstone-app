@@ -1,27 +1,19 @@
 // ANCHOR: VerificationPage Component - Display gemstone verification results
 import {
-  Gem,
   ArrowLeft,
   AlertCircle,
-  FileText,
-  Calendar,
-  Weight,
-  Palette,
-  Ruler,
-  MapPin,
-  Settings,
-  IdCard,
   Users,
-  UserCheck,
-  UserX,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { Card, Badge, Table } from '../components/ui';
-import { verifyGemstone, getGemstoneOwnersPublic } from '../utils/api';
-import PublicGemstoneGallery from '../components/PublicGemstoneGallery';
 import GemstoneLevelCard from '../components/GemstoneLevelCard';
+import PublicGemstoneGallery from '../components/PublicGemstoneGallery';
+import GemstoneImageSection from '../components/shared/GemstoneImageSection';
+import GemstoneSpecifications from '../components/shared/GemstoneSpecifications';
+import OwnerHistoryTable from '../components/shared/OwnerHistoryTable';
+import { Card } from '../components/ui';
+import { verifyGemstone, getGemstoneOwnersPublic } from '../utils/api';
 
 const Verification = () => {
   const { id } = useParams();
@@ -81,73 +73,6 @@ const Verification = () => {
       setIsLoadingOwners(false);
     }
   };
-
-  /**
-   * Format date for display
-   * @param {string} dateString - ISO date string
-   * @returns {string} - Formatted date
-   */
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      timeZone: 'Asia/Jakarta',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  // Column definitions for owners table
-  const ownerColumns = [
-    {
-      key: 'owner_name',
-      header: 'Nama Pemilik',
-      render: (value, row) => (
-        <div>
-          <div className="font-medium text-gray-900">{value}</div>
-          {row.owner_phone && (
-            <div className="text-sm text-gray-600">{row.owner_phone}</div>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: 'is_current_owner',
-      header: 'Status',
-      align: 'center',
-      render: (value) => (
-        value ? (
-          <Badge variant="success" className="flex items-center gap-1 w-fit text-xs">
-            <UserCheck className="w-3 h-3" />
-            <span className="hidden sm:inline">Pemilik Aktif</span>
-            <span className="sm:hidden">Aktif</span>
-          </Badge>
-        ) : (
-          <Badge variant="secondary" className="flex items-center gap-1 w-fit text-xs">
-            <UserX className="w-3 h-3" />
-            <span className="hidden sm:inline">Mantan Pemilik</span>
-            <span className="sm:hidden">Mantan</span>
-          </Badge>
-        )
-      ),
-    },
-    {
-      key: 'ownership_start_date',
-      header: 'Periode Kepemilikan',
-      render: (value, row) => (
-        <div className="flex items-center gap-2 text-gray-600">
-          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-          <span className="text-xs sm:text-sm">
-            {formatDate(value)}
-            {row.ownership_end_date ? (
-              <span> - {formatDate(row.ownership_end_date)}</span>
-            ) : (
-              <span> - Sekarang</span>
-            )}
-          </span>
-        </div>
-      ),
-    },
-  ];
 
   // Loading state
   if (loading) {
@@ -232,28 +157,11 @@ const Verification = () => {
 
         <Card variant="elevated" padding="lg" className="bg-white/80 backdrop-blur-sm border-gray-100 p-4 sm:p-6 lg:p-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-            {/* Left column - Gemstone image and QR code */}
-            <div className="space-y-4 sm:space-y-6">
-              {/* Gemstone image */}
-              <div>
-                {gemstone.photo_url ? (
-                  <div className="relative">
-                    <img
-                      src={gemstone.photo_url}
-                      alt={gemstone.name || 'Gemstone'}
-                      className="w-full aspect-square object-cover rounded-xl border border-gray-200 shadow-lg"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-48 sm:h-64 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center">
-                    <div className="text-center">
-                      <Gem className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm sm:text-base text-gray-500">Tidak ada gambar tersedia</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Left column - Gemstone image */}
+            <GemstoneImageSection
+              gemstone={gemstone}
+              options={{ showQRCode: false }}
+            />
 
             {/* Right column - Gemstone details */}
             <div className="space-y-4 sm:space-y-6">
@@ -261,113 +169,23 @@ const Verification = () => {
                 {gemstone.name || 'Batu Mulia Tanpa Nama'}
               </h3>
 
-              {/* Unique ID */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <IdCard className="w-4 h-4" />
-                  Nomor ID Unik
-                </label>
-                <p className="text-base sm:text-lg text-purple-600 font-mono bg-purple-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-purple-200 break-all">
-                  {gemstone.unique_id_number}
-                </p>
-              </div>
-
-              {/* Description */}
-              {gemstone.description && (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    Deskripsi
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                    {gemstone.description}
-                  </p>
-                </div>
-              )}
-
-              {/* Specifications grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {/* Weight */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                    <Weight className="w-4 h-4" />
-                    Berat
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                    {gemstone.weight_carat ? (
-                      <span className="inline-flex items-center">
-                        <span className="font-semibold">{gemstone.weight_carat}</span>
-                      </span>
-                    ) : (
-                      'Tidak tersedia'
-                    )}
-                  </p>
-                </div>
-
-                {/* Dimensions */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                    <Ruler className="w-4 h-4" />
-                    Dimensi
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                    {gemstone.dimensions_mm || 'Tidak tersedia'}
-                  </p>
-                </div>
-
-                {/* Color */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                    <Palette className="w-4 h-4" />
-                    Warna
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                    {gemstone.color || 'Tidak tersedia'}
-                  </p>
-                </div>
-
-                {/* Origin */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Asal
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                    {gemstone.origin || 'Tidak tersedia'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Treatment */}
-              {gemstone.treatment && (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    Perawatan
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                    {gemstone.treatment}
-                  </p>
-                </div>
-              )}
-
-              {/* Created date */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Tanggal Ditambahkan
-                </label>
-                <p className="text-gray-900 bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-gray-200 text-sm sm:text-base">
-                  {formatDate(gemstone.created_at)}
-                </p>
-              </div>
+              <GemstoneSpecifications
+                gemstone={gemstone}
+                options={{
+                  showUniqueId: true,
+                  showDescription: true,
+                  showTreatment: true,
+                  showCreatedDate: true,
+                  useEnglishDate: true,
+                }}
+              />
             </div>
           </div>
         </Card>
 
         {/* Level Batu Mulia Section */}
-        <GemstoneLevelCard 
-          gemstone={gemstone} 
+        <GemstoneLevelCard
+          gemstone={gemstone}
           className="bg-white/80 backdrop-blur-sm border-gray-100 mt-4 sm:mt-6"
         />
 
@@ -384,15 +202,14 @@ const Verification = () => {
           </div>
 
           {/* Owner History Table */}
-          <Table
-            data={owners}
-            columns={ownerColumns}
+          <OwnerHistoryTable
+            owners={owners}
             loading={isLoadingOwners}
             error={ownersError}
-            emptyMessage="Belum ada data kepemilikan"
-            size="md"
-            hoverable
-            striped
+            options={{
+              showActions: false,
+              useEnglishDate: true,
+            }}
             className="mt-4"
           />
         </Card>
