@@ -1,4 +1,4 @@
-import { Download, Lock, Eye, EyeOff, Mail, Phone, Save } from 'lucide-react';
+import { Download, Lock, Eye, EyeOff, Mail, Phone, Save, Instagram } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { useAuth } from '../context/useAuth';
@@ -13,6 +13,7 @@ const AdminSettings = () => {
   const [contactSettings, setContactSettings] = useState({
     email: '',
     phone: '',
+    instagram: '',
   });
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const { getAuthHeader } = useAuth();
@@ -20,7 +21,7 @@ const AdminSettings = () => {
   // ANCHOR: Load contact settings on component mount
   useEffect(() => {
     loadContactSettings();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadContactSettings = async() => {
     try {
@@ -36,9 +37,9 @@ const AdminSettings = () => {
       setContactSettings({
         email: settingsObj.email || '',
         phone: settingsObj.phone || '',
+        instagram: settingsObj.instagram || '',
       });
-    } catch (error) {
-      console.error('Error loading settings:', error);
+    } catch (_error) {
       showError('Gagal memuat pengaturan kontak');
     }
   };
@@ -49,11 +50,10 @@ const AdminSettings = () => {
     setIsLoadingSettings(true);
 
     try {
-      // Update email setting
+      // Update all settings
       await updateSetting('email', contactSettings.email, getAuthHeader());
-
-      // Update phone setting
       await updateSetting('phone', contactSettings.phone, getAuthHeader());
+      await updateSetting('instagram', contactSettings.instagram, getAuthHeader());
 
       showSuccess('Pengaturan kontak berhasil disimpan');
     } catch (error) {
@@ -324,6 +324,22 @@ const AdminSettings = () => {
                     placeholder="Masukkan nomor telepon"
                   />
                   <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Instagram
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={contactSettings.instagram}
+                    onChange={(e) => handleContactInputChange('instagram', e.target.value)}
+                    className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="Masukkan username Instagram"
+                  />
+                  <Instagram className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                 </div>
               </div>
 

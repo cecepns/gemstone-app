@@ -17,10 +17,11 @@ CREATE TABLE IF NOT EXISTS settings (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert email and phone settings
+-- Insert email, phone, and instagram settings
 INSERT INTO settings (setting_key, setting_value) VALUES 
 ('email', ''),
-('phone', '')
+('phone', ''),
+('instagram', '@gemstonestory')
 ON DUPLICATE KEY UPDATE 
     setting_value = VALUES(setting_value),
     updated_at = CURRENT_TIMESTAMP;

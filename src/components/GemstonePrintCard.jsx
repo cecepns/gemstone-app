@@ -1,6 +1,8 @@
 // ANCHOR: GemstonePrintCard Component - Print-friendly gemstone card/memo
 import { Gem } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+import { getPublicSettings } from '../utils/api';
 
 /**
  * GemstonePrintCard component - Print-friendly gemstone information card
@@ -11,6 +13,34 @@ import React from 'react';
  * @returns {React.ReactElement} - Rendered print card
  */
 const GemstonePrintCard = ({ gemstone }) => {
+  const [settings, setSettings] = useState({
+    email: '',
+    phone: '',
+    instagram: '@gemstonestory',
+  });
+
+  const websiteUrl = window.location.origin;
+
+  // Load settings on component mount
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async() => {
+    try {
+      const response = await getPublicSettings();
+      const settingsData = response.data;
+
+      setSettings({
+        email: settingsData.email || '',
+        phone: settingsData.phone || '',
+        instagram: settingsData.instagram || '@gemstonestory',
+      });
+    } catch (error) {
+      console.error('Error loading settings:', error);
+      // Keep default values if loading fails
+    }
+  };
 
   /**
    * Format date for display
@@ -44,7 +74,7 @@ const GemstonePrintCard = ({ gemstone }) => {
 
       <div className="print-card">
         <div className="print-top-header">
-          <div className="print-report-title">REPORT</div>
+          <div className="print-report-title">MEMO</div>
           <div className="print-lab-logo">
             <div className="print-lab-name">Sistem Verifikasi Batu Mulia</div>
           </div>
@@ -128,9 +158,9 @@ const GemstonePrintCard = ({ gemstone }) => {
         {/* Bottom Footer */}
         <div className="print-bottom-footer">
           <div className="print-social-media">
-            <span>@gemstonestory</span>
+            <span>{settings.instagram}</span>
           </div>
-          <div className="print-website">gemstonestory.id</div>
+          <div className="print-website">{websiteUrl}</div>
         </div>
       </div>
 
@@ -151,15 +181,18 @@ const GemstonePrintCard = ({ gemstone }) => {
             <div className="print-back-info">
               <p>• QR Code unik untuk verifikasi</p>
               <p>• Nomor ID: {gemstone.unique_id_number}</p>
-              <p>• Scan QR atau kunjungi gemstonestory.id</p>
+              <p>• Scan QR atau kunjungi {websiteUrl}</p>
             </div>
           </div>
 
           <div className="print-back-section">
             <h3 className="print-back-section-title">Kontak</h3>
             <div className="print-back-info">
-              <p>Email: info@gemstonestory.net</p>
-              <p>WA: +62 812-3456-7890 | IG: @gemstonestory</p>
+              {settings.email && <p>Email: {settings.email}</p>}
+              {settings.phone && <p>WA: {settings.phone} | IG: {settings.instagram}</p>}
+              {!settings.email && !settings.phone && (
+                <p>Kontak belum dikonfigurasi</p>
+              )}
             </div>
           </div>
 
@@ -176,9 +209,9 @@ const GemstonePrintCard = ({ gemstone }) => {
         {/* Back Footer */}
         <div className="print-bottom-footer">
           <div className="print-social-media">
-            <span>@gemstonestory</span>
+            <span>{settings.instagram}</span>
           </div>
-          <div className="print-website">gemstonestory.id</div>
+          <div className="print-website">{websiteUrl}</div>
         </div>
       </div>
     </div>
