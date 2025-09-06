@@ -33,11 +33,11 @@ import { Card, Badge } from './ui';
  *
  * @param {Object} props - Component props
  * @param {Object} props.gemstone - Gemstone data object
- * @param {string} props.gemstone.level_1_rough_seller - Level 1 data
- * @param {string} props.gemstone.level_2_cutter - Level 2 data
- * @param {string} props.gemstone.level_3_polisher - Level 3 data
- * @param {string} props.gemstone.level_4_first_seller - Level 4 data
- * @param {string} props.gemstone.level_5_gemologist_lab - Level 5 data
+ * @param {string} props.gemstone.rough_seller - Level 1 data
+ * @param {string} props.gemstone.cutter - Level 2 data
+ * @param {string} props.gemstone.polisher - Level 3 data
+ * @param {string} props.gemstone.first_seller - Level 4 data
+ * @param {string} props.gemstone.gemologist_lab - Level 5 data
  * @param {string} [props.title="Level Batu Mulia"] - Card title
  * @param {string} [props.subtitle="Tingkat supply chain batu mulia"] - Card subtitle
  * @param {string} [props.className] - Additional CSS classes
@@ -74,31 +74,31 @@ const GemstoneLevelCard = ({
   // Level configuration data
   const levels = [
     {
-      key: 'level_1_rough_seller',
+      key: 'rough_seller',
       title: 'Level 1: Penjual Rough',
       description: 'Data penjual batu mulia dalam bentuk rough (mentah)',
       icon: Package,
     },
     {
-      key: 'level_2_cutter',
+      key: 'cutter',
       title: 'Level 2: Tukang Potong',
       description: 'Data tukang potong yang memotong batu mulia',
       icon: Scissors,
     },
     {
-      key: 'level_3_polisher',
+      key: 'polisher',
       title: 'Level 3: Tukang Poles',
       description: 'Data tukang poles yang memoles batu mulia',
       icon: Sparkles,
     },
     {
-      key: 'level_4_first_seller',
+      key: 'first_seller',
       title: 'Level 4: Seller Pertama',
       description: 'Data seller pertama yang menjual batu mulia',
       icon: Store,
     },
     {
-      key: 'level_5_gemologist_lab',
+      key: 'gemologist_lab',
       title: 'Level 5: Lab Gemologist',
       description: 'Data lab resmi gemologist yang memverifikasi batu mulia',
       icon: Building2,

@@ -28,11 +28,11 @@ const GemstonePrintCard = ({ gemstone }) => {
 
   const currentLevel = useMemo(() => {
     return (
-      gemstone.level_5_gemologist_lab ? 5 :
-        gemstone.level_4_first_seller ? 4 :
-          gemstone.level_3_polisher ? 3 :
-            gemstone.level_2_cutter ? 2 :
-              gemstone.level_1_rough_seller ? 1 : 0
+      gemstone.gemologist_lab ? 5 :
+        gemstone.first_seller ? 4 :
+          gemstone.polisher ? 3 :
+            gemstone.cutter ? 2 :
+              gemstone.rough_seller ? 1 : 0
     );
   }, [gemstone]);
 

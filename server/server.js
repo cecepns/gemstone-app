@@ -360,11 +360,11 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color,
       treatment,
       origin,
-      level_1_rough_seller,
-      level_2_cutter,
-      level_3_polisher,
-      level_4_first_seller,
-      level_5_gemologist_lab,
+      rough_seller,
+      cutter,
+      polisher,
+      first_seller,
+      gemologist_lab,
     } = req.body;
 
     // Validate required fields
@@ -395,11 +395,11 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       color: color || null,
       treatment: treatment || null,
       origin: origin || null,
-      level_1_rough_seller: level_1_rough_seller || null,
-      level_2_cutter: level_2_cutter || null,
-      level_3_polisher: level_3_polisher || null,
-      level_4_first_seller: level_4_first_seller || null,
-      level_5_gemologist_lab: level_5_gemologist_lab || null,
+      rough_seller: rough_seller || null,
+      cutter: cutter || null,
+      polisher: polisher || null,
+      first_seller: first_seller || null,
+      gemologist_lab: gemologist_lab || null,
       photo_url,
       qr_code_data_url: identifiers.qr_code_data_url,
     };
@@ -409,8 +409,8 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       INSERT INTO gemstones (
         unique_id_number, name, description, weight_carat, 
         dimensions_mm, color, treatment, origin, 
-        level_1_rough_seller, level_2_cutter, level_3_polisher, 
-        level_4_first_seller, level_5_gemologist_lab,
+        rough_seller, cutter, polisher, 
+        first_seller, gemologist_lab,
         photo_url, qr_code_data_url
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
@@ -424,11 +424,11 @@ app.post('/api/gemstones', verifyToken, upload.single('gemstoneImage'), handleMu
       gemstoneData.color,
       gemstoneData.treatment,
       gemstoneData.origin,
-      gemstoneData.level_1_rough_seller,
-      gemstoneData.level_2_cutter,
-      gemstoneData.level_3_polisher,
-      gemstoneData.level_4_first_seller,
-      gemstoneData.level_5_gemologist_lab,
+      gemstoneData.rough_seller,
+      gemstoneData.cutter,
+      gemstoneData.polisher,
+      gemstoneData.first_seller,
+      gemstoneData.gemologist_lab,
       gemstoneData.photo_url,
       gemstoneData.qr_code_data_url,
     ];
@@ -1633,11 +1633,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       color,
       treatment,
       origin,
-      level_1_rough_seller,
-      level_2_cutter,
-      level_3_polisher,
-      level_4_first_seller,
-      level_5_gemologist_lab,
+      rough_seller,
+      cutter,
+      polisher,
+      first_seller,
+      gemologist_lab,
     } = req.body;
 
     if (!id) {
@@ -1660,11 +1660,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       color: color ?? existing.color,
       treatment: treatment ?? existing.treatment,
       origin: origin ?? existing.origin,
-      level_1_rough_seller: level_1_rough_seller ?? existing.level_1_rough_seller,
-      level_2_cutter: level_2_cutter ?? existing.level_2_cutter,
-      level_3_polisher: level_3_polisher ?? existing.level_3_polisher,
-      level_4_first_seller: level_4_first_seller ?? existing.level_4_first_seller,
-      level_5_gemologist_lab: level_5_gemologist_lab ?? existing.level_5_gemologist_lab,
+      rough_seller: rough_seller ?? existing.rough_seller,
+      cutter: cutter ?? existing.cutter,
+      polisher: polisher ?? existing.polisher,
+      first_seller: first_seller ?? existing.first_seller,
+      gemologist_lab: gemologist_lab ?? existing.gemologist_lab,
       photo_url: existing.photo_url,
     };
 
@@ -1687,11 +1687,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
         color = ?,
         treatment = ?,
         origin = ?,
-        level_1_rough_seller = ?,
-        level_2_cutter = ?,
-        level_3_polisher = ?,
-        level_4_first_seller = ?,
-        level_5_gemologist_lab = ?,
+        rough_seller = ?,
+        cutter = ?,
+        polisher = ?,
+        first_seller = ?,
+        gemologist_lab = ?,
         photo_url = ?
       WHERE id = ?
     `;
@@ -1704,11 +1704,11 @@ app.put('/api/gemstones/:id', verifyToken, upload.single('gemstoneImage'), handl
       fields.color,
       fields.treatment,
       fields.origin,
-      fields.level_1_rough_seller,
-      fields.level_2_cutter,
-      fields.level_3_polisher,
-      fields.level_4_first_seller,
-      fields.level_5_gemologist_lab,
+      fields.rough_seller,
+      fields.cutter,
+      fields.polisher,
+      fields.first_seller,
+      fields.gemologist_lab,
       fields.photo_url,
       id,
     ];
