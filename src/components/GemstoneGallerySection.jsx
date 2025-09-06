@@ -101,7 +101,7 @@ const GemstoneGallerySection = ({ gemstoneId, showUploadModal, onCloseUploadModa
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {photos.map((photo) => (
               <div key={photo.id} className="group relative bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="aspect-square">

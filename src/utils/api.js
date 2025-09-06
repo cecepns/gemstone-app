@@ -55,8 +55,6 @@ const handleResponse = async(response) => {
  * @returns {string} - User-friendly error message
  */
 const handleError = (error) => {
-  console.error('API Error:', error);
-
   if (error.name === 'TypeError' && error.message.includes('fetch')) {
     return 'Tidak dapat terhubung ke server. Pastikan backend sedang berjalan.';
   }
@@ -511,5 +509,39 @@ export const downloadDatabaseBackup = async(authHeader) => {
   const match = disposition.match(/filename="?([^";]+)"?/i);
   const filename = match ? match[1] : 'gemstone_backup.sql';
   return { blob, filename };
+};
+
+// ======================================
+// SETTINGS API FUNCTIONS
+// ======================================
+
+/**
+ * Get all settings
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Settings response
+ */
+export const getSettings = async(authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiGet('/settings', { token });
+};
+
+/**
+ * Update setting by key
+ * @param {string} key - Setting key
+ * @param {string} value - Setting value
+ * @param {Object} authHeader - Auth header from getAuthHeader()
+ * @returns {Promise<Object>} - Update response
+ */
+export const updateSetting = async(key, value, authHeader) => {
+  const token = authHeader ? extractTokenFromHeader(authHeader) : null;
+  return await apiPut(`/settings/${key}`, { data: { setting_value: value }, token });
+};
+
+/**
+ * Get public settings (no authentication required)
+ * @returns {Promise<Object>} - Public settings response
+ */
+export const getPublicSettings = async() => {
+  return await apiGet('/settings/public');
 };
 
