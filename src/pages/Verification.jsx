@@ -7,9 +7,9 @@ import {
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import GemstoneLevelCard from '../components/GemstoneLevelCard';
 import PublicGemstoneGallery from '../components/PublicGemstoneGallery';
 import GemstoneImageSection from '../components/shared/GemstoneImageSection';
+import GemstoneLevelCard from '../components/shared/GemstoneLevelCard';
 import GemstoneSpecifications from '../components/shared/GemstoneSpecifications';
 import OwnerHistoryTable from '../components/shared/OwnerHistoryTable';
 import { Card } from '../components/ui';

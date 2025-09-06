@@ -27,13 +27,15 @@ const GemstonePrintCard = ({ gemstone }) => {
   const websiteUrl = window.location.origin;
 
   const currentLevel = useMemo(() => {
-    return (
-      gemstone.gemologist_lab ? 5 :
-        gemstone.first_seller ? 4 :
-          gemstone.polisher ? 3 :
-            gemstone.cutter ? 2 :
-              gemstone.rough_seller ? 1 : 0
-    );
+    // Data fields yang menjadi acuan level
+    const levelFields = ['rough_seller', 'cutter', 'polisher', 'first_seller', 'gemologist_lab'];
+
+    // Hitung jumlah data yang sudah diisi
+    const completedData = levelFields.filter(field =>
+      gemstone[field] && gemstone[field].trim() !== '',
+    ).length;
+
+    return completedData;
   }, [gemstone]);
 
   const currentLevelColor = useMemo(() => {

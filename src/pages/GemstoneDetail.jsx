@@ -14,9 +14,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import GemstoneGallerySection from '../components/GemstoneGallerySection';
-import GemstoneLevelCard from '../components/GemstoneLevelCard';
 import PrintPreviewModal from '../components/PrintPreviewModal';
 import GemstoneImageSection from '../components/shared/GemstoneImageSection';
+import GemstoneLevelCard from '../components/shared/GemstoneLevelCard';
 import GemstoneSpecifications from '../components/shared/GemstoneSpecifications';
 import OwnerHistoryTable from '../components/shared/OwnerHistoryTable';
 import { Button, Card, Alert, AddEditOwnerModal, DeleteOwnerModal, OwnerDetailModal } from '../components/ui';
