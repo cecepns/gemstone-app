@@ -473,7 +473,7 @@ const GemstoneForm = ({
 
             <div className="grid md:grid-cols-2 gap-6">
               <Input
-                label="Level 1 - Penjual Rough"
+                label="Penjual Rough"
                 name="rough_seller"
                 type="text"
                 value={formData.rough_seller}
@@ -484,7 +484,7 @@ const GemstoneForm = ({
                 className="bg-white/50 backdrop-blur-sm"
               />
               <Input
-                label="Level 2 - Tukang Potong"
+                label="Tukang Potong"
                 name="cutter"
                 type="text"
                 value={formData.cutter}
@@ -498,7 +498,7 @@ const GemstoneForm = ({
 
             <div className="grid md:grid-cols-2 gap-6">
               <Input
-                label="Level 3 - Tukang Poles"
+                label="Tukang Poles"
                 name="polisher"
                 type="text"
                 value={formData.polisher}
@@ -509,7 +509,7 @@ const GemstoneForm = ({
                 className="bg-white/50 backdrop-blur-sm"
               />
               <Input
-                label="Level 4 - Seller Pertama"
+                label="Seller Pertama"
                 name="first_seller"
                 type="text"
                 value={formData.first_seller}
@@ -522,7 +522,7 @@ const GemstoneForm = ({
             </div>
 
             <Input
-              label="Level 5 - Lab Gemologist Resmi"
+              label="Lab Gemologist Resmi"
               name="gemologist_lab"
               type="text"
               value={formData.gemologist_lab}
