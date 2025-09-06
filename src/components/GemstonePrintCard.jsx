@@ -133,9 +133,9 @@ const GemstonePrintCard = ({ gemstone }) => {
         <div className="print-card-content">
           {/* Left side - Image and Barcode */}
           <div className="print-left-side">
-            <div className="print-report-number" style={{ color: currentLevelColor }}>
-              No: {gemstone.unique_id_number}
-            </div>
+            <p className="print-report-number" style={{ color: currentLevelColor }}>
+              {gemstone.unique_id_number}
+            </p>
 
             <div className="print-image-container">
               {gemstone.photo_url ? (
