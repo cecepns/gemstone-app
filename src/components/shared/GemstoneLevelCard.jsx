@@ -178,10 +178,10 @@ const GemstoneLevelCard = ({
   return (
     <Card variant="elevated" padding="lg" className={className}>
       <Card.Header>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0"
               style={{
                 backgroundColor: levelInfo.bgColor,
                 borderColor: levelInfo.borderColor,
@@ -189,17 +189,17 @@ const GemstoneLevelCard = ({
                 borderStyle: 'solid',
               }}
             >
-              <LevelIcon className="w-6 h-6" style={{ color: levelInfo.color }} />
+              <LevelIcon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: levelInfo.color }} />
             </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900 truncate">
                 {title}
               </h2>
-              <p className="text-sm text-gray-600">{subtitle}</p>
+              <p className="text-xs sm:text-sm text-gray-600 truncate">{subtitle}</p>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold" style={{ color: levelInfo.color }}>
+          <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
+            <div className="text-xl sm:text-2xl font-bold" style={{ color: levelInfo.color }}>
               {levelInfo.title}
             </div>
             <div className="text-xs text-gray-500">
@@ -210,8 +210,8 @@ const GemstoneLevelCard = ({
       </Card.Header>
 
       <Card.Body>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
             {levels.map((level) => {
               const hasData = gemstone[level.key] && gemstone[level.key].trim() !== '';
               const IconComponent = level.icon;
@@ -219,26 +219,26 @@ const GemstoneLevelCard = ({
               return (
                 <div
                   key={level.key}
-                  className={`flex items-center gap-3 p-3 rounded-lg border ${
+                  className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border ${
                     hasData
                       ? 'bg-green-50 border-green-200'
                       : 'bg-gray-50 border-gray-200'
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       hasData ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-400'
                     }`}
                   >
                     {hasData ? (
-                      <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                     ) : (
-                      <IconComponent className="w-4 h-4" />
+                      <IconComponent className="w-3 h-3 sm:w-4 sm:h-4" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p
-                      className={`text-sm font-medium ${
+                      className={`text-xs sm:text-sm font-medium truncate ${
                         hasData ? 'text-green-800' : 'text-gray-500'
                       }`}
                     >
