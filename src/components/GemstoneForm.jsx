@@ -498,12 +498,12 @@ const GemstoneForm = ({
 
             <div className="grid md:grid-cols-2 gap-6">
               <Input
-                label="Tukang Poles"
+                label="Finisher"
                 name="polisher"
                 type="text"
                 value={formData.polisher}
                 onChange={handleInputChange}
-                placeholder="Data tukang poles"
+                placeholder="Data finisher"
                 disabled={saving}
                 size="md"
                 className="bg-white/50 backdrop-blur-sm"

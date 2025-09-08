@@ -79,10 +79,10 @@ const GemstoneLevelCard = ({
     },
     {
       key: 'polisher',
-      title: 'Tukang Poles',
-      description: 'Data tukang poles yang memoles batu mulia',
+      title: 'Finisher',
+      description: 'Data finisher yang memoles batu mulia',
       icon: Sparkles,
-      shortDesc: 'Polisher',
+      shortDesc: 'Finisher',
     },
     {
       key: 'first_seller',

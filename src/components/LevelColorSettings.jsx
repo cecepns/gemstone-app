@@ -29,7 +29,7 @@ const LevelColorSettings = () => {
   const levelDescriptions = {
     level_1_color: 'Level 1 - Penjual Rough',
     level_2_color: 'Level 2 - Tukang Potong',
-    level_3_color: 'Level 3 - Tukang Poles',
+    level_3_color: 'Level 3 - Finisher',
     level_4_color: 'Level 4 - Seller Pertama',
     level_5_color: 'Level 5 - Lab Gemologist',
   };
