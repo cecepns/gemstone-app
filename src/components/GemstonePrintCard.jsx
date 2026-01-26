@@ -253,7 +253,7 @@ const GemstonePrintCard = ({ gemstone }) => {
             <h3 className="print-back-section-title" style={{ color: currentLevelColor }}>Disclaimer</h3>
             <div className="print-back-info">
               <p>
-                Kartu ini diverifikasi laboratorium terakreditasi dan berlaku sebagai sertifikat keaslian batu mulia.
+                Memo ini bukan memo lab gemologist, tetapi memo biografi batu.
               </p>
             </div>
           </div>
