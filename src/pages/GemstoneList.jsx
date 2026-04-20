@@ -1,6 +1,6 @@
 // ANCHOR: GemstoneList Component - Display and manage gemstone data
-import { Gem, Search, Smartphone, Edit, CheckCircle, AlertCircle, FileText, Plus, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Gem, Search, Edit, Plus, Trash2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
@@ -21,12 +21,20 @@ const GemstoneList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 40,
+    total: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, gemstone: null });
 
   /**
    * Fetch gemstones from API
    */
-  const fetchGemstones = async() => {
+  const fetchGemstones = useCallback(async() => {
     try {
       setIsLoading(true);
       setError('');
@@ -34,55 +42,34 @@ const GemstoneList = () => {
       // Use API utility to fetch gemstones
       const result = await getGemstones({
         authHeader: getAuthHeader(),
+        params: {
+          page: pagination.page,
+          limit: pagination.limit,
+          search: searchTerm,
+          sortBy,
+          sortOrder,
+        },
       });
 
       setGemstones(result.data || []);
+      if (result.pagination) {
+        setPagination(prev => ({
+          ...prev,
+          ...result.pagination,
+        }));
+      }
     } catch (error) {
       console.error('Error fetching gemstones:', error);
       setError(error.message || 'Failed to load gemstone data');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [getAuthHeader, pagination.page, pagination.limit, searchTerm, sortBy, sortOrder]);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchGemstones();
-  }, []);
-
-  /**
-   * Filter and sort gemstones
-   */
-  const filteredAndSortedGemstones = gemstones
-    .filter(gemstone =>
-      gemstone.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gemstone.unique_id_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gemstone.color?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gemstone.origin?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      gemstone.current_owner_name?.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    .sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
-
-      // Handle different data types
-      if (sortBy === 'weight_carat') {
-        aValue = parseFloat(aValue) || 0;
-        bValue = parseFloat(bValue) || 0;
-      } else if (sortBy === 'created_at') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
+  }, [fetchGemstones]);
 
   /**
    * Format date for display
@@ -105,6 +92,10 @@ const GemstoneList = () => {
    */
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+    }));
   };
 
   /**
@@ -117,6 +108,25 @@ const GemstoneList = () => {
       setSortBy(field);
       setSortOrder('asc');
     }
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+    }));
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({
+      ...prev,
+      page: newPage,
+    }));
+  };
+
+  const handleItemsPerPageChange = (newLimit) => {
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+      limit: newLimit,
+    }));
   };
 
   /**
@@ -360,7 +370,7 @@ const GemstoneList = () => {
 
         {/* Gemstone Table */}
         <Table
-          data={filteredAndSortedGemstones}
+          data={gemstones}
           columns={columns}
           loading={isLoading}
           error={error}
@@ -390,6 +400,20 @@ const GemstoneList = () => {
           hoverable
           sortable={false}
         />
+
+        {!isLoading && !error && pagination.total > 0 && (
+          <Table.Footer>
+            <Table.Pagination
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.total}
+              itemsPerPage={pagination.limit}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+              itemsPerPageOptions={[20, 40, 50, 100]}
+            />
+          </Table.Footer>
+        )}
       </Card>
 
       <DeleteConfirmationModal
